@@ -1,21 +1,18 @@
+import type { Member, Permission } from "../../../deps.ts";
+
 import { botCache } from "../../../mod.ts";
-import {
-  memberIDHasPermission,
-  Member,
-  avatarURL,
-  Permission,
-  Permissions,
-} from "../../../deps.ts";
+import { memberIDHasPermission, Permissions } from "../../../deps.ts";
 import { Embed } from "../../utils/Embed.ts";
 import { translate } from "../../utils/i18next.ts";
 import {
-  sendEmbed,
-  createCommandAliases,
+  createCommand,
   humanizeMilliseconds,
+  sendEmbed,
 } from "../../utils/helpers.ts";
 
-botCache.commands.set(`user`, {
+createCommand({
   name: `user`,
+  aliases: ["userinfo", "ui"],
   guildOnly: true,
   arguments: [
     {
@@ -27,11 +24,11 @@ botCache.commands.set(`user`, {
   execute: async (message, args: UserInfoArgs, guild) => {
     if (!guild) return;
 
-    const member = args.member || message.member();
+    const member = args.member || guild.members.get(message.author.id);
     if (!member) return;
 
     // const activity = await analyticsDatabase.find({
-    //   userID: member.user.id,
+    //   userID: member.id,
     //   guildID: guild.id,
     //   type: "MESSAGE_CREATE",
     // })
@@ -46,13 +43,13 @@ botCache.commands.set(`user`, {
       .map((id) => `<@&${id}>`)
       .join(`, `);
 
-    const createdAt = botCache.helpers.snowflakeToTimestamp(member.user.id);
+    const createdAt = botCache.helpers.snowflakeToTimestamp(member.id);
     const memberPerms = Object.keys(Permissions).filter((key) =>
       isNaN(Number(key))
     )
       .map((key) =>
         memberIDHasPermission(
-            member.user.id,
+            member.id,
             member.guildID,
             [key as Permission],
           )
@@ -61,9 +58,9 @@ botCache.commands.set(`user`, {
       ).filter((k) => k);
 
     const embed = new Embed()
-      .setAuthor(member.nick || member.tag, avatarURL(member))
-      .setThumbnail(avatarURL(member))
-      .addField(translate(guild.id, "common:USER_ID"), member.user.id, true)
+      .setAuthor(member.nick || member.tag, member.avatarURL)
+      .setThumbnail(member.avatarURL)
+      .addField(translate(guild.id, "common:USER_ID"), member.id, true)
       .addField(
         translate(guild.id, "common:CREATED_ON"),
         [
@@ -105,8 +102,6 @@ botCache.commands.set(`user`, {
     // TODO: Complete mission
   },
 });
-
-createCommandAliases("user", ["userinfo", "ui"]);
 
 interface UserInfoArgs {
   member?: Member;

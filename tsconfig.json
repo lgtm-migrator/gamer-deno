@@ -1,0 +1,9 @@
+{
+  "compileOnSave": true,
+  "include": [
+    "./src/**/*.ts",
+    "configs.ts",
+    "mod.ts",
+    "deps.ts"
+  ]
+}

@@ -1,4 +1,4 @@
-import { Message, Guild, Permission, Collection } from "../../deps.ts";
+import type { Collection, Guild, Message, Permission } from "../../deps.ts";
 
 export interface Command {
   name: string;
@@ -26,6 +26,7 @@ export interface Command {
   subcommands?: Collection<string, Command>;
   usage?: string | string[];
   vipServerOnly?: boolean;
+  // deno-lint-ignore no-explicit-any
   execute?: (message: Message, args: any, guild?: Guild) => unknown;
 }
 
@@ -35,6 +36,7 @@ export interface CommandArgument {
   /** The type of the argument you would like. Defaults to string. */
   type?:
     | "number"
+    | "emoji"
     | "string"
     | "...string"
     | "boolean"

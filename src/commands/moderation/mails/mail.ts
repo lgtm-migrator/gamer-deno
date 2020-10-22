@@ -1,7 +1,8 @@
 import { botCache } from "../../../../mod.ts";
-import { mailsDatabase } from "../../../database/schemas/mails.ts";
+import { db } from "../../../database/database.ts";
+import { createCommand } from "../../../utils/helpers.ts";
 
-botCache.commands.set("mail", {
+createCommand({
   name: "mail",
   aliases: ["mails", "m"],
   arguments: [
@@ -20,20 +21,18 @@ botCache.commands.set("mail", {
     const settings = await botCache.helpers.upsertGuild(message.guildID);
     if (!settings?.mailsEnabled) return botCache.helpers.reactError(message);
 
-    const member = message.member();
+    const member = guild?.members.get(message.author.id);
     if (!member) return botCache.helpers.reactError(message);
 
     if (!botCache.helpers.isModOrAdmin(message, settings)) {
-      console.log(2);
       return botCache.helpers.mailHandleSupportChannel(message, args.content);
     }
 
-    const mail = await mailsDatabase.findOne({ channelID: message.channelID });
+    const mail = await db.mails.get(message.channelID);
     if (!mail) {
       return botCache.helpers.mailHandleSupportChannel(message, args.content);
     }
 
-    console.log(3, args);
     botCache.commands.get("mail")
       ?.subcommands?.get("reply")
       ?.execute?.(message, args, guild);

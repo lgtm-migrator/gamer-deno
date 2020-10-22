@@ -1,5 +1,5 @@
 import { botCache } from "../../mod.ts";
-import { botID, logger, cache } from "../../deps.ts";
+import { botID, cache } from "../../deps.ts";
 import { configs } from "../../configs.ts";
 
 botCache.tasks.set(`botlists`, {
@@ -77,11 +77,11 @@ botCache.tasks.set(`botlists`, {
         },
         body: JSON.stringify(list.data),
       }).then(() => {
-        logger.success(
+        console.log(
           `Update Bot Lists: [${list.name}] ${totalGuilds} Guilds | ${totalUsers} Users`,
         );
       }).catch((err) => {
-        logger.error({ location: "botlists file", err });
+        console.error({ location: "botlists file", err });
       });
     }
   },

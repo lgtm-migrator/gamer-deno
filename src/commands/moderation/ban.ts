@@ -1,17 +1,18 @@
+import type { Member } from "../../../deps.ts";
+
 import {
-  highestRole,
-  higherRolePosition,
-  Member,
-  botID,
   ban,
+  botID,
   getBans,
+  higherRolePosition,
+  highestRole,
   sendDirectMessage,
 } from "../../../deps.ts";
 import { botCache } from "../../../mod.ts";
 import { PermissionLevels } from "../../types/commands.ts";
-import { getMember } from "https://x.nest.land/Discordeno@8.4.6/src/handlers/guild.ts";
+import { createCommand } from "../../utils/helpers.ts";
 
-botCache.commands.set(`ban`, {
+createCommand({
   name: `ban`,
   aliases: ["b"],
   permissionLevels: [PermissionLevels.MODERATOR, PermissionLevels.ADMIN],
@@ -26,12 +27,15 @@ botCache.commands.set(`ban`, {
     if (!guild) return;
 
     if (args.member) {
-      const botsHighestRole = highestRole(message.guildID, botID);
-      const membersHighestRole = highestRole(
+      const botsHighestRole = await highestRole(message.guildID, botID);
+      const membersHighestRole = await highestRole(
         message.guildID,
-        args.member.user.id,
+        args.member.id,
       );
-      const modsHighestRole = highestRole(message.guildID, message.author.id);
+      const modsHighestRole = await highestRole(
+        message.guildID,
+        message.author.id,
+      );
 
       if (
         !botsHighestRole || !membersHighestRole ||
@@ -65,31 +69,25 @@ botCache.commands.set(`ban`, {
 
     await sendDirectMessage(
       userID,
-      `You have been banned from **${guild.name}** by **${message.author.username}** because of: *${args.reason}*.`,
-    );
+      `**__You have been banned__\nServer:** *${guild.name}*\n**Moderator:** *${message.author.username}*\n**Reason:** *${args.reason}*`,
+    ).catch(() => undefined);
 
     ban(message.guildID, userID, {
       days: 1,
       reason: args.reason,
     });
 
-    botCache.helpers.reactSuccess(message);
-
-    const member = args.member ||
-      (args.userID
-        ? guild.members.get(args.userID) ||
-          await getMember(guild.id, args.userID).catch(() => undefined)
-        : undefined);
-
-    return botCache.helpers.createModlog(
+    botCache.helpers.createModlog(
       message,
       {
         action: "ban",
         reason: args.reason,
-        member,
-        userID,
+        member: args.member,
+        userID: args.member?.user.id,
       },
     );
+
+    return botCache.helpers.reactSuccess(message);
   },
 });
 

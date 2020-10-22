@@ -1,13 +1,10 @@
 // DEV PURPOSES ONLY
-import { botCache } from "../../../mod.ts";
 import { PermissionLevels } from "../../types/commands.ts";
-import { modlogsDatabase } from "../../database/schemas/modlogs.ts";
+import { createCommand } from "../../utils/helpers.ts";
 
-botCache.commands.set(`ddb`, {
+createCommand({
   name: `ddb`,
   permissionLevels: [PermissionLevels.BOT_OWNER],
-  execute: async function (message) {
-    // guildsDatabase.deleteMany({});
-    modlogsDatabase.deleteMany({});
+  execute: async function (message, args, guild) {
   },
 });

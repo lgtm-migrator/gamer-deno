@@ -1,8 +1,9 @@
-import { Role } from "../../../../../deps.ts";
+import type { Role } from "../../../../../deps.ts";
+
 import { botCache } from "../../../../../mod.ts";
+import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
-import { guildsDatabase } from "../../../../database/schemas/guilds.ts";
 
 createSubcommand("settings-mails", {
   name: "roles",
@@ -28,8 +29,8 @@ createSubcommand("settings-mails", {
         ),
     );
 
-    guildsDatabase.updateOne({ guildID: message.guildID }, {
-      $set: { mailsRoleIDs: [...roleIDs.values()] },
+    db.guilds.update(message.guildID, {
+      mailsRoleIDs: [...roleIDs.values()],
     });
 
     botCache.helpers.reactSuccess(message);

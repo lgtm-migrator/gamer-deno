@@ -1,8 +1,8 @@
+import { sendMessage } from "../../../../../deps.ts";
 import { botCache } from "../../../../../mod.ts";
+import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
-import { createSubcommand, sendResponse } from "../../../../utils/helpers.ts";
-import { guildsDatabase } from "../../../../database/schemas/guilds.ts";
-import { sendMessage } from "https://x.nest.land/Discordeno@8.4.2/src/handlers/channel.ts";
+import { createSubcommand } from "../../../../utils/helpers.ts";
 
 createSubcommand("settings-mails", {
   name: "questions",
@@ -14,7 +14,7 @@ createSubcommand("settings-mails", {
   ],
   execute: async function (message) {
     // .settings mails questions should show the current list
-    const settings = await guildsDatabase.findOne({ guildID: message.guildID });
+    const settings = await db.guilds.get(message.guildID);
     if (!settings) return botCache.helpers.reactError(message);
 
     let counter = 1;
@@ -32,7 +32,9 @@ createSubcommand("settings-mails", {
 
       if (question.options?.length) response.push(question.options.join("\n"));
 
-      sendMessage(message.channel, response.join("\n"));
+      sendMessage(message.channelID, response.join("\n"));
+
+      counter++;
     }
   },
 });

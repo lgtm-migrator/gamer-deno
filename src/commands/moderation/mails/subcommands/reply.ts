@@ -1,16 +1,10 @@
 import { botCache } from "../../../../../mod.ts";
 import { createSubcommand, sendEmbed } from "../../../../utils/helpers.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
-import { mailsDatabase } from "../../../../database/schemas/mails.ts";
-import { tagsDatabase } from "../../../../database/schemas/tags.ts";
-import {
-  sendMessage,
-  sendDirectMessage,
-  avatarURL,
-  cache,
-} from "../../../../../deps.ts";
+import { cache, sendDirectMessage, sendMessage } from "../../../../../deps.ts";
 import { Embed } from "../../../../utils/Embed.ts";
 import { translate } from "../../../../utils/i18next.ts";
+import { db } from "../../../../database/database.ts";
 
 createSubcommand("mail", {
   name: "reply",
@@ -33,10 +27,10 @@ createSubcommand("mail", {
   execute: async (message, args: MailReplyArgs, guild) => {
     if (!guild) return botCache.helpers.reactError(message);
 
-    const member = message.member();
+    const member = guild.members.get(message.author.id);
     if (!member) return botCache.helpers.reactError(message);
 
-    const mail = await mailsDatabase.findOne({ channelID: message.channelID });
+    const mail = await db.mails.get(message.channelID);
     if (!mail) return botCache.helpers.reactError(message);
 
     const logChannel = guild.channels.find((c) =>
@@ -45,7 +39,7 @@ createSubcommand("mail", {
 
     // If the moderator is trying to send a tag
     if (args.content.split(" ").length === 1) {
-      const tag = await tagsDatabase.findOne({
+      const tag = await db.tags.findOne({
         guildID: message.guildID,
         mailOnly: true,
         name: args.content.toLowerCase(),
@@ -57,7 +51,7 @@ createSubcommand("mail", {
           tag.embedCode,
           member,
           guild,
-          message.member(),
+          member,
         );
 
         let success = false;
@@ -78,13 +72,13 @@ createSubcommand("mail", {
           botCache.helpers.reactSuccess(message);
           // Show the tag sent to the mods
           sendMessage(
-            message.channel,
+            message.channelID,
             { content: embed.plaintext, embed },
           );
           success = true;
 
           if (logChannel) {
-            sendMessage(logChannel, { content: embed.plaintext, embed });
+            sendMessage(logChannel.id, { content: embed.plaintext, embed });
           }
         } catch (error) {
           // Something went wrong somewhere so show it failed
@@ -99,16 +93,12 @@ createSubcommand("mail", {
     const mainGuild = cache.guilds.get(mail.mainGuildID);
     if (!mainGuild) return;
 
-    const supportChannel = mainGuild?.channels.find((c) =>
-      Boolean(c.topic?.includes("gamerSupportChannel"))
-    );
-
     const embed = new Embed()
       .setAuthor(
         args.anonymous && botCache.vipGuildIDs.has(mainGuild.id)
           ? mainGuild.name
           : member.tag,
-        avatarURL(member),
+        member.avatarURL,
       )
       .setDescription(args.content)
       .setTimestamp();

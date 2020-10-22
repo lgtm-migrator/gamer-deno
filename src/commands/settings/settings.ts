@@ -1,7 +1,7 @@
-import { botCache } from "../../../mod.ts";
 import { PermissionLevels } from "../../types/commands.ts";
+import { createCommand } from "../../utils/helpers.ts";
 
-botCache.commands.set("settings", {
+createCommand({
   name: "settings",
   aliases: ["s"],
   permissionLevels: [PermissionLevels.ADMIN],
@@ -9,6 +9,5 @@ botCache.commands.set("settings", {
     { name: "subcommand", type: "subcommand" },
   ],
   execute: (message, args, guild) => {
-		
   },
 });

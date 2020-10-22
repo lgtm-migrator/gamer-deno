@@ -1,22 +1,26 @@
 import { botCache } from "../../../mod.ts";
 import { PermissionLevels } from "../../types/commands.ts";
-import { sendResponse, createSubcommand } from "../../utils/helpers.ts";
-import { guildsDatabase } from "../../database/schemas/guilds.ts";
+import {
+  createCommand,
+  createSubcommand,
+  sendResponse,
+} from "../../utils/helpers.ts";
 import { sendMessage } from "../../../deps.ts";
+import { db } from "../../database/database.ts";
 
 // This command will only execute if there was no valid sub command: !language
-botCache.commands.set("language", {
+createCommand({
   name: "language",
   arguments: [
     {
       name: "subcommmand",
       type: "subcommand",
-      literals: ["set"],
+      required: false,
     },
   ],
   guildOnly: true,
   permissionLevels: [PermissionLevels.MEMBER],
-  execute: (message, args) => {
+  execute: (message) => {
     const language = botCache.guildLanguages.get(message.guildID) || "en_US";
     sendResponse(
       message,
@@ -27,7 +31,7 @@ botCache.commands.set("language", {
     );
 
     sendMessage(
-      message.channel,
+      message.channelID,
       botCache.constants.personalities.map((personality, index) =>
         `${index + 1}. ${personality.name}`
       ).join("\n"),
@@ -63,22 +67,17 @@ createSubcommand("language", {
     );
     const languageID = language?.id || "en_US";
 
-    const settings = await guildsDatabase.find({ guildID: message.guildID });
+    const settings = await db.guilds.get(message.guildID);
     if (!settings) {
-      guildsDatabase.insertOne(
-        {
-          guildID: message.guildID,
-          language: languageID || "en_US",
-          prefix: ".",
-        },
-      );
+      db.guilds.create(message.guildID, {
+        guildID: message.guildID,
+        language: languageID || "en_US",
+        prefix: ".",
+      });
     } else if (
       (botCache.guildLanguages.get(message.guildID) || "en_US") !== languageID
     ) {
-      guildsDatabase.updateOne(
-        { guildID: message.guildID },
-        { language: languageID || "en_US" },
-      );
+      db.guilds.update(message.guildID, { language: languageID || "en_US" });
     }
 
     botCache.guildLanguages.set(message.guildID, languageID || "en_US");

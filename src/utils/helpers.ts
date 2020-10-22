@@ -1,17 +1,17 @@
+import type { Message, MessageContent } from "../../deps.ts";
+import type { Embed } from "./Embed.ts";
+import type { Command } from "../types/commands.ts";
+
+import { botCache } from "../../mod.ts";
 import {
-  MessageContent,
-  sendMessage,
-  deleteMessage,
-  editMessage,
-  Message,
+  botHasChannelPermissions,
   cache,
   Collection,
+  deleteMessage,
+  editMessage,
+  Permissions,
+  sendMessage,
 } from "../../deps.ts";
-import { botCache } from "../../mod.ts";
-import { Embed } from "./Embed.ts";
-import { Command } from "../types/commands.ts";
-import { botHasChannelPermissions } from "https://x.nest.land/Discordeno@8.4.6/src/utils/permissions.ts";
-import { Permissions } from "https://x.nest.land/Discordeno@8.4.6/src/types/permission.ts";
 
 /** This function should be used when you want to send a response that will @mention the user and delete it after a certain amount of seconds. By default, it will be deleted after 10 seconds. */
 export async function sendAlertResponse(
@@ -34,7 +34,7 @@ export function sendResponse(
     ? `${mention}, ${content}`
     : { ...content, content: `${mention}, ${content.content}` };
 
-  return sendMessage(message.channel, contentWithMention);
+  return sendMessage(message.channelID, contentWithMention);
 }
 
 /** This function should be used when you want to convert milliseconds to a human readable format like 1d5h. */
@@ -98,25 +98,10 @@ export function stringToMilliseconds(text: string) {
   return total;
 }
 
-/** This function should be used to create command aliases. */
-export function createCommandAliases(
-  commandName: string,
-  aliases: string | string[],
+export function createCommand(
+  command: Command,
 ) {
-  if (typeof aliases === "string") aliases = [aliases];
-
-  const command = botCache.commands.get(commandName);
-  if (!command) return;
-
-  if (!command.aliases) {
-    command.aliases = aliases;
-    return;
-  }
-
-  for (const alias of aliases) {
-    if (command.aliases.includes(alias)) continue;
-    command.aliases.push(alias);
-  }
+  botCache.commands.set(command.name, command);
 }
 
 export function createSubcommand(
@@ -181,7 +166,7 @@ export function sendEmbed(channelID: string, embed: Embed, content?: string) {
     return;
   }
 
-  return sendMessage(channel, { content, embed, file: embed.file });
+  return sendMessage(channel.id, { content, embed, file: embed.file });
 }
 
 /** Use this function to edit an embed with ease. */
@@ -194,6 +179,8 @@ let uniqueFilePathCounter = 0;
 /** This function allows reading all files in a folder. Useful for loading/reloading commands, monitors etc */
 export async function importDirectory(path: string) {
   const files = Deno.readDirSync(Deno.realPathSync(path));
+  const folder = path.substring(path.indexOf("/src/") + 5);
+  if (!folder.includes("/")) console.log(`Loading ${folder}...`);
 
   const directories: string[] = [];
   for (const file of files) {
@@ -214,4 +201,21 @@ export async function importDirectory(path: string) {
   }
 
   uniqueFilePathCounter++;
+}
+
+export function getTime() {
+  const now = new Date();
+  const hours = now.getHours();
+  const minute = now.getMinutes();
+
+  let hour = hours;
+  let amOrPm = `AM`;
+  if (hour > 12) {
+    amOrPm = `PM`;
+    hour = hour - 12;
+  }
+
+  return `${hour >= 10 ? hour : `0${hour}`}:${
+    minute >= 10 ? minute : `0${minute}`
+  } ${amOrPm}`;
 }

@@ -1,17 +1,20 @@
-import { botCache } from "../../../mod.ts";
-import { guildIconURL, getMember } from "../../../deps.ts";
 import { Embed } from "../../utils/Embed.ts";
+import { getMember, guildIconURL, Member } from "../../../deps.ts";
+import { createCommand, sendEmbed } from "../../utils/helpers.ts";
+import { botCache } from "../../../mod.ts";
 import { translate } from "../../utils/i18next.ts";
-import { sendEmbed, createCommandAliases } from "../../utils/helpers.ts";
 
-botCache.commands.set(`server`, {
+createCommand({
   name: `server`,
+  aliases: ["serverinfo", "si"],
   guildOnly: true,
   execute: async (message, _args, guild) => {
     if (!guild) return;
 
     const owner = guild.members.get(guild.ownerID) ||
-      await getMember(guild.id, guild.ownerID).catch(() => undefined);
+      await getMember(guild.id, guild.ownerID).catch(() =>
+        undefined
+      ) as unknown as Member;
 
     let firstEmojis = "";
     let secondEmojis = "";
@@ -86,7 +89,7 @@ botCache.commands.set(`server`, {
           botCache.helpers.toTitleCase(feature.split("_").join(" "))
         ).join(
           ", ",
-        ),
+        ) || "None",
       )
       .setFooter(guild.id)
       .setTimestamp(botCache.helpers.snowflakeToTimestamp(guild.id));
@@ -102,5 +105,3 @@ botCache.commands.set(`server`, {
     return sendEmbed(message.channelID, embed);
   },
 });
-
-createCommandAliases("server", ["serverinfo", "si"]);

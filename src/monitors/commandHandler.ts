@@ -1,26 +1,25 @@
+import type { Guild, Message } from "../../deps.ts";
+import type { Command } from "../types/commands.ts";
+
+import { botCache } from "../../mod.ts";
+import { configs } from "../../configs.ts";
+import { translate } from "../utils/i18next.ts";
+import { getTime, sendResponse } from "../utils/helpers.ts";
+import { handleError } from "../utils/errors.ts";
 import {
-  Message,
-  logger,
-  Guild,
-  botID,
-  getTime,
-  deleteMessage,
-  red,
   bgBlack,
-  bgGreen,
   bgBlue,
+  bgGreen,
+  bgMagenta,
   bgYellow,
   black,
+  botID,
+  cache,
+  deleteMessage,
   green,
+  red,
   white,
-  bgMagenta
 } from "../../deps.ts";
-import { configs } from "../../configs.ts";
-import { botCache } from "../../mod.ts";
-import { handleError } from "../utils/errors.ts";
-import { Command } from "../types/commands.ts";
-import { sendResponse } from "../utils/helpers.ts";
-import { translate } from "../utils/i18next.ts";
 
 export const parsePrefix = (guildID: string | undefined) => {
   const prefix = guildID ? botCache.guildPrefixes.get(guildID) : configs.prefix;
@@ -103,7 +102,7 @@ async function parseArguments(
     }
 
     // Invalid arg provided.
-    if (argument.hasOwnProperty("defaultValue")) {
+    if (Object.prototype.hasOwnProperty.call(argument, "defaultValue")) {
       args[argument.name] = argument.defaultValue;
     } else if (argument.required !== false) {
       missingRequiredArg = true;
@@ -147,7 +146,7 @@ async function executeCommand(
 
     // Parsed args and validated
     const args = await parseArguments(message, command, parameters) as {
-      [key: string]: any;
+      [key: string]: unknown;
     } | false;
     // Some arg that was required was missing and handled already
     if (!args) {
@@ -157,7 +156,7 @@ async function executeCommand(
 
     // If no subcommand execute the command
     const [argument] = command.arguments || [];
-    const subcommand = argument ? args[argument.name] : undefined;
+    const subcommand = argument ? args[argument.name] as Command : undefined;
 
     if (!argument || argument.type !== "subcommand" || !subcommand) {
       // Check subcommand permissions and options
@@ -219,7 +218,7 @@ botCache.monitors.set("commandHandler", {
     const command = parseCommand(commandName);
     if (!command) return;
 
-    const guild = message.guild();
+    const guild = cache.guilds.get(message.guildID);
     logCommand(message, guild?.name || "DM", "Trigger", commandName);
 
     const lastUsed = botCache.slowmode.get(message.author.id);

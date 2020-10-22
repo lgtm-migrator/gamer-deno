@@ -1,11 +1,12 @@
+import type { Message } from "../../../deps.ts";
+
 import {
   addReactions,
-  sendMessage,
-  followChannel,
+  botID,
   createGuildChannel,
   deleteChannel,
-  botID,
-  Message,
+  followChannel,
+  sendMessage,
 } from "../../../deps.ts";
 import { botCache } from "../../../mod.ts";
 import { PermissionLevels } from "../../types/commands.ts";
@@ -102,7 +103,7 @@ botCache.commands.set("setup", {
 
     // Thank the user for using Gamer! And get them into the setup channel
     await sendMessage(
-      setupChannel,
+      setupChannel.id,
       translate(
         message.guildID,
         "commands/setup:BEGIN",
@@ -118,7 +119,7 @@ botCache.commands.set("setup", {
 
     // Ask first question.
     const beginMessage = await sendMessage(
-      setupChannel,
+      setupChannel.id,
       translate(
         message.guildID,
         "commands/setup:SUBSCRIBE_QUESTION",
@@ -136,7 +137,7 @@ botCache.commands.set("setup", {
     // The user wants to subscribe
     if (subscribe === yesEmojiID) {
       sendMessage(
-        setupChannel,
+        setupChannel.id,
         translate(message.guildID, "commands/setup:NEED_CHANNEL", { mention }),
       );
       const response = await botCache.helpers.needMessage(
@@ -154,7 +155,7 @@ botCache.commands.set("setup", {
 
     // Step 2: Setup TODO Feature
     const todoMessage = await sendMessage(
-      setupChannel,
+      setupChannel.id,
       translate(message.guildID, "commands/setup:TODO_SETUP", { mention }),
     );
     await addReactions(todoMessage.channelID, todoMessage.id, reactions);

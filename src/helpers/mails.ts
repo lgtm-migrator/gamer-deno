@@ -1,36 +1,38 @@
-import {
-  sendDirectMessage,
-  cache,
-  botHasChannelPermissions,
-  Permissions,
-  sendMessage,
-  botHasPermission,
-  categoryChildrenIDs,
-  createGuildChannel,
-  ChannelTypes,
-  deleteMessage,
-  addReactions,
-  avatarURL,
-  getMember,
-  deleteMessages,
-} from "../../deps.ts";
+import type { Member } from "../../deps.ts";
+
 import { botCache } from "../../mod.ts";
-import { mailsDatabase } from "../database/schemas/mails.ts";
-import { labelsDatabase } from "../database/schemas/labels.ts";
 import { translate } from "../utils/i18next.ts";
 import { Embed } from "../utils/Embed.ts";
-import { guildsDatabase } from "../database/schemas/guilds.ts";
 import {
-  sendEmbed,
   sendAlertResponse,
+  sendEmbed,
   sendResponse,
 } from "../utils/helpers.ts";
+import {
+  addReactions,
+  botHasChannelPermissions,
+  botHasPermission,
+  cache,
+  categoryChildrenIDs,
+  ChannelTypes,
+  createGuildChannel,
+  deleteMessage,
+  deleteMessages,
+  getMember,
+  Permissions,
+  sendDirectMessage,
+  sendMessage,
+} from "../../deps.ts";
+import { db } from "../database/database.ts";
 
 const channelNameRegex = /^-+|[^\w-]|-+$/g;
 
 botCache.helpers.mailHandleDM = async function (message, content) {
   // DM will be in english always
-  const mails = await mailsDatabase.find({ userID: message.author.id });
+  // TODO: optimize this
+  const mails = await db.mails.getAll(true).then((data) =>
+    data.filter((mail) => mail.userID === message.author.id)
+  );
 
   // If the user has no mails and hes trying to create a mail it needs to error because mails must be created within a guild.
   let [mail] = mails;
@@ -81,11 +83,13 @@ botCache.helpers.mailHandleDM = async function (message, content) {
   if (!mainGuild) return botCache.helpers.reactError(message);
 
   const member = mainGuild.members.get(message.author.id) ||
-    await getMember(mainGuild.id, message.author.id).catch(() => undefined);
+    await getMember(mainGuild.id, message.author.id).catch(() =>
+      undefined
+    ) as unknown as Member;
   if (!member) return botCache.helpers.reactError(message);
 
   const embed = new Embed()
-    .setAuthor(member.tag, avatarURL(member))
+    .setAuthor(member.tag, member.avatarURL)
     .setDescription(content)
     .setFooter(message.author.id);
 
@@ -106,12 +110,12 @@ botCache.helpers.mailHandleDM = async function (message, content) {
     return botCache.helpers.reactError(message);
   }
 
-  const settings = await guildsDatabase.findOne({ guildID: mail.mainGuildID });
+  const settings = await db.guilds.get(mail.mainGuildID);
   const alertRoleIDs = settings?.mailsRoleIDs || [];
 
   if (!attachment && content.length < 1900) {
     await sendMessage(
-      channel,
+      channel.id,
       {
         content: `${
           alertRoleIDs
@@ -124,7 +128,7 @@ botCache.helpers.mailHandleDM = async function (message, content) {
     );
   } else {
     // Await so the message sends before we make roles unmentionable again
-    await sendMessage(channel, {
+    await sendMessage(channel.id, {
       embed,
       content: alertRoleIDs
         .filter((id) => guild.roles.has(id))
@@ -144,10 +148,9 @@ botCache.helpers.mailHandleDM = async function (message, content) {
 };
 
 botCache.helpers.mailHandleSupportChannel = async function (message) {
-  const mail = await mailsDatabase.findOne({
-    mainGuildID: message.guildID,
-    userID: message.author.id,
-  });
+  const mail = await db.mails.findOne(
+    { mainGuildID: message.guildID, userID: message.author.id },
+  );
   // If the user doesn't have an open mail we need to create one
   if (!mail) {
     return botCache.helpers.mailCreate(message, message.content);
@@ -157,11 +160,11 @@ botCache.helpers.mailHandleSupportChannel = async function (message) {
   const guild = cache.guilds.get(mail.guildID);
   if (!guild) return botCache.helpers.reactError(message);
 
-  const member = message.member();
+  const member = guild.members.get(message.author.id);
   if (!member) return botCache.helpers.reactError(message);
 
   const embed = new Embed()
-    .setAuthor(member.tag, avatarURL(member))
+    .setAuthor(member.tag, member.avatarURL)
     .setDescription(message.content)
     .setFooter(message.author.id);
   const [attachment] = message.attachments;
@@ -181,11 +184,11 @@ botCache.helpers.mailHandleSupportChannel = async function (message) {
     return botCache.helpers.reactError(message);
   }
 
-  const settings = await guildsDatabase.findOne({ guildID: mail.mainGuildID });
+  const settings = await db.guilds.get(mail.mainGuildID);
   const alertRoleIDs = settings?.mailsRoleIDs || [];
 
   // Await so the message sends before we make roles unmentionable again
-  await sendMessage(channel, {
+  await sendMessage(channel.id, {
     embed,
     content: alertRoleIDs
       .filter((id) => guild.roles.has(id))
@@ -207,22 +210,18 @@ botCache.helpers.mailHandleSupportChannel = async function (message) {
 };
 
 botCache.helpers.mailCreate = async function (message, content, member) {
-  const mailUser = member || message.member();
+  const mailUser = member ||
+    cache.guilds.get(message.guildID)?.members.get(message.author.id);
   if (!mailUser) return botCache.helpers.reactError(message);
 
-  const settings = await guildsDatabase.findOne({ guildID: message.guildID });
+  const settings = await db.guilds.get(message.guildID);
   if (!settings?.mailsEnabled) return botCache.helpers.reactError(message);
 
-  const usernameToChannelName = mailUser.user.username.replace(
-    channelNameRegex,
-    ``,
-  )
-    .toLowerCase();
-  const channelName = `${usernameToChannelName}${mailUser.user.discriminator}`;
+  const channelName = mailUser.tag.replace(channelNameRegex, ``).toLowerCase();
 
   const firstWord = content.substring(0, content.indexOf(" ") - 1)
     .toLowerCase();
-  const label = await labelsDatabase.findOne({
+  const label = await db.labels.findOne({
     guildID: message.guildID,
     name: firstWord,
   });
@@ -236,7 +235,7 @@ botCache.helpers.mailCreate = async function (message, content, member) {
   }
 
   const manualEmbed = new Embed()
-    .setAuthor(mailUser.tag, avatarURL(mailUser))
+    .setAuthor(mailUser.tag)
     .addField("Reply", "!mail reply")
     .addField("Reply Anonymous", "!mail reply anonymous")
     .addField("Close", "!mail close")
@@ -247,7 +246,7 @@ botCache.helpers.mailCreate = async function (message, content, member) {
   const alertRoleIDs = settings?.mailsRoleIDs || [];
 
   const embed = new Embed()
-    .setAuthor(mailUser.tag, avatarURL(mailUser))
+    .setAuthor(mailUser.tag)
     .setDescription(content)
     .setFooter(message.author.id);
 
@@ -291,7 +290,7 @@ botCache.helpers.mailCreate = async function (message, content, member) {
           questionMessage.channelID,
         )
         : await botCache.helpers.needReaction(
-          mailUser.user.id,
+          mailUser.id,
           questionMessage.id,
         );
       if (!response) {
@@ -308,7 +307,7 @@ botCache.helpers.mailCreate = async function (message, content, member) {
         }
 
         // Check if this value has a label
-        const label = await labelsDatabase.findOne(
+        const label = await db.labels.findOne(
           { name: selectedOption.toLowerCase(), mainGuildID: message.guildID },
         );
         // Set the label to be used
@@ -330,7 +329,7 @@ botCache.helpers.mailCreate = async function (message, content, member) {
       }
     }
 
-    deleteMessages(message.channel, messageIDs).catch(() => undefined);
+    deleteMessages(message.channelID, messageIDs).catch(() => undefined);
     if (embed.fields.length !== settings.mailQuestions.length) {
       return botCache.helpers.reactError(message);
     }
@@ -344,7 +343,7 @@ botCache.helpers.mailCreate = async function (message, content, member) {
     return botCache.helpers.reactError(message);
   }
 
-  if (category && categoryChildrenIDs(guild, category.id).length === 50) {
+  if (category && categoryChildrenIDs(guild, category.id).size === 50) {
     return botCache.helpers.reactError(message);
   }
 
@@ -361,9 +360,9 @@ botCache.helpers.mailCreate = async function (message, content, member) {
     finalContent.length > 50 ? 50 : finalContent.length,
   );
 
-  await mailsDatabase.insertOne({
+  db.mails.create(channel.id, {
     channelID: channel.id,
-    userID: mailUser.user.id,
+    userID: mailUser.id,
     guildID: guild.id,
     mainGuildID: message.guildID,
     topic,
@@ -381,7 +380,7 @@ botCache.helpers.mailCreate = async function (message, content, member) {
   }
 
   await sendEmbed(channel.id, manualEmbed);
-  await sendMessage(channel, {
+  await sendMessage(channel.id, {
     embed,
     content: alertRoleIDs
       .filter((id) => guild.roles.has(id))
@@ -399,6 +398,6 @@ botCache.helpers.mailCreate = async function (message, content, member) {
 
   // Handle VIP AutoResponse
   if (settings.mailAutoResponse) {
-    sendDirectMessage(mailUser.user.id, settings.mailAutoResponse);
+    sendDirectMessage(mailUser.id, settings.mailAutoResponse);
   }
 };

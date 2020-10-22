@@ -1,9 +1,7 @@
-import { avatarURL, chooseRandom } from "../../../deps.ts";
 import { botCache } from "../../../mod.ts";
-import { sendResponse, sendEmbed } from "../../utils/helpers.ts";
+import { sendEmbed, sendResponse } from "../../utils/helpers.ts";
 import { Embed } from "../../utils/Embed.ts";
 import { translate } from "../../utils/i18next.ts";
-import { readTrailers } from "https://deno.land/std@0.67.0/http/_io.ts";
 
 const gifData = [
   {
@@ -985,9 +983,11 @@ gifData.forEach((data) => {
     name: data.name,
     aliases: data.aliases,
     guildOnly: true,
-    execute: async (message) => {
+    execute: async (message, _args, guild) => {
+      const member = guild?.members.get(message.author.id);
+
       // This command may require tenor.
-      if (data.tenor) {
+      if (data.tenor && !botCache.tenorDisabledGuildIDs.has(message.guildID)) {
         const tenorData: TenorGif | undefined = await fetch(
           `https://api.tenor.com/v1/search?q=${data.name}&key=LIVDSRZULELA&limit=50`,
         )
@@ -1002,13 +1002,13 @@ gifData.forEach((data) => {
         const [media] = randomResult.media;
 
         // If there is no member for whatever reason just send the gif without embed
-        const member = message.member();
+
         if (!member) return sendResponse(message, media.gif.url);
 
         if (media) {
           // Create the embed
           const embed = new Embed()
-            .setAuthor(member.nick || member.tag, avatarURL(member))
+            .setAuthor(member.nick || member.tag, member.avatarURL)
             .setImage(media.gif.url)
             .setFooter(translate(message.guildID, `common:TENOR`));
 
@@ -1020,12 +1020,11 @@ gifData.forEach((data) => {
       const randomGif = botCache.helpers.chooseRandom(data.gifs);
 
       // If there is no member for whatever reason just send the gif without embed
-      const member = message.member();
       if (!member) return sendResponse(message, randomGif);
 
       // Create the embed
       const embed = new Embed()
-        .setAuthor(member.nick || member.tag, avatarURL(member))
+        .setAuthor(member.nick || member.tag, member.avatarURL)
         .setImage(randomGif);
 
       // Send the embed to the channel

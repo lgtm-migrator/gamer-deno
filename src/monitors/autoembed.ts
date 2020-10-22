@@ -1,15 +1,25 @@
-import { Message, avatarURL, sendMessage, deleteMessage } from "../../deps.ts";
+import {
+  bgBlue,
+  bgYellow,
+  black,
+  cache,
+  deleteMessage,
+  sendMessage,
+} from "../../deps.ts";
 import { botCache } from "../../mod.ts";
 import { Embed } from "../utils/Embed.ts";
+import { getTime } from "../utils/helpers.ts";
 import { translate } from "../utils/i18next.ts";
 
 botCache.monitors.set("autoembed", {
   name: "autoembed",
   botChannelPermissions: ["SEND_MESSAGES", "MANAGE_MESSAGES"],
-  execute: async function (message: Message) {
+  execute: async function (message) {
     if (!botCache.autoEmbedChannelIDs.has(message.channelID)) return;
 
-    const member = message.member();
+    const member = cache.guilds.get(message.guildID)?.members.get(
+      message.author.id,
+    );
     if (!member) return;
 
     const [attachment] = message.attachments;
@@ -20,7 +30,7 @@ botCache.monitors.set("autoembed", {
       : undefined;
 
     const embed = new Embed()
-      .setAuthor(member.tag, avatarURL(member))
+      .setAuthor(member.tag, member.avatarURL)
       .setDescription(message.content)
       .setColor("RANDOM")
       .setFooter(
@@ -30,13 +40,18 @@ botCache.monitors.set("autoembed", {
     if (blob) embed.attachFile(blob, "autoembed.png");
 
     sendMessage(
-      message.channel,
+      message.channelID,
       { embed, file: embed.file },
     );
 
     deleteMessage(
       message,
       translate(message.guildID, "commands/autoembed:DELETE_REASON"),
+    );
+    console.log(
+      `${bgBlue(`[${getTime()}]`)} => [MONITOR: ${
+        bgYellow(black("autoembed"))
+      }] Executed.`,
     );
   },
 });

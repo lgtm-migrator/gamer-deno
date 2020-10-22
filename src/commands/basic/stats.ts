@@ -1,8 +1,8 @@
-import { botCache } from "../../../mod.ts";
 import { Embed } from "./../../utils/Embed.ts";
 import { botID, cache, sendMessage } from "../../../deps.ts";
+import { createCommand } from "../../utils/helpers.ts";
 
-botCache.commands.set(`stats`, {
+createCommand({
   name: `stats`,
   guildOnly: true,
   execute: (message, _args, guild) => {
@@ -18,9 +18,7 @@ botCache.commands.set(`stats`, {
     }
 
     const embed = new Embed()
-      .setTitle(
-        `${botMember.nick || botMember.user.username} Stats`,
-      )
+      .setTitle("Gamer Bot Stats")
       .setColor("random")
       .addField("Guilds:", cache.guilds.size.toLocaleString(), true)
       .addField("Total Members:", totalMemberCount.toLocaleString(), true)
@@ -30,6 +28,6 @@ botCache.commands.set(`stats`, {
       .addField("Deno Version:", `v${Deno.version.deno}`, true)
       .setTimestamp();
 
-    return sendMessage(message.channel, { embed });
+    return sendMessage(message.channelID, { embed });
   },
 });

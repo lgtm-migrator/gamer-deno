@@ -1,23 +1,24 @@
 import { botCache } from "../../../mod.ts";
 import { Embed } from "./../../utils/Embed.ts";
-import { botID, botGatewayData } from "../../../deps.ts";
+import { botGatewayData, botID } from "../../../deps.ts";
 import {
+  createCommand,
   humanizeMilliseconds,
-  sendResponse,
   sendEmbed,
+  sendResponse,
 } from "../../utils/helpers.ts";
-import { clientsDatabase } from "../../database/schemas/clients.ts";
+import { db } from "../../database/database.ts";
 
-botCache.commands.set("botstats", {
+createCommand({
   name: "botstats",
   guildOnly: true,
   execute: async function (message, args, guild) {
     // Execute the normal stats command
     botCache.commands.get("stats")?.execute?.(message, args, guild);
 
-    const stats = await clientsDatabase.findOne({ botID });
+    const stats = await db.client.get(botID);
     if (!stats) {
-      await clientsDatabase.insertOne({ botID });
+      await db.client.create(botID);
       return sendResponse(message, "Stats table didn't return any data.");
     }
 

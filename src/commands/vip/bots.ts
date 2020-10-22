@@ -1,12 +1,13 @@
 import { botCache } from "../../../mod.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { fetchMembers, sendMessage } from "../../../deps.ts";
-import { createCommandAliases } from "../../utils/helpers.ts";
+import { createCommand } from "../../utils/helpers.ts";
 
-botCache.commands.set(`bots`, {
+createCommand({
   name: `bots`,
+  aliases: ["showbots, botlist"],
   guildOnly: true,
-  // vipServerOnly: true,
+  vipServerOnly: true,
   permissionLevels: [PermissionLevels.MODERATOR, PermissionLevels.ADMIN],
   cooldown: {
     seconds: botCache.constants.milliseconds.MINUTE / 1000 * 30,
@@ -19,11 +20,11 @@ botCache.commands.set(`bots`, {
     const text = guild.members
       .filter((m) => Boolean(m.user.bot))
       .array().map((member, index) =>
-        `**${index + 1}.** ${member.mention} -> ${member.user.id}`
+        `**${index + 1}.** ${member.mention} -> ${member.id}`
       )
       .join("\n")
       .substring(0, 2000);
 
-    return sendMessage(message.channel, text);
+    return sendMessage(message.channelID, text);
   },
-}), createCommandAliases("bots", ["showbots, botlist"]);
+});

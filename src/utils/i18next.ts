@@ -1,5 +1,5 @@
 import { botCache } from "../../mod.ts";
-import { cache, logger, sendMessage } from "../../deps.ts";
+import { cache, sendMessage } from "../../deps.ts";
 import i18next from "https://deno.land/x/i18next@v19.6.3/index.js";
 import Backend from "https://deno.land/x/i18next_fs_backend/index.js";
 import { configs } from "../../configs.ts";
@@ -8,8 +8,23 @@ import { configs } from "../../configs.ts";
 export function translate(
   guildID: string,
   key: string,
-  options?: unknown,
-): string {
+  options: { returnObjects: true; [key: string]: unknown },
+): string[];
+export function translate(
+  guildID: string,
+  key: string,
+  options?: { returnObjects: false; [key: string]: unknown },
+): string;
+export function translate(
+  guildID: string,
+  key: string,
+  options?: Record<string, unknown>,
+): string;
+export function translate(
+  guildID: string,
+  key: string,
+  options?: Record<string, unknown>,
+) {
   const guild = cache.guilds.get(guildID);
   const language = botCache.guildLanguages.get(guildID) ||
     guild?.preferredLocale || "en_US";
@@ -26,7 +41,7 @@ export function translate(
 export function translateArray(
   guildID: string,
   key: string,
-  options?: any,
+  options?: Record<string, unknown>,
 ): string[] {
   const guild = cache.guilds.get(guildID);
   const language = botCache.guildLanguages.get(guildID) ||
@@ -92,7 +107,7 @@ export async function loadLanguages() {
       ) {
         const response =
           `Missing translation key: ${ns}:${key} for ${lng} language. Instead using: ${fallbackValue}`;
-        logger.warn(response);
+        console.warn(response);
 
         if (!configs.channelIDs.missingTranslation) return;
 
@@ -102,7 +117,7 @@ export async function loadLanguages() {
         if (!channel) return;
 
         sendMessage(
-          channel,
+          channel.id,
           response,
         );
       },

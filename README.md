@@ -8,7 +8,7 @@
 
 ## Run
 
-`deno run --allow-net --allow-write --allow-read --allow-plugin --quiet --unstable mod.ts`
+`deno run --allow-net --allow-write --allow-read --quiet --unstable mod.ts`
 
 ## Completed
 
@@ -19,6 +19,7 @@
 
 **Other Features**
 
+- [x] Counting game (Missing leaderboards pending https://github.com/manyuanrong/deno_mongo/issues/111)
 
 **DEVS ONLY**
 
@@ -39,283 +40,294 @@
 - [x] 8ball
 - [x] language
 - [x] language set spanish
-
+- [x] role info bots
 
 ## Needs Testing
 
 **Other Features**
 
-- mail logs
-- mail ratings
-- mail support channel
+- [ ] mail logs
+- [ ] mail ratings
+- [ ] mail support channel
+- [ ] Survey/Applications
+
+**Moderation**
+
+- [ ] ban
+- [ ] kick
+- [ ] modlog
+- [ ] note
+- [ ] modlogclearuser
+- [ ] modlogeditreason
+- [ ] modlogremovecaseid
+- [ ] unban
+- [ ] warn
 
 **MEMBERS/PUBLIC**
 
-- [] help
-- [] nekos api
-- [] baka
-- [] bite
-- [] compliment
-- [] cuddle
-- [] dance
-- [] hug
-- [] kanna
-- [] kiss
-- [] kitten
-- [] lmao
-- [] mavis
-- [] nezuko
-- [] pat
-- [] poke
-- [] pony
-- [] puppy
-- [] raphtalia
-- [] supernatural
-- [] slap
-- [] tickle
-- [] zerotwo
+- [ ] help
+- [ ] nekos api
+- [ ] baka
+- [ ] bite
+- [ ] compliment
+- [ ] cuddle
+- [ ] dance
+- [ ] hug
+- [ ] kanna
+- [ ] kiss
+- [ ] kitten
+- [ ] lmao
+- [ ] mavis
+- [ ] nezuko
+- [ ] pat
+- [ ] poke
+- [ ] pony
+- [ ] puppy
+- [ ] raphtalia
+- [ ] supernatural
+- [ ] slap
+- [ ] tickle
+- [ ] zerotwo
+- [ ] remind
+- [ ] remind create 1h test
+- [ ] remind create 1h 2h test
+- [ ] remind delete #
+- [ ] emojis
+- [ ] emojis create name emoji
+- [ ] emojis delete name
+- [ ] emojis info emoji
+- [ ] idea
+- [ ] idea but provide an image in the answers
+- [ ] idea answer1 | answer 2 | answer 3 | etc...
+- [ ] idea answer1 | answer 2 | answer 3 | etc... WITH IMAGE ATTACHMENT
+- [ ] bugs
+- [ ] bugs but provide an image in the answers
+- [ ] bugs answer1 | answer 2 | answer 3 | etc...
+- [ ] bugs answer1 | answer 2 | answer 3 | etc... WITH IMAGE ATTACHMENT
 
 **ADMINS**
 
-- prefix
-- mirrors
-- mirrors create #channel
-- mirrors create guildID channelID
-- mirrors delete #channel
-- mirrors edit #channel images on/off
-- mirrors edit #channel anonymous on/off
-- mirrors edit #channel delete on/off
-- settings mails setup
-- settings mails enable
-- settings mails disable
-- settings mails roles roleID roleID roleID
-- mail my new mail here
-- mail close reason here
-
+- [ ] prefix
+- [ ] mirrors
+- [ ] mirrors create #channel
+- [ ] mirrors create guildID channelID
+- [ ] mirrors delete #channel
+- [ ] mirrors edit #channel images on/off
+- [ ] mirrors edit #channel anonymous on/off
+- [ ] mirrors edit #channel show "Gamer Mirror" as "(Bot nickname) Mirror"
+- [ ] mirrors edit #channel delete on/off
+- [ ] settings mails setup
+- [ ] settings mails enable
+- [ ] settings mails disable
+- [ ] settings mails roles roleID roleID roleID
+- [ ] settings tenor on/off
+- [ ] settings feedback approvalchannel
+- [ ] settings feedback approvalchannel #channel
+- [ ] settings feedback logchannel
+- [ ] settings feedback logchannel #channel
+- [ ] settings feedback rejectedchannel
+- [ ] settings feedback rejectedchannel #channel
+- [ ] settings feedback solvedchannel
+- [ ] settings feedback solvedchannel #channel
+- [ ] mail my new mail here
+- [ ] mail close reason here
 
 **VIP ONLY**
 
-- roles unique
-- roles unique create roleSetName roleid roleid roleid
-- roles unique delete roleSetName
-- roles unique add roleSetName roleid
-- roles unique remove roleSetName roleid
-- autoembed
-- label create name categoryID
-- label set name
-- label delete name
-- settings mails setup GUILDID
-- settings mails autoresponse The new response here
-- settings mails questions add
-- settings mails questions remove
-- mail silent reason here for logs
+- [ ] roles unique
+- [ ] roles unique create roleSetName roleid roleid roleid
+- [ ] roles unique delete roleSetName
+- [ ] roles unique add roleSetName roleid
+- [ ] roles unique remove roleSetName roleid
+- [ ] roles default
+- [ ] roles default create roleSetName roleid roleid roleid
+- [ ] roles default delete roleSetName
+- [ ] roles default add roleSetName roleid
+- [ ] roles default remove roleSetName roleid
+- [ ] roles required
+- [ ] roles required create roleSetName roleid roleid roleid
+- [ ] roles required delete roleSetName
+- [ ] roles required add roleSetName roleid
+- [ ] roles required remove roleSetName roleid
+- [ ] autoembed
+- [ ] label create name categoryID
+- [ ] label set name
+- [ ] label delete name
+- [ ] settings mails setup GUILDID
+- [ ] settings mails autoresponse The new response here
+- [ ] settings mails questions add
+- [ ] settings mails questions remove
+- [ ] settings feedback approvalchannel CHANNELID (from another server)
+- [ ] settings feedback logchannel CHANNELID (from another server)
+- [ ] settings feedback rejectedchannel CHANNELID (from another server)
+- [ ] settings feedback solvedchannel CHANNELID (from another server)
+- [ ] settings feedback rejectedmessage Some text here
+- [ ] settings feedback solvedmessage Some text here
+- [ ] mail silent reason here for logs
 
 ## TODO
 
 ### Wolf
 
-- [] ban
-- [] kick
-- [] modlog
-- [] move
-- [] mute
-- [] nick
-- [] note
-- [] purge
-- [] reason
-- [] removemodlog
-- [] unban
-- [] unmute
-- [] warn
+- [ ] move
+- [ ] mute
+- [ ] nick
+- [ ] purge
+- [ ] unmute
 
 ### Dys
 
-- [] analyze
-- [] analyzechannel
-- [] bots
-- [] export
-- [] listallroles
-- [] memberrole
-- [] members
-- [] resetanalyze
-- [] rolefromall
-- [] roletoall
-- [] spy
-- [] vipregister
--
+- [ ] analyze
+- [ ] analyzechannel
+- [ ] bots
+- [ ] export
+- [ ] listallroles
+- [ ] memberrole
+- [ ] members
+- [ ] resetanalyze
+- [ ] rolefromall
+- [ ] roletoall
+- [ ] spy
+- [ ] vipregister
+- [ ] reset vip settings on vip removal
+
 ### Aikage
 
 ### Ben
-- [] coinflip
-- [] divorce
-- [] gif
-- [] life
-- [] marry
-- [] shopwedding
-- [] slots
-- [] urban
-- [] wisdom
-- [] dice
+- [ ] coinflip
+- [ ] divorce
+- [ ] gif
+- [ ] life
+- [ ] marry
+- [ ] shopwedding
+- [ ] slots
+- [ ] urban
+- [ ] wisdom
+- [ ] dice
 
 ### Skillz
 
-- [] help all
+- [ ] help all
 - [x] userinfo TODO: ANALYTICS PART
-- [] upvote
+- [ ] upvote
+- [ ] verify
+- [ ] update
 
-- [] verify
+- [ ] embed
+- [ ] embededit
+- [ ] embedset
+- [ ] embedshow
 
+- [ ] events
+- [ ] eventadd
+- [ ] eventadvertise
+- [ ] eventcreate
+- [ ] eventdelete
+- [ ] eventdeny
+- [ ] eventedit
+- [ ] eventjoin
+- [ ] eventkick
+- [ ] eventleave
+- [ ] eventshow
 
-- [] update
+- [ ] capture
+- [ ] YuGiOh API (card game like PokeCord used to be)
+- [ ] Our existing card system
 
-- [] embed
-- [] embededit
-- [] embedset
-- [] embedshow
+- [ ] idrcreate
+- [ ] idrupgrade
+- [ ] idrdelete
 
-- [] emojis
-- [] emojicreate
-- [] emojidelete
-- [] emojiinfo
+- [ ] Background
+- [ ] balance
+- [ ] boostme
+- [ ] daily
+- [ ] leaderboard
+- [ ] levelrole
+- [ ] pay
+- [ ] profile
+- [ ] topcoins
+- [ ] xp
+- [ ] xpreset
+- [ ] xpresetvoice
 
-- [] events
-- [] eventadd
-- [] eventadvertise
-- [] eventcreate
-- [] eventdelete
-- [] eventdeny
-- [] eventedit
-- [] eventjoin
-- [] eventkick
-- [] eventleave
-- [] eventshow
-- [] remind
-- [] reminddelete
+- [ ] networkcreate
+- [ ] networkfollow
 
-- [] bugs
-- [] idea
-- [] fb idea
-- [] db bugs
+- [ ] public
+- [ ] role
+- [ ] rolemessagecreate
+- [ ] rolemessagedelete
+- [ ] rolemessages
 
-- [] capture
-- [] YuGiOh API (card game like PokeCord used to be)
-- [] Our existing card system
+- [ ] afk
+- [ ] disable
+- [ ] enable
+- [ ] reset
+- [ ] setcapital
+- [ ] setcapture
+- [ ] setevents
+- [ ] sethibye
+- [ ] setlogs
+- [ ] setmail
+- [ ] setmodlogs
+- [ ] setmute
+- [ ] setname
+- [ ] setpermission
+- [ ] setprofanity
+- [ ] setstaff
+- [ ] settags
+- [ ] setverify
+- [ ] setwhitelisted
+- [ ] setxp
+- [ ] viewprofanity
 
-- [] idrcreate
-- [] idrupgrade
-- [] idrdelete
+- [ ] shortcutcreate
+- [ ] shortcutdelete
+- [ ] shortcuts
 
-- [] Background
-- [] balance
-- [] boostme
-- [] daily
-- [] leaderboard
-- [] levelrole
-- [] pay
-- [] profile
-- [] topcoins
-- [] xp
-- [] xpreset
-- [] xpresetvoice
+- [ ] tagcreate
+- [ ] tagdelete
+- [ ] taginstall
+- [ ] tagpublic
+- [ ] tags
+- [ ] tagshow
+- [ ] taguninstall
 
-- [] networkcreate
-- [] networkfollow
+- [ ] giveaway
+- [ ] giveawaycreate
+- [ ] giveawaydelete
+- [ ] imgur
+- [ ] pollcreate
+- [ ] pollend
+- [ ] pollvote
+- [ ] quote
+- [ ] setup
 
-- [] give
-- [] public
-- [] reactionroleadd
-- [] reactionrolecreate
-- [] reactionroledelete
-- [] reactionroleremove
-- [] reactionroles
-- [] role
-- [] roleinfo
-- [] rolemessagecreate
-- [] rolemessagedelete
-- [] rolemessages
-- [] rolesetadd
-- [] rolesetdelete
-- [] rolesetremove
-- [] roleset
-- [] lockedrolescreate
-- [] lockedrolesdelete
-- [] lockedrolesadd
-- [] lockedroles
-- [] requiredrolescreate
-- [] requiredrolesdelete
-- [] requiredrolesadd
-- [] requiredrolesremove
-- [] requiredroles
-- [] take
+- [ ] manga
+- [ ] youtube
+- [ ] reddit
+- [ ] twitch (idk if we should keep this tbh.)
 
-- [] afk
-- [] disable
-- [] enable
-- [] reset
-- [] setcapital
-- [] setcapture
-- [] setevents
-- [] setfeedback
-- [] sethibye
-- [] setlogs
-- [] setmail
-- [] setmodlogs
-- [] setmute
-- [] setname
-- [] setpermission
-- [] setprofanity
-- [] setstaff
-- [] settags
-- [] settenor
-- [] setverify
-- [] setwhitelisted
-- [] setxp
-- [] viewprofanity
+- [ ] Bang (meeting new people globally) need a good name
+- [ ] Add Reactions by command
+- [ ] Custom Backgrounds
+- [ ] Database Cleaner
 
-- [] shortcutcreate
-- [] shortcutdelete
-- [] shortcuts
-
-- [] tagcreate
-- [] tagdelete
-- [] taginstall
-- [] tagpublic
-- [] tags
-- [] tagshow
-- [] taguninstall
-
-- [] giveaway
-- [] giveawaycreate
-- [] giveawaydelete
-- [] imgur
-- [] pollcreate
-- [] pollend
-- [] pollvote
-- [] quote
-- [] setup
-
-- [] manga
-- [] youtube
-- [] reddit
-- [] twitch (idk if we should keep this tbh.)
-
-- [] Counting Channel
-- [] Bang (meeting new people globally) need a good name
-- [] Add Reactions by command
-- [] Tournaments
-- [] Custom Backgrounds
-- [] Survey/Applications
+### Alexx
+- [ ] reactionroleadd
+- [ ] reactionrolecreate
+- [ ] reactionroledelete
+- [ ] reactionroleremove
+- [ ] reactionroles
+- [ ] take
+- [ ] give
+- [ ] grouped rolesets
 
 **GAMING API STATS STUFF**
+- [ ] Clash of Clans
 
-- [] Clash of Clans
+## Final Review
 
-## Schema Scripts For the Upcoming Change
-
-1. Support channels using topics
-2. Labels authorID => userID
-3. Emojiis authorID => userID
-
-## Database Cleaner
-
-- Clean mirrors for deleted channels
+- [ ] Review all schema files and create a migration script
+- [ ] 

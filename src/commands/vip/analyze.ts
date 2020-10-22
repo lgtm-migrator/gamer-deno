@@ -1,13 +1,14 @@
 import { botCache } from "../../../mod.ts";
 import { ChannelTypes, guildIconURL } from "../../../deps.ts";
-import { createCommandAliases, sendResponse } from "../../utils/helpers.ts";
-import { analyticsDatabase } from "../../database/schemas/analytics.ts";
+import { createCommand, sendResponse } from "../../utils/helpers.ts";
 import { translate } from "../../utils/i18next.ts";
 import { Embed } from "../../utils/Embed.ts";
 import { PermissionLevels } from "../../types/commands.ts";
+import { db } from "../../database/database.ts";
 
-botCache.commands.set(`analyze`, {
+createCommand({
   name: `analyze`,
+  aliases: ["analytics"],
   guildOnly: true,
   vipServerOnly: true,
   permissionLevels: [PermissionLevels.MODERATOR, PermissionLevels.ADMIN],
@@ -21,8 +22,9 @@ botCache.commands.set(`analyze`, {
     sendResponse(message, translate(message.guildID, `vip/analyze:PATIENCE`));
 
     // Fetch all analytics for this guild
-    const allAnalyticData = await analyticsDatabase.find(
+    const allAnalyticData = await db.analytics.findMany(
       { guildID: message.guildID },
+      true,
     );
 
     let totalMessages = 0;
@@ -155,5 +157,3 @@ botCache.commands.set(`analyze`, {
     return sendResponse(message, { embed });
   },
 });
-
-createCommandAliases("analyze", ["analytics"]);

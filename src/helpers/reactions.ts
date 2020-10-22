@@ -1,20 +1,19 @@
 import { botCache } from "../../mod.ts";
-import { guildsDatabase } from "../database/schemas/guilds.ts";
 import {
-  botHasChannelPermissions,
-  Permissions,
   addReactions,
+  botHasChannelPermissions,
+  cache,
   deleteMessage,
   memberIDHasPermission,
+  Permissions,
 } from "../../deps.ts";
+import { db } from "../database/database.ts";
 
 botCache.helpers.todoReactionHandler = async function (message, emoji, userID) {
-  const settings = await guildsDatabase.findOne(
-    { guildID: message.channel.guildID },
-  );
+  const settings = await db.guilds.get(message.guildID);
   if (!settings) return;
 
-  const guild = message.guild();
+  const guild = cache.guilds.get(message.guildID);
   if (!guild) return;
 
   const member = guild.members.get(userID);

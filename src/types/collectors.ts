@@ -1,4 +1,4 @@
-import { Message, MessageReactionUncachedPayload } from "../../deps.ts";
+import type { Message, MessageReactionUncachedPayload } from "../../deps.ts";
 
 export interface BaseCollectorOptions {
   /** The amount of messages to collect before resolving. Defaults to 1 */
@@ -56,14 +56,14 @@ export interface CollectReactionsOptions extends BaseCollectorCreateOptions {
 
 export interface MessageCollector extends CollectMessagesOptions {
   resolve: (value?: Message[] | PromiseLike<Message[]> | undefined) => void;
-  reject: (reason?: any) => void;
+  reject: (reason?: unknown) => void;
   /** Where the messages are stored if the amount to collect is more than 1. */
   messages: Message[];
 }
 
 export interface ReactionCollector extends CollectReactionsOptions {
   resolve: (value?: string[] | PromiseLike<string[]> | undefined) => void;
-  reject: (reason?: any) => void;
+  reject: (reason?: unknown) => void;
   /** Where the messages are stored if the amount to collect is more than 1. */
   reactions: string[];
 }
