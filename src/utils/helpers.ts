@@ -2,7 +2,7 @@ import type { Message, MessageContent } from "../../deps.ts";
 import type { Embed } from "./Embed.ts";
 import type { Command } from "../types/commands.ts";
 
-import { botCache } from "../../mod.ts";
+import { botCache } from "../../cache.ts";
 import {
   botHasChannelPermissions,
   cache,
@@ -166,7 +166,7 @@ export function sendEmbed(channelID: string, embed: Embed, content?: string) {
     return;
   }
 
-  return sendMessage(channel.id, { content, embed, file: embed.file });
+  return sendMessage(channel.id, { content, embed, file: embed.embedFile });
 }
 
 /** Use this function to edit an embed with ease. */

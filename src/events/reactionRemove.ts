@@ -1,11 +1,14 @@
 import { botID, cache, getMessage } from "../../deps.ts";
-import { botCache } from "../../mod.ts";
+import { botCache } from "../../cache.ts";
 
 botCache.eventHandlers.reactionRemove = async function (
   message,
   emoji,
   userID,
 ) {
+  // Check if this user is blacklisted. Check if this guild is blacklisted
+  if (botCache.blacklistedIDs.has(userID) || botCache.blacklistedIDs.has(message.guildID)) return;
+  
   // Update stats in cache
   botCache.stats.reactionsRemovedProcessed += 1;
 

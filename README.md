@@ -50,6 +50,7 @@
 - [ ] mail ratings
 - [ ] mail support channel
 - [ ] Survey/Applications
+- [ ] Blacklist users/guilds
 
 **Moderation**
 
@@ -104,6 +105,7 @@
 - [ ] bugs but provide an image in the answers
 - [ ] bugs answer1 | answer 2 | answer 3 | etc...
 - [ ] bugs answer1 | answer 2 | answer 3 | etc... WITH IMAGE ATTACHMENT
+- [ ] role
 
 **ADMINS**
 
@@ -129,8 +131,18 @@
 - [ ] settings feedback rejectedchannel #channel
 - [ ] settings feedback solvedchannel
 - [ ] settings feedback solvedchannel #channel
+- [ ] settings roles add role role role
+- [ ] settings roles remove role role role
+- [ ] settings staff
+- [ ] settings staff admins
+- [ ] settings staff admins role
+- [ ] settings staff mods add role
+- [ ] settings staff mods remove role
 - [ ] mail my new mail here
 - [ ] mail close reason here
+- [ ] embed {}
+- [ ] embed edit [channel(VIP)] messageID {}
+- [ ] embed show [channel(VIP)] messageID {}
 
 **VIP ONLY**
 
@@ -149,6 +161,18 @@
 - [ ] roles required delete roleSetName
 - [ ] roles required add roleSetName roleid
 - [ ] roles required remove roleSetName roleid
+- [ ] roles grouped
+- [ ] roles grouped create roleSetName roleid roleid roleid
+- [ ] roles grouped delete roleSetName
+- [ ] roles grouped add roleSetName roleid
+- [ ] roles grouped remove roleSetName roleid
+- [ ] role messages
+- [ ] role messages create add role channel text here
+- [ ] role messages create add role channel { embed here }
+- [ ] role messages create remove role channel text here
+- [ ] role messages create remove role channel { embed here }
+- [ ] role messages delete add role
+- [ ] role messages delete remove role
 - [ ] autoembed
 - [ ] label create name categoryID
 - [ ] label set name
@@ -163,6 +187,7 @@
 - [ ] settings feedback solvedchannel CHANNELID (from another server)
 - [ ] settings feedback rejectedmessage Some text here
 - [ ] settings feedback solvedmessage Some text here
+- [ ] settings autoreact #channel emoji emoji
 - [ ] mail silent reason here for logs
 
 ## TODO
@@ -213,11 +238,6 @@
 - [ ] verify
 - [ ] update
 
-- [ ] embed
-- [ ] embededit
-- [ ] embedset
-- [ ] embedshow
-
 - [ ] events
 - [ ] eventadd
 - [ ] eventadvertise
@@ -254,11 +274,7 @@
 - [ ] networkcreate
 - [ ] networkfollow
 
-- [ ] public
-- [ ] role
-- [ ] rolemessagecreate
-- [ ] rolemessagedelete
-- [ ] rolemessages
+
 
 - [ ] afk
 - [ ] disable
@@ -269,13 +285,11 @@
 - [ ] setevents
 - [ ] sethibye
 - [ ] setlogs
-- [ ] setmail
 - [ ] setmodlogs
 - [ ] setmute
 - [ ] setname
 - [ ] setpermission
 - [ ] setprofanity
-- [ ] setstaff
 - [ ] settags
 - [ ] setverify
 - [ ] setwhitelisted
@@ -309,12 +323,18 @@
 - [ ] reddit
 - [ ] twitch (idk if we should keep this tbh.)
 
-- [ ] Bang (meeting new people globally) need a good name
-- [ ] Add Reactions by command
-- [ ] Custom Backgrounds
-- [ ] Database Cleaner
+- [ ] Bang (meeting new people globally) need a good name.
+- [ ] Add Reactions by command.
+- [ ] Custom Backgrounds.
+- [ ] Database Cleaner.
+- [ ] Change bot logo once a week.
+- [ ] Report feature to contact devs.
+- [ ] Moderation network.
+- [ ] Global Bans for raids/spam bots.
+- [ ] Auto-mod/filter Playing Status and custom statuses for ENTERPRISE!
 
 ### Alexx
+
 - [ ] reactionroleadd
 - [ ] reactionrolecreate
 - [ ] reactionroledelete
@@ -322,12 +342,14 @@
 - [ ] reactionroles
 - [ ] take
 - [ ] give
-- [ ] grouped rolesets
 
 **GAMING API STATS STUFF**
+
 - [ ] Clash of Clans
 
 ## Final Review
 
 - [ ] Review all schema files and create a migration script
-- [ ] 
+- [ ] Setup Feature
+- [ ] Bot lists
+- [ ] Review each commands bot channel perms.
