@@ -1,4 +1,4 @@
-import { botCache } from "../../cache.ts";
+import { botCache, chooseRandom } from "../../deps.ts";
 import { humanizeMilliseconds, sendResponse } from "../utils/helpers.ts";
 
 const membersInCooldown = new Map<string, Cooldown>();
@@ -7,6 +7,17 @@ export interface Cooldown {
   used: number;
   timestamp: number;
 }
+
+const emojis = [
+  botCache.constants.emojis.dab,
+  botCache.constants.emojis.furious,
+  botCache.constants.emojis.gamerCry,
+  botCache.constants.emojis.poke,
+  botCache.constants.emojis.slam,
+  botCache.constants.emojis.snap,
+  botCache.constants.emojis.tantrum,
+  botCache.constants.emojis.twohundretIQ,
+];
 
 botCache.inhibitors.set("cooldown", async function (message, command, guild) {
   if (!command.cooldown) return false;
@@ -19,7 +30,7 @@ botCache.inhibitors.set("cooldown", async function (message, command, guild) {
       if (cooldown.timestamp > now) {
         sendResponse(
           message,
-          `You must wait **${
+          `${chooseRandom(emojis)} You must wait **${
             humanizeMilliseconds(cooldown.timestamp - now)
           }** before using this command again.`,
         );

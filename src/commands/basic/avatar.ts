@@ -1,17 +1,18 @@
 import { translate } from "../../utils/i18next.ts";
-import { botCache } from "../../../cache.ts";
-import { guildIconURL, sendMessage } from "../../../deps.ts";
-import { createCommand } from "../../utils/helpers.ts";
+import { botCache, cache, guildIconURL } from "../../../deps.ts";
+import { createCommand, sendEmbed } from "../../utils/helpers.ts";
 
 createCommand({
   name: "avatar",
   aliases: ["pfp"],
   guildOnly: true,
+  botChannelPermissions: ["VIEW_CHANNEL", "SEND_MESSAGES", "EMBED_LINKS"],
   arguments: [
     { name: "server", type: "string", literals: ["server"], required: false },
-  ],
-  execute: (message, args: AvatarArgs, guild) => {
-    const member = guild?.members.get(
+    { name: "member", type: "member", required: false },
+  ] as const,
+  execute: (message, args, guild) => {
+    const member = args.member || cache.members.get(
       message.mentions.length ? message.mentions[0] : message.author.id,
     );
     if (!member) return botCache.helpers.reactError(message);
@@ -21,19 +22,14 @@ createCommand({
       : member.avatarURL.replace("?size=128", "?size=2048");
 
     const description = `[${
-      translate(message.guildID, "common:DOWNLOAD_LINK")
+      translate(message.guildID, "strings:DOWNLOAD_LINK")
     }](${url})`;
 
-    return sendMessage(message.channelID, {
-      embed: {
-        description,
-        author: { name: member.tag, icon_url: url },
-        image: { url },
-      },
-    });
+    return sendEmbed(
+      message.channelID,
+      botCache.helpers.authorEmbed(message)
+        .setDescription(description)
+        .setImage(url!),
+    );
   },
 });
-
-interface AvatarArgs {
-  server?: "server";
-}

@@ -1,5 +1,3 @@
-import type { Message } from "../../deps.ts";
-
 import {
   addRole,
   bgBlue,
@@ -7,8 +5,13 @@ import {
   black,
   cache,
   Collection,
+  createWebhook,
   delay,
   deleteMessage,
+  deleteMessageByID,
+  executeWebhook,
+  getChannelWebhooks,
+  Message,
   sendMessage,
 } from "../../deps.ts";
 import { parsePrefix } from "./commandHandler.ts";
@@ -20,7 +23,7 @@ import { db } from "../database/database.ts";
 // ChannelID, UserID
 const lastCounterUserIDs = new Collection<string, string>();
 // ChannelID
-const disabled = new Set();
+const disabled = new Set<string>();
 
 async function failedCount(
   message: Message,
@@ -39,16 +42,19 @@ async function failedCount(
   if (lastCounterUserIDs.get(message.channelID) === message.author.id) {
     sendResponse(
       message,
-      translate(message.guildID, "commands/counting:ONLY_ONCE"),
+      translate(message.guildID, "strings:COUNTING_ONLY_ONCE"),
     );
     lastCounterUserIDs.delete(message.channelID);
-    sendMessage(message.channelID, "commands/counting:DISABLED");
+    sendMessage(
+      message.channelID,
+      translate(message.guildID, "strings:COUNTING_DISABLED"),
+    );
     disabled.add(message.channelID);
     setTimeout(() => {
       disabled.delete(message.channelID);
       sendMessage(
         message.channelID,
-        translate(message.guildID, "commands/counting:ENABLED"),
+        translate(message.guildID, "strings:COUNTING_ENABLED"),
       );
     }, 60000);
     return true;
@@ -57,7 +63,7 @@ async function failedCount(
   // Explains the reason.
   sendResponse(
     message,
-    translate(message.guildID, "commands/counting:BAD_COUNT", { count }),
+    translate(message.guildID, "strings:COUNTING_BAD_COUNT", { count }),
   );
   // Allow users to save their count
   if (message.guildID !== botCache.constants.botSupportServerID) {
@@ -66,13 +72,13 @@ async function failedCount(
     ) {
       sendAlertResponse(
         message,
-        translate(message.guildID, "commands/counting:ALREADY_ACTIVE"),
+        translate(message.guildID, "strings:COUNTING_ALREADY_ACTIVE"),
       );
       sendMessage(
         message.channelID,
         translate(
           message.guildID,
-          "commands/counting:NEW_COUNT",
+          "strings:COUNTING_NEW_COUNT",
           { amount: count.toLocaleString() },
         ),
       );
@@ -82,25 +88,25 @@ async function failedCount(
         message,
         translate(
           message.guildID,
-          "commands/counting:QUICK_SAVE",
+          "strings:COUNTING_QUICK_SAVE",
           { invite: botCache.constants.botSupportInvite },
         ),
       );
       await delay(botCache.constants.milliseconds.MINUTE);
       deleteMessage(
         saveRequest,
-        translate(message.guildID, "common:CLEAR_SPAM"),
+        translate(message.guildID, "strings:CLEAR_SPAM"),
       );
       if (botCache.activeMembersOnSupportServer.has(message.author.id)) {
         sendAlertResponse(
           message,
-          translate(message.guildID, "commands/counting:SAVED"),
+          translate(message.guildID, "strings:COUNTING_SAVED"),
         );
         sendMessage(
           message.channelID,
           translate(
             message.guildID,
-            "commands/counting:NEW_COUNT",
+            "strings:COUNTING_NEW_COUNT",
             { amount: count.toLocaleString() },
           ),
         );
@@ -111,14 +117,14 @@ async function failedCount(
 
   sendMessage(
     message.channelID,
-    translate(message.guildID, "commands/counting:DISABLED"),
+    translate(message.guildID, "strings:COUNTING_DISABLED"),
   );
   disabled.add(message.channelID);
   setTimeout(() => {
     disabled.delete(message.channelID);
     sendMessage(
       message.channelID,
-      translate(message.guildID, "commands/counting:ENABLED"),
+      translate(message.guildID, "strings:COUNTING_ENABLED"),
     );
   }, 60000);
   return true;
@@ -132,6 +138,7 @@ botCache.monitors.set("counting", {
     "ADD_REACTIONS",
     "USE_EXTERNAL_EMOJIS",
     "READ_MESSAGE_HISTORY",
+    "MANAGE_WEBHOOKS",
   ],
   execute: async function (message) {
     // If this is not a support channel
@@ -159,8 +166,8 @@ botCache.monitors.set("counting", {
     ) {
       return deleteMessage(
         message,
-        translate(message.guildID, "common:CLEAR_SPAM"),
-      );
+        translate(message.guildID, "strings:CLEAR_SPAM"),
+      ).catch(() => undefined);
     }
 
     const settings = await db.counting.get(message.channelID);
@@ -171,9 +178,9 @@ botCache.monitors.set("counting", {
       if (settings.deleteInvalid) {
         return deleteMessage(
           message,
-          translate(message.guildID, "common:CLEAR_SPAM"),
+          translate(message.guildID, "strings:CLEAR_SPAM"),
           10,
-        );
+        ).catch(() => undefined);
       }
     }
 
@@ -194,7 +201,7 @@ botCache.monitors.set("counting", {
       if (failed) {
         sendResponse(
           message,
-          translate(message.guildID, "commands/counting:RESET"),
+          translate(message.guildID, "strings:COUNTING_RESET"),
         );
         db.counting.update(message.channelID, { count: 0 });
         lastCounterUserIDs.delete(message.channelID);
@@ -212,7 +219,7 @@ botCache.monitors.set("counting", {
       if (failed) {
         sendResponse(
           message,
-          translate(message.guildID, "commands/counting:RESET"),
+          translate(message.guildID, "strings:COUNTING_RESET"),
         );
         db.counting.update(message.channelID, { count: 0 });
         return;
@@ -223,6 +230,68 @@ botCache.monitors.set("counting", {
     db.counting.update(message.channelID, { count: numberShouldBe });
 
     lastCounterUserIDs.set(message.channelID, message.author.id);
+
+    const member = cache.members.get(message.author.id);
+
+    // Check if this channel has a cached webhook
+    const existingWebhook = botCache.webhooks.get(message.channelID);
+    if (existingWebhook) {
+      deleteMessageByID(message.channelID, message.id).catch(() => undefined);
+      return executeWebhook(
+        existingWebhook.webhookID,
+        existingWebhook.token,
+        {
+          content: message.content,
+          username: member?.tag,
+          avatar_url: member?.avatarURL,
+          mentions: { parse: [] },
+        },
+      );
+    }
+
+    // Webhook wasn't cached see if one exists in the channel
+    const channelWebhooks = await getChannelWebhooks(message.channelID);
+    if (channelWebhooks.length) {
+      deleteMessageByID(message.channelID, message.id).catch(() => undefined);
+      const [webhook] = channelWebhooks;
+      // Add webhook to cache for next time
+      botCache.webhooks.set(
+        message.channelID,
+        { webhookID: webhook.id, token: webhook.token, id: message.channelID },
+      );
+      return executeWebhook(
+        webhook.id,
+        webhook.token,
+        {
+          content: message.content,
+          username: member?.tag,
+          avatar_url: member?.avatarURL,
+          mentions: { parse: [] },
+        },
+      );
+    }
+
+    // A new webhook should be created
+    const webhook = await createWebhook(message.channelID, { name: "Gamer" });
+    if (webhook.token) {
+      deleteMessageByID(message.channelID, message.id).catch(() => undefined);
+      // Add to cache,
+      botCache.webhooks.set(
+        message.channelID,
+        { webhookID: webhook.id, token: webhook.token, id: message.channelID },
+      );
+      return executeWebhook(
+        webhook.id,
+        webhook.token,
+        {
+          content: message.content,
+          username: member?.tag,
+          avatar_url: member?.avatarURL,
+          mentions: { parse: [] },
+        },
+      );
+    }
+
     return botCache.helpers.reactSuccess(message);
   },
 });

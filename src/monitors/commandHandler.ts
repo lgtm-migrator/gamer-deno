@@ -89,7 +89,7 @@ async function parseArguments(
     if (!resolver) continue;
 
     const result = await resolver.execute(argument, params, message, command);
-    if (result) {
+    if (result !== undefined) {
       // Assign the valid argument
       args[argument.name] = result;
       // This will use up all args so immediately exist the loop.
@@ -105,6 +105,7 @@ async function parseArguments(
     if (Object.prototype.hasOwnProperty.call(argument, "defaultValue")) {
       args[argument.name] = argument.defaultValue;
     } else if (argument.required !== false) {
+      console.log("Required Arg Missing: ", message.content, command, argument);
       missingRequiredArg = true;
       argument.missing?.(message);
       break;
@@ -224,13 +225,18 @@ botCache.monitors.set("commandHandler", {
     const lastUsed = botCache.slowmode.get(message.author.id);
     // Check if this user is spamming by checking slowmode
     if (lastUsed && message.timestamp - lastUsed < 2000) {
-      deleteMessage(message, translate(message.guildID, "common:CLEAR_SPAM"))
+      deleteMessage(message, translate(message.guildID, "strings:CLEAR_SPAM"))
         .catch(() => undefined);
       return logCommand(message, guild?.name || "DM", "Slowmode", commandName);
     }
 
     // Check if this user is blacklisted. Check if this guild is blacklisted
-    if (botCache.blacklistedIDs.has(message.author.id) || botCache.blacklistedIDs.has(message.guildID)) return;
+    if (
+      botCache.blacklistedIDs.has(message.author.id) ||
+      botCache.blacklistedIDs.has(message.guildID)
+    ) {
+      return;
+    }
 
     executeCommand(message, command, parameters, guild);
   },

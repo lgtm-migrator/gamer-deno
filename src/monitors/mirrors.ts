@@ -21,12 +21,10 @@ botCache.monitors.set("mirrors", {
     const mirrors = botCache.mirrors.get(message.channelID);
     if (!mirrors) return;
 
-    const guild = cache.guilds.get(message.guildID);
-
-    const member = guild?.members.get(message.author.id);
+    const member = cache.members.get(message.author.id);
     if (!member) return;
 
-    const botMember = guild?.members.get(botID);
+    const botMember = cache.members.get(botID);
     if (!botMember) return;
 
     console.log(
@@ -49,6 +47,11 @@ botCache.monitors.set("mirrors", {
       const blob = attachment
         ? fetch(attachment.url).then((res) => res.blob()).catch(() => undefined)
         : undefined;
+
+      // Prevent annoying infinite spam using webhooks between 2 channels
+      if (botCache.vipGuildIDs.has(message.guildID) && message.webhookID) {
+        return;
+      }
 
       if (mirror.deleteSourceMessages) {
         deleteMessage(message).catch(() => undefined);

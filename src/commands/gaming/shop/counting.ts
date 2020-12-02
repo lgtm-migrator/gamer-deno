@@ -15,19 +15,19 @@ import { db } from "../../../database/database.ts";
 
 createSubcommand("shop", {
   name: "counting",
-  botServerPermissions: ["MANAGE_MESSAGES", "SEND_MESSAGES"],
+  botChannelPermissions: ["MANAGE_MESSAGES"],
   guildOnly: true,
   arguments: [
     { name: "id", type: "number", required: false },
     { name: "channelID", type: "snowflake", required: false },
-  ],
-  execute: async function (message, args: ShopCountingArgs, guild) {
+  ] as const,
+  execute: async function (message, args, guild) {
     if (!guild) return;
 
     // List the items that user can buy
     if (!args.id) {
       const items = [
-        `**__${translate(message.guildID, "commands/counting:BUFFS")}__**`,
+        `**__${translate(message.guildID, "strings:COUNTING_BUFFS")}__**`,
         ...botCache.constants.counting.shop.filter((item) =>
           item.type === "buff"
         ).map((item) => {
@@ -38,7 +38,7 @@ createSubcommand("shop", {
           }\``;
         }),
         "",
-        `**__${translate(message.guildID, "commands/counting:DEBUFFS")}__**`,
+        `**__${translate(message.guildID, "strings:COUNTING_DEBUFFS")}__**`,
         ...botCache.constants.counting.shop.filter((item) =>
           item.type === "debuff"
         ).map((item) => {
@@ -54,12 +54,14 @@ createSubcommand("shop", {
     }
 
     // Buying an item
-    const item = botCache.constants.counting.shop.find((i) => i.id === args.id);
-    const messageChannel = guild.channels.get(message.channelID);
+    const messageChannel = cache.channels.get(message.channelID);
     if (!messageChannel) return botCache.helpers.reactError(message);
 
+    if (!messageChannel.topic?.includes("gamerCounting")) return;
+
+    const item = botCache.constants.counting.shop.find((i) => i.id === args.id);
+
     if (!item) {
-      if (messageChannel.topic?.includes("gamerCounting")) return;
       return botCache.helpers.reactError(message);
     }
 
@@ -88,7 +90,7 @@ createSubcommand("shop", {
         case 2:
           sendAlertResponse(
             message,
-            translate(message.guildID, "commands/counting:DOUBLE_TIME_ON"),
+            translate(message.guildID, "strings:COUNTING_IMMUNITY_ON"),
           );
           db.counting.update(message.channelID, { debuffs: [] });
           break;
@@ -109,6 +111,10 @@ createSubcommand("shop", {
           break;
         }
         default:
+          sendResponse(
+            message,
+            translate(message.guildID, "strings:COUNTING_DOUBLE_TIME_ON"),
+          );
           db.items.create(message.id, {
             game: "counting",
             channelID: message.channelID,
@@ -165,7 +171,7 @@ createSubcommand("shop", {
             channel.id,
             translate(
               message.guildID,
-              "commands/counting:STEAL_ON",
+              "strings:COUNTING_STEAL_ON",
               { amount: newValue },
             ),
           );
@@ -175,7 +181,7 @@ createSubcommand("shop", {
         case 7:
           sendMessage(
             channel.id,
-            translate(message.guildID, "commands/counting:SLOWMODE_ON"),
+            translate(message.guildID, "strings:COUNTING_SLOWMODE_ON"),
           );
           editChannel(
             channel.id,
@@ -201,7 +207,7 @@ createSubcommand("shop", {
             channel.id,
             translate(
               message.guildID,
-              "commands/counting:THIEF_ON",
+              "strings:COUNTING_THIEF_ON",
               { random: randomAmount, now: randomChange },
             ),
           );
@@ -220,7 +226,7 @@ createSubcommand("shop", {
           });
           sendMessage(
             channel.id,
-            translate(message.guildID, "commands/counting:QUICK_THINKING_ON"),
+            translate(message.guildID, "strings:COUNTING_QUICK_THINKING_ON"),
           );
           break;
         default:
@@ -238,8 +244,3 @@ createSubcommand("shop", {
     );
   },
 });
-
-interface ShopCountingArgs {
-  id?: number;
-  channelID?: string;
-}

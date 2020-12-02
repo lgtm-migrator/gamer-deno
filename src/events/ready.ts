@@ -28,14 +28,26 @@ botCache.eventHandlers.ready = async function () {
   console.info(`Loaded ${botCache.tasks.size} Task(s)`);
 
   botCache.tasks.forEach((task) => {
-    setInterval(() => {
+    // Load the missions when the bot is started
+    if (task.name === "mission") task.execute();
+
+    setTimeout(() => {
       console.log(
         `${bgBlue(`[${getTime()}]`)} => [TASK: ${
           bgYellow(black(task.name))
         }] Started.`,
       );
       task.execute();
-    }, task.interval);
+
+      setInterval(() => {
+        console.log(
+          `${bgBlue(`[${getTime()}]`)} => [TASK: ${
+            bgYellow(black(task.name))
+          }] Started.`,
+        );
+        task.execute();
+      }, task.interval);
+    }, Date.now() % task.interval);
   });
 
   console.info(`Loading Cached Settings:`);
@@ -43,6 +55,7 @@ botCache.eventHandlers.ready = async function () {
   const guildSettings = await db.guilds.findMany({}, true);
   const mirrors = await db.mirrors.findMany({}, true);
   const blacklisted = await db.blacklisted.findMany({}, true);
+  const spyRecords = await db.spy.findMany({}, true);
 
   for (const settings of guildSettings) {
     if (settings.prefix !== configs.prefix) {
@@ -70,6 +83,21 @@ botCache.eventHandlers.ready = async function () {
       const guild = cache.guilds.get(settings.guildID);
       if (guild) fetchMembers(guild);
     }
+    if (settings.xpEnabled) {
+      botCache.xpEnabledGuildIDs.add(settings.guildID);
+    }
+    if (settings.missionsDisabled) {
+      botCache.missionsDisabledGuildIDs.add(settings.guildID);
+    }
+    if (settings.xpPerMessage) {
+      botCache.guildsXPPerMessage.set(settings.guildID, settings.xpPerMessage);
+    }
+    if (settings.xpPerMinuteVoice) {
+      botCache.guildsXPPerMinuteVoice.set(
+        settings.guildID,
+        settings.xpPerMinuteVoice,
+      );
+    }
   }
 
   for (const mirror of mirrors) {
@@ -82,7 +110,22 @@ botCache.eventHandlers.ready = async function () {
   }
 
   // Add blacklisted users and guilds to cache so bot will ignore them.
-  for (const blacklist of blacklisted) botCache.blacklistedIDs.add(blacklist.id);
+  for (const blacklist of blacklisted) {
+    botCache.blacklistedIDs.add(blacklist.id);
+  }
+
+  // Add all spy records to cache to prepare them
+  for (const record of spyRecords) {
+    for (const word of record.words) {
+      const current = botCache.spyRecords.get(word);
+      // If the word doesnt exist we add a new one for this user id
+      if (!current) botCache.spyRecords.set(word, [record.id]);
+      // If it exist and this user id is not already set, add them
+      else if (!current.includes(record.id)) {
+        botCache.spyRecords.set(word, [...current, record.id]);
+      }
+    }
+  }
 
   console.log(
     `[READY] Bot is online and ready in ${cache.guilds.size} guild(s)!`,

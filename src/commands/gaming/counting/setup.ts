@@ -1,11 +1,12 @@
-import type { Overwrite } from "../../../../deps.ts";
-
 import {
+  addReactions,
   botID,
   ChannelTypes,
   createGuildChannel,
   createGuildRole,
+  Overwrite,
   OverwriteType,
+  sendMessage,
 } from "../../../../deps.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
@@ -16,7 +17,7 @@ import { db } from "../../../database/database.ts";
 createSubcommand("counting", {
   name: "setup",
   permissionLevels: [PermissionLevels.MODERATOR, PermissionLevels.ADMIN],
-  botServerPermissions: ["MANAGE_CHANNELS", "MANAGE_ROLES"],
+  botServerPermissions: ["ADMINISTRATOR"],
   guildOnly: true,
   execute: async function (message, args, guild) {
     if (!guild) return;
@@ -25,20 +26,20 @@ createSubcommand("counting", {
     const [category, teamRoleOne, teamRoleTwo, losersRole] = await Promise.all([
       createGuildChannel(
         guild,
-        translate(guild.id, "commands/counting:CATEGORY_NAME"),
+        translate(guild.id, "strings:COUNTING_CATEGORY_NAME"),
         { type: ChannelTypes.GUILD_CATEGORY },
       ),
       createGuildRole(
         guild.id,
-        { name: translate(guild.id, "commands/counting:TEAM_ONE_ROLE") },
+        { name: translate(guild.id, "strings:COUNTING_TEAM_ONE_ROLE") },
       ),
       createGuildRole(
         guild.id,
-        { name: translate(guild.id, "commands/counting:TEAM_TWO_ROLE") },
+        { name: translate(guild.id, "strings:COUNTING_TEAM_TWO_ROLE") },
       ),
       createGuildRole(
         guild.id,
-        { name: translate(guild.id, "commands/counting:LOSERS_ROLE") },
+        { name: translate(guild.id, "strings:COUNTING_LOSERS_ROLE") },
       ),
     ]);
 
@@ -63,20 +64,60 @@ createSubcommand("counting", {
       },
     ];
 
-    const [everyoneChannel, teamChannelOne, teamChannelTwo] = await Promise.all(
+    const [
+      howToPlayChannel,
+      teamSelectChannel,
+      everyoneChannel,
+      teamChannelOne,
+      teamChannelTwo,
+    ] = await Promise.all(
       [
         createGuildChannel(
           guild,
-          translate(guild.id, "commands/counting:COUNTING_GLOBAL"),
+          translate(guild.id, "strings:COUNTING_HOW_TO_PLAY"),
+          { parent_id: category.id, permissionOverwrites: baseOverwrites },
+        ),
+        createGuildChannel(
+          guild,
+          translate(guild.id, "strings:COUNTING_TEAM_SELECT"),
+          {
+            parent_id: category.id,
+            permissionOverwrites: [{
+              id: botID,
+              allow: [
+                "VIEW_CHANNEL",
+                "SEND_MESSAGES",
+                "USE_EXTERNAL_EMOJIS",
+                "ADD_REACTIONS",
+                "READ_MESSAGE_HISTORY",
+              ],
+              deny: [],
+              type: OverwriteType.MEMBER,
+            }, {
+              id: teamRoleOne.id,
+              type: OverwriteType.ROLE,
+              allow: [],
+              deny: ["VIEW_CHANNEL"],
+            }, {
+              id: teamRoleTwo.id,
+              type: OverwriteType.ROLE,
+              allow: [],
+              deny: ["VIEW_CHANNEL"],
+            }],
+          },
+        ),
+        createGuildChannel(
+          guild,
+          translate(guild.id, "strings:COUNTING_COUNTING_GLOBAL"),
           { parent_id: category.id, topic: "gamerCounting" },
         ),
         createGuildChannel(
           guild,
-          translate(guild.id, "commands/counting:TEAM_ONE"),
+          translate(guild.id, "strings:COUNTING_TEAM_ONE"),
           {
             parent_id: category.id,
             topic: "gamerCounting",
-            permission_overwrites: [
+            permissionOverwrites: [
               ...baseOverwrites,
               {
                 id: teamRoleOne.id,
@@ -92,11 +133,11 @@ createSubcommand("counting", {
         ),
         createGuildChannel(
           guild,
-          translate(guild.id, "commands/counting:TEAM_TWO"),
+          translate(guild.id, "strings:COUNTING_TEAM_TWO"),
           {
             parent_id: category.id,
             topic: "gamerCounting",
-            permission_overwrites: [
+            permissionOverwrites: [
               ...baseOverwrites,
               {
                 id: teamRoleTwo.id,
@@ -113,7 +154,81 @@ createSubcommand("counting", {
       ],
     );
 
-    db.counting.create(teamChannelOne.id, {
+    // Send the how to play instructions
+    await sendMessage(
+      howToPlayChannel.id,
+      [
+        translate(message.guildID, "strings:COUNTING_HOW_TO_PLAY_1"),
+        translate(message.guildID, "strings:COUNTING_HOW_TO_PLAY_2"),
+        translate(
+          message.guildID,
+          "strings:COUNTING_HOW_TO_PLAY_3",
+          {
+            channel: everyoneChannel.mention,
+            one: teamChannelOne.mention,
+            two: teamChannelTwo.mention,
+          },
+        ),
+        translate(
+          message.guildID,
+          "strings:COUNTING_HOW_TO_PLAY_4",
+          { one: teamChannelOne.mention, two: teamChannelTwo.mention },
+        ),
+        translate(message.guildID, "strings:COUNTING_HOW_TO_PLAY_5"),
+      ].join("\n"),
+    );
+
+    await sendMessage(
+      howToPlayChannel.id,
+      [
+        translate(message.guildID, "strings:COUNTING_HOW_TO_PLAY_6"),
+        translate(message.guildID, "strings:COUNTING_HOW_TO_PLAY_7"),
+        translate(message.guildID, "strings:COUNTING_HOW_TO_PLAY_8"),
+        translate(message.guildID, "strings:COUNTING_HOW_TO_PLAY_9"),
+        translate(message.guildID, "strings:COUNTING_HOW_TO_PLAY_10"),
+      ].join("\n"),
+    );
+
+    await sendMessage(
+      howToPlayChannel.id,
+      [
+        translate(message.guildID, "strings:COUNTING_HOW_TO_PLAY_11"),
+        translate(message.guildID, "strings:COUNTING_HOW_TO_PLAY_12"),
+        translate(message.guildID, "strings:COUNTING_HOW_TO_PLAY_13"),
+        translate(message.guildID, "strings:COUNTING_HOW_TO_PLAY_14"),
+        translate(message.guildID, "strings:COUNTING_HOW_TO_PLAY_15"),
+      ].join("\n"),
+    );
+
+    sendMessage(
+      howToPlayChannel.id,
+      [
+        translate(message.guildID, "strings:NEED_SUPPORT"),
+        botCache.constants.botSupportInvite,
+      ].join("\n"),
+    );
+
+    // Send the select team instructions
+    const pickTeamMessage = await sendMessage(
+      teamSelectChannel.id,
+      translate(
+        message.guildID,
+        "strings:COUNTING_PICK_YOUR_TEAM",
+        { returnObjects: true },
+      ).join("\n"),
+    );
+    addReactions(teamSelectChannel.id, pickTeamMessage.id, ["👤", "🤖"]);
+
+    // TODO: Create reaction role to select a team
+
+    // Create unique roleset to make sure they can only be in 1 team and that removes the team role when the tutor role is added.
+    db.uniquerolesets.update(message.id, {
+      guildID: message.guildID,
+      name: "counting",
+      roleIDs: [teamRoleOne.id, teamRoleTwo.id, losersRole.id],
+    });
+
+    db.counting.update(teamChannelOne.id, {
       guildID: guild.id,
       channelID: teamChannelOne.id,
       loserRoleID: losersRole.id,
@@ -124,7 +239,7 @@ createSubcommand("counting", {
       debuffs: [],
     });
 
-    db.counting.create(teamChannelTwo.id, {
+    db.counting.update(teamChannelTwo.id, {
       guildID: guild.id,
       channelID: teamChannelTwo.id,
       loserRoleID: losersRole.id,
@@ -135,7 +250,7 @@ createSubcommand("counting", {
       debuffs: [],
     });
 
-    db.counting.create(everyoneChannel.id, {
+    db.counting.update(everyoneChannel.id, {
       guildID: guild.id,
       channelID: everyoneChannel.id,
       loserRoleID: losersRole.id,

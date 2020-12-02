@@ -1,5 +1,4 @@
-import { botCache } from "../../../cache.ts";
-import { ChannelTypes, guildIconURL } from "../../../deps.ts";
+import { botCache, cache, ChannelTypes, guildIconURL } from "../../../deps.ts";
 import { createCommand, sendResponse } from "../../utils/helpers.ts";
 import { translate } from "../../utils/i18next.ts";
 import { Embed } from "../../utils/Embed.ts";
@@ -73,12 +72,13 @@ createCommand({
       settings.rolesChannelID,
     ];
 
-    const relevantChannels = guild.channels
+    const relevantChannels = cache.channels
       .filter((channel) => {
         // Skip non-text channels
         if (
           channel.type !== ChannelTypes.GUILD_NEWS ||
-          channel.type !== ChannelTypes.GUILD_TEXT
+          channel.type !== ChannelTypes.GUILD_TEXT ||
+          channel.guildID !== message.guildID
         ) {
           return false;
         }
@@ -96,7 +96,7 @@ createCommand({
       .map((channel) => channel.id);
 
     const topChannels = [...channelMessages.keys()]
-      .filter((id) => guild.channels.has(id))
+      .filter((id) => cache.channels.has(id))
       .sort((a, b) => channelMessages.get(b)! - channelMessages.get(a)!)
       .slice(0, 10);
 

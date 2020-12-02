@@ -21,6 +21,42 @@ export interface Helpers {
   chooseRandom: <T>(array: T[]) => T;
   snowflakeToTimestamp: (id: string) => number;
   toTitleCase: (text: string) => string;
+  chunkStrings: (
+    array: string[],
+    chunkSize?: number,
+    separateLines?: boolean,
+  ) => string[];
+  authorEmbed: (message: Message) => Embed;
+  cleanNumber: (number: bigint | number | string) => string;
+  shortNumber: (number: bigint | number | string) => string;
+
+  // Leveling Utils
+  addLocalXP: (
+    guildID: string,
+    memberID: string,
+    xpAmountToAdd?: number,
+    overrideCooldown?: boolean,
+  ) => Promise<void>;
+  addGlobalXP: (
+    memberID: string,
+    xpAmountToAdd?: number,
+    overrideCooldown?: boolean,
+  ) => Promise<void>;
+  removeXP: (
+    guildID: string,
+    memberID: string,
+    xpAmountToAdd?: number,
+  ) => Promise<void>;
+  completeMission: (
+    guildID: string,
+    memberID: string,
+    commandName: string,
+  ) => Promise<void>;
+  makeProfileCanvas: (
+    guildID: string,
+    memberID: string,
+    options?: ProfileCanvasOptions,
+  ) => Promise<Blob | undefined>;
 
   // Moderation utils
   createModlog: (
@@ -65,10 +101,11 @@ export interface Helpers {
   ) => void;
 
   // Discord Helpers
-  isModOrAdmin: (message: Message, settings: GuildSchema) => boolean;
+  isModOrAdmin: (message: Message, settings?: GuildSchema) => boolean;
   isAdmin: (message: Message, settings?: GuildSchema | null) => boolean;
   reactError: (message: Message, vip?: boolean) => void;
   reactSuccess: (message: Message) => void;
+  emojiReaction: (emoji: string) => string;
   emojiID: (emoji: string) => string | undefined;
   emojiUnicode: (emoji: ReactionPayload) => string;
   moveMessageToOtherChannel: (
@@ -80,6 +117,7 @@ export interface Helpers {
     guildID: string,
     userIDs: string[],
   ) => Promise<Collection<string, Member> | undefined>;
+  memberTag: (message: Message) => string;
 
   // Database stuff
   upsertGuild: (id: string) => Promise<GuildSchema>;
@@ -121,4 +159,9 @@ export interface Helpers {
     emoji: ReactionPayload,
     userID: string,
   ) => unknown;
+}
+
+export interface ProfileCanvasOptions {
+  style?: string;
+  backgroundID?: number;
 }

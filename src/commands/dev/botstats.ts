@@ -8,10 +8,17 @@ import {
   sendResponse,
 } from "../../utils/helpers.ts";
 import { db } from "../../database/database.ts";
+import { PermissionLevels } from "../../types/commands.ts";
 
 createCommand({
   name: "botstats",
   guildOnly: true,
+  permissionLevels: [
+    PermissionLevels.BOT_OWNER,
+    PermissionLevels.BOT_DEVS,
+    PermissionLevels.BOT_SUPPORT,
+  ],
+  botChannelPermissions: ["VIEW_CHANNEL", "SEND_MESSAGES", "EMBED_LINKS"],
   execute: async function (message, args, guild) {
     // Execute the normal stats command
     botCache.commands.get("stats")?.execute?.(message, args, guild);

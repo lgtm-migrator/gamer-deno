@@ -1,4 +1,4 @@
-import { botCache } from "../../../cache.ts";
+import { botCache, cache } from "../../../deps.ts";
 import { sendEmbed, sendResponse } from "../../utils/helpers.ts";
 import { Embed } from "../../utils/Embed.ts";
 import { translate } from "../../utils/i18next.ts";
@@ -982,10 +982,10 @@ gifData.forEach((data) => {
   botCache.commands.set(data.name, {
     name: data.name,
     aliases: data.aliases,
+    description: "strings:FUNGIFS_DESCRIPTION",
+    botChannelPermissions: ["VIEW_CHANNEL", "SEND_MESSAGES", "EMBED_LINKS"],
     guildOnly: true,
-    execute: async (message, _args, guild) => {
-      const member = guild?.members.get(message.author.id);
-
+    execute: async (message) => {
       // This command may require tenor.
       if (data.tenor && !botCache.tenorDisabledGuildIDs.has(message.guildID)) {
         const tenorData: TenorGif | undefined = await fetch(
@@ -1003,14 +1003,11 @@ gifData.forEach((data) => {
 
         // If there is no member for whatever reason just send the gif without embed
 
-        if (!member) return sendResponse(message, media.gif.url);
-
         if (media) {
           // Create the embed
-          const embed = new Embed()
-            .setAuthor(member.nick || member.tag, member.avatarURL)
+          const embed = botCache.helpers.authorEmbed(message)
             .setImage(media.gif.url)
-            .setFooter(translate(message.guildID, `common:TENOR`));
+            .setFooter(translate(message.guildID, `strings:TENOR`));
 
           // Send the embed to the channel
           return sendEmbed(message.channelID, embed);
@@ -1019,12 +1016,8 @@ gifData.forEach((data) => {
 
       const randomGif = botCache.helpers.chooseRandom(data.gifs);
 
-      // If there is no member for whatever reason just send the gif without embed
-      if (!member) return sendResponse(message, randomGif);
-
       // Create the embed
-      const embed = new Embed()
-        .setAuthor(member.nick || member.tag, member.avatarURL)
+      const embed = botCache.helpers.authorEmbed(message)
         .setImage(randomGif);
 
       // Send the embed to the channel

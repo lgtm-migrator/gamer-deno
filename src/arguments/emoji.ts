@@ -7,15 +7,20 @@ botCache.arguments.set("emoji", {
     let [id] = parameters;
     if (!id) return;
 
+    if (botCache.constants.emojis.defaults.has(id)) return id;
+
     if (id.startsWith("<:")) {
       id = id.substring(2, id.length - 1);
     } else if (id.startsWith("<a:")) {
       id = id.substring(3, id.length - 1);
     }
 
-    const guild = cache.guilds.get(message.guildID);
-    if (!guild) return;
+    const emoji = cache.guilds.get(message.guildID)?.emojis.find((e) =>
+      e.id === id
+    );
+    if (!emoji) return;
 
-    return guild.emojis.find((e) => e.id === id);
+    // @ts-ignore
+    return botCache.helpers.emojiUnicode(emoji);
   },
 });
