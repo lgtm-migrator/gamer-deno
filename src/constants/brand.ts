@@ -1,6 +1,6 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 
-botCache.constants.brand = {
+bot.constants.brand = {
   KICK_COLOR: "#ff8d00",
   KICK_IMAGE: "https://i.imgur.com/w0CrpQv.png",
   BAN_COLOR: "#ff2300",

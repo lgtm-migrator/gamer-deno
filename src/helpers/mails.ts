@@ -1,6 +1,6 @@
 import {
   addReactions,
-  botCache,
+  bot,
   botHasChannelPermissions,
   botHasPermission,
   cache,
@@ -23,17 +23,17 @@ export const channelNameRegex = /^-+|[^\w-]|-+$/g;
 
 function cleanReactInDM(message: Message, type: "error" | "success" = "error") {
   if (cache.channels.has(message.author.id)) {
-    if (type === "error") return botCache.helpers.reactError(message);
-    return botCache.helpers.reactSuccess(message);
+    if (type === "error") return bot.helpers.reactError(message);
+    return bot.helpers.reactSuccess(message);
   }
 
   return sendDirectMessage(
     message.author.id,
-    type === "error" ? botCache.constants.emojis.failure : botCache.constants.emojis.success
+    type === "error" ? bot.constants.emojis.failure : bot.constants.emojis.success
   ).catch(console.log);
 }
 
-botCache.helpers.mailHandleDM = async function (message, content) {
+bot.helpers.mailHandleDM = async function (message, content) {
   const mails = await db.mails.findMany({ userID: message.author.id }, true);
 
   // If the user has no mails and hes trying to create a mail it needs to error because mails must be created within a guild.
@@ -78,7 +78,7 @@ botCache.helpers.mailHandleDM = async function (message, content) {
   const mainGuild = cache.guilds.get(mail.mainGuildID);
   if (!mainGuild) return cleanReactInDM(message);
 
-  const embed = botCache.helpers.authorEmbed(message).setDescription(content).setFooter(message.author.id);
+  const embed = bot.helpers.authorEmbed(message).setDescription(content).setFooter(message.author.id);
 
   const [attachment] = message.attachments;
   if (attachment) embed.setImage(attachment.url);
@@ -116,27 +116,27 @@ botCache.helpers.mailHandleDM = async function (message, content) {
     });
   }
 
-  const logChannelID = botCache.guildMailLogsChannelIDs.get(message.guildID);
+  const logChannelID = bot.guildMailLogsChannelIDs.get(message.guildID);
   if (logChannelID) await sendEmbed(logChannelID, embed);
 
   return cleanReactInDM(message, "success");
 };
 
-botCache.helpers.mailHandleSupportChannel = async function (message) {
+bot.helpers.mailHandleSupportChannel = async function (message) {
   const mail = await db.mails.findOne({
     mainGuildID: message.guildID,
     userID: message.author.id,
   });
   // If the user doesn't have an open mail we need to create one
   if (!mail) {
-    return botCache.helpers.mailCreate(message, message.content);
+    return bot.helpers.mailCreate(message, message.content);
   }
 
   // User does have an open mail
   const guild = cache.guilds.get(mail.guildID);
-  if (!guild) return botCache.helpers.reactError(message);
+  if (!guild) return bot.helpers.reactError(message);
 
-  const embed = botCache.helpers.authorEmbed(message).setDescription(message.content).setFooter(message.author.id);
+  const embed = bot.helpers.authorEmbed(message).setDescription(message.content).setFooter(message.author.id);
   if (message.attachments.length) {
     const [attachment] = message.attachments;
     if (attachment) {
@@ -148,12 +148,12 @@ botCache.helpers.mailHandleSupportChannel = async function (message) {
   }
 
   const channel = cache.channels.get(mail.channelID);
-  if (!channel) return botCache.helpers.mailCreate(message, message.content);
+  if (!channel) return bot.helpers.mailCreate(message, message.content);
 
   if (
     !(await botHasChannelPermissions(mail.channelID, ["VIEW_CHANNEL", "SEND_MESSAGES", "EMBED_LINKS", "ATTACH_FILES"]))
   ) {
-    return botCache.helpers.reactError(message);
+    return bot.helpers.reactError(message);
   }
 
   const settings = await db.guilds.get(mail.mainGuildID);
@@ -170,18 +170,18 @@ botCache.helpers.mailHandleSupportChannel = async function (message) {
     mentions: { roles: alertRoleIDs, users: [message.author.id], parse: [] },
   });
 
-  const logChannelID = botCache.guildMailLogsChannelIDs.get(message.guildID);
+  const logChannelID = bot.guildMailLogsChannelIDs.get(message.guildID);
   if (logChannelID) await sendEmbed(logChannelID, embed);
 
   await message.alert(translate(message.guildID, "strings:MAIL_REPLY_SENT_SUPPORT"));
 };
 
-botCache.helpers.mailCreate = async function (message, content, member) {
+bot.helpers.mailCreate = async function (message, content, member) {
   const mailUser = member || cache.members.get(message.author.id);
-  if (!mailUser) return botCache.helpers.reactError(message);
+  if (!mailUser) return bot.helpers.reactError(message);
 
   const settings = await db.guilds.get(message.guildID);
-  if (!settings?.mailsEnabled) return botCache.helpers.reactError(message);
+  if (!settings?.mailsEnabled) return bot.helpers.reactError(message);
 
   const channelName = mailUser.tag.replace(channelNameRegex, ``).toLowerCase();
 
@@ -192,15 +192,15 @@ botCache.helpers.mailCreate = async function (message, content, member) {
   });
 
   const guild = cache.guilds.get(settings.mailsGuildID || message.guildID);
-  if (!guild) return botCache.helpers.reactError(message);
+  if (!guild) return bot.helpers.reactError(message);
 
   let category = cache.channels.get(settings.mailCategoryID);
   if (!(await botHasPermission(guild.id, ["MANAGE_CHANNELS"]))) {
-    return botCache.helpers.reactError(message);
+    return bot.helpers.reactError(message);
   }
 
   const prefix = parsePrefix(message.guildID);
-  const manualEmbed = botCache.helpers
+  const manualEmbed = bot.helpers
     .authorEmbed(message)
     .setDescription(
       [
@@ -214,10 +214,10 @@ botCache.helpers.mailCreate = async function (message, content, member) {
 
   const alertRoleIDs = settings?.mailsRoleIDs || [];
 
-  const embed = botCache.helpers.authorEmbed(message).setDescription(content).setFooter(message.author.id);
+  const embed = bot.helpers.authorEmbed(message).setDescription(content).setFooter(message.author.id);
 
   // If this is a vip guild, begin Q&A sequence
-  if (botCache.vipGuildIDs.has(message.guildID)) {
+  if (bot.vipGuildIDs.has(message.guildID)) {
     const messageIDs: string[] = [];
 
     const CANCEL_OPTIONS = translate(message.guildID, "strings:CANCEL_OPTIONS", { returnObjects: true });
@@ -239,19 +239,19 @@ botCache.helpers.mailCreate = async function (message, content, member) {
         await addReactions(
           questionMessage.channelID,
           questionMessage.id,
-          Object.values(botCache.constants.emojis.numbers.slice(0, options.length)),
+          Object.values(bot.constants.emojis.numbers.slice(0, options.length)),
           true
         );
       }
       const response = isMessageType
-        ? await botCache.helpers.needMessage(message.author.id, questionMessage.channelID)
-        : await botCache.helpers.needReaction(mailUser.id, questionMessage.id);
+        ? await bot.helpers.needMessage(message.author.id, questionMessage.channelID)
+        : await bot.helpers.needReaction(mailUser.id, questionMessage.id);
       if (!response) {
         break;
       }
 
       if (typeof response === "string") {
-        const index = botCache.constants.emojis.numbers.findIndex((e) => e === response);
+        const index = bot.constants.emojis.numbers.findIndex((e) => e === response);
         const selectedOption = options[index];
         if (!selectedOption) {
           break;
@@ -288,17 +288,17 @@ botCache.helpers.mailCreate = async function (message, content, member) {
     }
 
     if (embed.fields.length !== settings.mailQuestions.length) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
   }
 
   // Make sure the category can be read since we need to create a channel inside this category
   if (category && !(await botHasChannelPermissions(category.id, ["VIEW_CHANNEL"]))) {
-    return botCache.helpers.reactError(message);
+    return bot.helpers.reactError(message);
   }
 
   if (category && (await categoryChildrenIDs(guild.id, category.id)).size === 50) {
-    return botCache.helpers.reactError(message);
+    return bot.helpers.reactError(message);
   }
 
   // Creates a text channel by default and we move it to the mail category
@@ -319,7 +319,7 @@ botCache.helpers.mailCreate = async function (message, content, member) {
   });
 
   if (!(await botHasChannelPermissions(channel.id, ["VIEW_CHANNEL", "SEND_MESSAGES", "EMBED_LINKS", "ATTACH_FILES"]))) {
-    return botCache.helpers.reactError(message);
+    return bot.helpers.reactError(message);
   }
 
   await sendEmbed(channel.id, manualEmbed);
@@ -333,7 +333,7 @@ botCache.helpers.mailCreate = async function (message, content, member) {
     mentions: { roles: alertRoleIDs, users: [message.author.id], parse: [] },
   });
 
-  const logChannelID = botCache.guildMailLogsChannelIDs.get(message.guildID);
+  const logChannelID = bot.guildMailLogsChannelIDs.get(message.guildID);
   if (logChannelID) await sendEmbed(logChannelID, embed);
   if (!member) await deleteMessage(message).catch(console.log);
 

@@ -1,11 +1,11 @@
 import { cache, editChannel, sendMessage } from "../../deps.ts";
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.tasks.set(`items`, {
+bot.tasks.set(`items`, {
   name: `items`,
-  interval: botCache.constants.milliseconds.MINUTE,
+  interval: bot.constants.milliseconds.MINUTE,
   execute: async function () {
     const itemsToExpire = await db.items.getAll();
     const now = Date.now();

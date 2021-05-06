@@ -1,7 +1,7 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 import { cache, ChannelTypes } from "../../deps.ts";
 
-botCache.arguments.set("guildtextchannel", {
+bot.arguments.set("guildtextchannel", {
   name: "guildtextchannel",
   execute: async function (_argument, parameters, message) {
     const [id] = parameters;

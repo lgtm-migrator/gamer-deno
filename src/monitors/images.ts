@@ -1,22 +1,22 @@
-import { bgBlue, bgYellow, black, botCache, cache } from "../../deps.ts";
+import { bgBlue, bgYellow, black, bot, cache } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { getTime, sendEmbed } from "../utils/helpers.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.monitors.set("images", {
+bot.monitors.set("images", {
   name: "images",
   execute: async function (message) {
     // VIP ONLY
-    if (!botCache.vipGuildIDs.has(message.guildID)) return;
+    if (!bot.vipGuildIDs.has(message.guildID)) return;
 
     // First check if the message has an attachment or embed
     if (!message.attachments.length && !message.embeds.length) return;
 
-    const logs = botCache.recentLogs.has(message.guildID)
-      ? botCache.recentLogs.get(message.guildID)
+    const logs = bot.recentLogs.has(message.guildID)
+      ? bot.recentLogs.get(message.guildID)
       : await db.serverlogs.get(message.guildID);
 
-    botCache.recentLogs.set(message.guildID, logs);
+    bot.recentLogs.set(message.guildID, logs);
     // LOGS DISABLED
     if (!logs?.imageChannelID) return;
     // IGNORED CHANNEL IDS
@@ -31,7 +31,7 @@ botCache.monitors.set("images", {
 
     console.log(`${bgBlue(`[${getTime()}]`)} => [MONITOR: ${bgYellow(black("images"))}] Processing.`);
 
-    const embed = botCache.helpers.authorEmbed(message).setDescription([
+    const embed = bot.helpers.authorEmbed(message).setDescription([
       translate(message.guildID, "strings:CHANNEL", {
         channel: `<#${message.channelID}>`,
       }),

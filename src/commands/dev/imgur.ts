@@ -1,5 +1,5 @@
 import { configs } from "../../../configs.ts";
-import { botCache } from "../../../deps.ts";
+import { bot } from "../../../deps.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createCommand } from "../../utils/helpers.ts";
 
@@ -12,9 +12,9 @@ createCommand({
   execute: async function (message, args) {
     const [attachment] = message.attachments;
     const url = attachment ? attachment.url : args.url ? args.url : undefined;
-    if (!url) return botCache.helpers.reactError(message);
+    if (!url) return bot.helpers.reactError(message);
 
-    if (url.includes(`imgur.com`)) return botCache.helpers.reactError(message);
+    if (url.includes(`imgur.com`)) return bot.helpers.reactError(message);
 
     const result = await fetch(`https://api.imgur.com/3/image`, {
       method: `POST`,
@@ -28,7 +28,7 @@ createCommand({
       .catch(console.log);
 
     if (!result || result.status !== 200) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     return message.send(result.data.link);

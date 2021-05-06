@@ -1,6 +1,6 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 
-botCache.constants.emojis = {
+bot.constants.emojis = {
   letters: [
     "🇦",
     "🇧",

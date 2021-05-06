@@ -1,4 +1,4 @@
-import { addRole, botCache, botHasPermission, botID, higherRolePosition, highestRole, removeRole } from "../../deps.ts";
+import { addRole, bot, botHasPermission, botID, higherRolePosition, highestRole, removeRole } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { translate } from "../utils/i18next.ts";
 
@@ -32,7 +32,7 @@ function checkCooldown(memberID: string, guildID?: string) {
 }
 
 // The override cooldown is useful for XP command when you want to force add XP like daily command
-botCache.helpers.addLocalXP = async function (guildID, memberID, xpAmountToAdd = 1, overrideCooldown = false) {
+bot.helpers.addLocalXP = async function (guildID, memberID, xpAmountToAdd = 1, overrideCooldown = false) {
   // If the member is in cooldown cancel out
   if (!overrideCooldown && checkCooldown(memberID, guildID)) return;
 
@@ -41,10 +41,10 @@ botCache.helpers.addLocalXP = async function (guildID, memberID, xpAmountToAdd =
   let multiplier = 1;
 
   const memberLevel =
-    botCache.constants.levels.find((lvl) => lvl.xpNeeded > (settings?.xp || 0)) || botCache.constants.levels.get(0)!;
+    bot.constants.levels.find((lvl) => lvl.xpNeeded > (settings?.xp || 0)) || bot.constants.levels.get(0)!;
 
   const totalXP = xpAmountToAdd * multiplier + (settings?.xp || 0);
-  const newLevel = botCache.constants.levels.find((level) => level.xpNeeded > totalXP);
+  const newLevel = bot.constants.levels.find((level) => level.xpNeeded > totalXP);
 
   // User did not level up
   await db.xp.update(`${guildID}-${memberID}`, {
@@ -76,7 +76,7 @@ botCache.helpers.addLocalXP = async function (guildID, memberID, xpAmountToAdd =
   }
 };
 
-botCache.helpers.addGlobalXP = async function (memberID, xpAmountToAdd = 1, overrideCooldown = false) {
+bot.helpers.addGlobalXP = async function (memberID, xpAmountToAdd = 1, overrideCooldown = false) {
   if (!overrideCooldown && checkCooldown(memberID)) return;
 
   const settings = await db.users.get(memberID);
@@ -84,7 +84,7 @@ botCache.helpers.addGlobalXP = async function (memberID, xpAmountToAdd = 1, over
   await db.users.update(memberID, { xp: xpAmountToAdd + (settings?.xp || 0) });
 };
 
-botCache.helpers.removeXP = async function (guildID, memberID, xpAmountToRemove = 1) {
+bot.helpers.removeXP = async function (guildID, memberID, xpAmountToRemove = 1) {
   if (xpAmountToRemove < 1) return;
 
   const settings = await db.xp.get(`${guildID}-${memberID}`);
@@ -101,8 +101,8 @@ botCache.helpers.removeXP = async function (guildID, memberID, xpAmountToRemove 
   });
 
   // Find the old level based on the remaining XP
-  const newLevel = botCache.constants.levels.find((level) => level.xpNeeded > currentXP);
-  const oldLevel = botCache.constants.levels.find((level) => level.xpNeeded > settings.xp);
+  const newLevel = bot.constants.levels.find((level) => level.xpNeeded > currentXP);
+  const oldLevel = bot.constants.levels.find((level) => level.xpNeeded > settings.xp);
   if (!oldLevel || !newLevel || newLevel.id === oldLevel.id) return;
 
   if (!(await botHasPermission(guildID, ["MANAGE_ROLES"]))) return;
@@ -138,13 +138,13 @@ botCache.helpers.removeXP = async function (guildID, memberID, xpAmountToRemove 
   }
 };
 
-botCache.helpers.completeMission = async function (guildID, memberID, commandName) {
+bot.helpers.completeMission = async function (guildID, memberID, commandName) {
   // If this guild has disabled missions turn this off.
-  if (botCache.missionsDisabledGuildIDs.has(guildID)) return;
+  if (bot.missionsDisabledGuildIDs.has(guildID)) return;
 
   // Check if this is a daily mission from today
-  const mission = botCache.missions.find((m, index) => {
-    if (index > 2 && !botCache.activeMembersOnSupportServer.has(memberID)) {
+  const mission = bot.missions.find((m, index) => {
+    if (index > 2 && !bot.activeMembersOnSupportServer.has(memberID)) {
       return;
     }
     return m.commandName === commandName;
@@ -165,8 +165,8 @@ botCache.helpers.completeMission = async function (guildID, memberID, commandNam
 
     if (mission.amount === 1) {
       // The mission should be completed now so need to give XP.
-      botCache.helpers.addLocalXP(guildID, memberID, mission.reward, true);
-      botCache.helpers.addGlobalXP(memberID, mission.reward, true);
+      bot.helpers.addLocalXP(guildID, memberID, mission.reward, true);
+      bot.helpers.addGlobalXP(memberID, mission.reward, true);
     }
 
     return;
@@ -182,6 +182,6 @@ botCache.helpers.completeMission = async function (guildID, memberID, commandNam
   if (missionData.amount + 1 === mission.amount) missionData.completed = true;
 
   // The mission should be completed now so need to give XP.
-  botCache.helpers.addLocalXP(guildID, memberID, mission.reward, true);
-  botCache.helpers.addGlobalXP(memberID, mission.reward, true);
+  bot.helpers.addLocalXP(guildID, memberID, mission.reward, true);
+  bot.helpers.addGlobalXP(memberID, mission.reward, true);
 };

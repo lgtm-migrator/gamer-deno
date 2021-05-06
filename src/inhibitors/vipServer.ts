@@ -1,9 +1,9 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 import { configs } from "../../configs.ts";
 import { sendResponse } from "../utils/helpers.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.inhibitors.set("vipServer", async function (message, command, guild) {
+bot.inhibitors.set("vipServer", async function (message, command, guild) {
   // If this command does not need nsfw the inhibitor returns false so the command can run
   if (!command.vipServerOnly) return false;
 
@@ -14,7 +14,7 @@ botCache.inhibitors.set("vipServer", async function (message, command, guild) {
   }
 
   // If this is a vip server allow the command
-  if (botCache.vipGuildIDs.has(message.guildID)) return false;
+  if (bot.vipGuildIDs.has(message.guildID)) return false;
   // Allow bots support server
   if (message.guildID === configs.supportServerID) return false;
 

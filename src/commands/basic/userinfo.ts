@@ -1,4 +1,4 @@
-import { botCache, cache, memberIDHasPermission, Permission, Permissions } from "../../../deps.ts";
+import { bot, cache, memberIDHasPermission, Permission, Permissions } from "../../../deps.ts";
 import { createCommand, humanizeMilliseconds, permsToString } from "../../utils/helpers.ts";
 import { translate } from "../../utils/i18next.ts";
 
@@ -29,7 +29,7 @@ createCommand({
       .map((id) => `<@&${id}>`)
       .join(`, `);
 
-    const createdAt = botCache.helpers.snowflakeToTimestamp(member.id);
+    const createdAt = bot.helpers.snowflakeToTimestamp(member.id);
     const memberPerms = (
       await Promise.all(
         Object.keys(Permissions)
@@ -40,7 +40,7 @@ createCommand({
       )
     ).filter((k) => k) as Permission[];
 
-    const embed = botCache.helpers
+    const embed = bot.helpers
       .authorEmbed(message)
       .setThumbnail(member.avatarURL)
       .addField(translate(guild.id, "strings:USER_TAG"), guildMember.nick || member.tag, true)

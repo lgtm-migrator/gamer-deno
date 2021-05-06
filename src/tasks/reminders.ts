@@ -1,10 +1,10 @@
-import { botCache, sendMessage } from "../../deps.ts";
+import { bot, sendMessage } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { Embed } from "../utils/Embed.ts";
 
-botCache.tasks.set("reminders", {
+bot.tasks.set("reminders", {
   name: "reminders",
-  interval: botCache.constants.milliseconds.MINUTE,
+  interval: bot.constants.milliseconds.MINUTE,
   execute: async function () {
     const now = Date.now();
 

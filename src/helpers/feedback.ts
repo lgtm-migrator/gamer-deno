@@ -8,21 +8,21 @@ import {
   sendDirectMessage,
   sendMessage,
 } from "../../deps.ts";
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 import { sendEmbed } from "../utils/helpers.ts";
 import { db } from "../database/database.ts";
 import { Embed } from "../utils/Embed.ts";
 import { translate } from "../utils/i18next.ts";
 
 const feedbackEmojis = [
-  botCache.constants.emojis.voteup,
-  botCache.constants.emojis.votedown,
-  botCache.constants.emojis.mailbox,
-  botCache.constants.emojis.success,
-  botCache.constants.emojis.failure,
+  bot.constants.emojis.voteup,
+  bot.constants.emojis.votedown,
+  bot.constants.emojis.mailbox,
+  bot.constants.emojis.success,
+  bot.constants.emojis.failure,
 ];
 
-botCache.helpers.sendFeedback = async function (message, channel, embed, settings, isBugReport = false) {
+bot.helpers.sendFeedback = async function (message, channel, embed, settings, isBugReport = false) {
   const channelToUse = cache.channels.get(settings.approvalChannelID) || channel;
   if (!channelToUse || ![ChannelTypes.GUILD_TEXT, ChannelTypes.GUILD_NEWS].includes(channelToUse.type)) {
     return;
@@ -35,13 +35,11 @@ botCache.helpers.sendFeedback = async function (message, channel, embed, setting
 
   // Create all reactions and then react to the message sent in the feedback channel
   // Permissions are checked in the bug command so we should be good to react
-  const emojis = needsApproval
-    ? feedbackEmojis
-    : [botCache.constants.emojis.success, botCache.constants.emojis.failure];
+  const emojis = needsApproval ? feedbackEmojis : [bot.constants.emojis.success, bot.constants.emojis.failure];
   await addReactions(channelToUse.id, feedback.id, emojis, true);
 
   // Increment by 1
-  botCache.stats.feedbacksSent += 1;
+  bot.stats.feedbacksSent += 1;
 
   // Add the feedback to the database for use in the reaction system
   await db.feedbacks.create(feedback.id, {
@@ -55,7 +53,7 @@ botCache.helpers.sendFeedback = async function (message, channel, embed, setting
   await message.reply(translate(message.guildID, "strings:FEEDBACK_SENT"));
 };
 
-botCache.helpers.removeFeedbackReaction = async function (message, emoji, userID) {
+bot.helpers.removeFeedbackReaction = async function (message, emoji, userID) {
   if (!message.embeds.length) return;
   const fullEmojiName = `<${emoji.animated ? "a" : ""}:${emoji.name}:${emoji.id}>`;
 
@@ -76,22 +74,22 @@ botCache.helpers.removeFeedbackReaction = async function (message, emoji, userID
   }
 
   // Check if a valid emoji was used
-  if (![botCache.constants.emojis.voteup, botCache.constants.emojis.votedown].includes(fullEmojiName)) {
+  if (![bot.constants.emojis.voteup, bot.constants.emojis.votedown].includes(fullEmojiName)) {
     return;
   }
 
-  const member = await botCache.helpers.fetchMember(channel.guildID, feedback.userID);
+  const member = await bot.helpers.fetchMember(channel.guildID, feedback.userID);
   if (!member) return;
 
-  if (fullEmojiName === botCache.constants.emojis.voteup) {
-    return botCache.helpers.removeXP(channel.guildID, member.id, 3);
+  if (fullEmojiName === bot.constants.emojis.voteup) {
+    return bot.helpers.removeXP(channel.guildID, member.id, 3);
   }
-  if (fullEmojiName === botCache.constants.emojis.votedown) {
-    return botCache.helpers.addLocalXP(channel.guildID, member.id, 3, true);
+  if (fullEmojiName === bot.constants.emojis.votedown) {
+    return bot.helpers.addLocalXP(channel.guildID, member.id, 3, true);
   }
 };
 
-botCache.helpers.handleFeedbackReaction = async function (message, emoji, userID) {
+bot.helpers.handleFeedbackReaction = async function (message, emoji, userID) {
   if (!message.embeds.length) return;
 
   const fullEmojiName = `<${emoji.animated ? "a" : ""}:${emoji.name}:${emoji.id}>`;
@@ -110,7 +108,7 @@ botCache.helpers.handleFeedbackReaction = async function (message, emoji, userID
     return;
   }
 
-  const reactorMember = await botCache.helpers.fetchMember(channel.guildID, userID);
+  const reactorMember = await bot.helpers.fetchMember(channel.guildID, userID);
   if (!reactorMember) return;
 
   const reactor = reactorMember.guilds.get(channel.guildID);
@@ -120,11 +118,11 @@ botCache.helpers.handleFeedbackReaction = async function (message, emoji, userID
   const reactorIsAdmin =
     reactor.roles.includes(settings.adminRoleID) ||
     (await memberIDHasPermission(userID, channel.guildID, ["ADMINISTRATOR"]));
-  const feedbackMember = await botCache.helpers.fetchMember(channel.guildID, feedback.userID);
+  const feedbackMember = await bot.helpers.fetchMember(channel.guildID, feedback.userID);
 
   switch (fullEmojiName) {
     // This case will run if the reaction was the Mailbox reaction
-    case botCache.constants.emojis.mailbox:
+    case bot.constants.emojis.mailbox:
       // If the user is not atleast a mod cancel everything
       if (!reactorIsAdmin && !reactorIsMod) return;
       // Make sure the member is in the guild
@@ -140,7 +138,7 @@ botCache.helpers.handleFeedbackReaction = async function (message, emoji, userID
         .then((openMail) => {
           if (!openMail) {
             // Create a mail for this guild. Passing the User will override message.author in mailCreate
-            return botCache.helpers.mailCreate(
+            return bot.helpers.mailCreate(
               message,
               `Feedback details requested by ${reactorMember.tag}`,
               feedbackMember
@@ -152,7 +150,7 @@ botCache.helpers.handleFeedbackReaction = async function (message, emoji, userID
         });
       break;
     // This case will run if the reaction was the solved green check mark
-    case botCache.constants.emojis.success:
+    case bot.constants.emojis.success:
       // If the user is not atleast a mod cancel everything
       if (!reactorIsAdmin && !reactorIsMod) return;
 
@@ -199,7 +197,7 @@ botCache.helpers.handleFeedbackReaction = async function (message, emoji, userID
       }
 
       if (feedbackMember) {
-        botCache.helpers.addLocalXP(channel.guildID, feedbackMember.id, 50, true);
+        bot.helpers.addLocalXP(channel.guildID, feedbackMember.id, 50, true);
         try {
           await sendDirectMessage(feedbackMember.id, settings.solvedMessage);
           // Shows the user the feedback that was accepted
@@ -219,12 +217,12 @@ botCache.helpers.handleFeedbackReaction = async function (message, emoji, userID
       // Deletes the feedback
       return deleteMessage(message).catch(console.log);
     // This case will run when the red x is reacted on
-    case botCache.constants.emojis.failure:
+    case bot.constants.emojis.failure:
       // If the user is not atleast a mod cancel everything
       if (!reactorIsAdmin && !reactorIsMod) return;
 
       if (feedbackMember) {
-        botCache.helpers.removeXP(message.guildID, feedbackMember.id, 50);
+        bot.helpers.removeXP(message.guildID, feedbackMember.id, 50);
         try {
           await sendDirectMessage(feedbackMember.id, settings.rejectedMessage);
           // Shows the user the feedback that was accepted
@@ -255,12 +253,12 @@ botCache.helpers.handleFeedbackReaction = async function (message, emoji, userID
       // If the user is no longer in the server we dont need to grant any xp
       if (!feedbackMember) return;
 
-      botCache.helpers.completeMission(channel.guildID, feedbackMember.id, `votefeedback`);
+      bot.helpers.completeMission(channel.guildID, feedbackMember.id, `votefeedback`);
 
-      if (fullEmojiName === botCache.constants.emojis.votedown) {
-        return botCache.helpers.removeXP(channel.guildID, feedbackMember.id, 3);
-      } else if (fullEmojiName === botCache.constants.emojis.voteup) {
-        return botCache.helpers.addLocalXP(channel.guildID, feedbackMember.id, 3, true);
+      if (fullEmojiName === bot.constants.emojis.votedown) {
+        return bot.helpers.removeXP(channel.guildID, feedbackMember.id, 3);
+      } else if (fullEmojiName === bot.constants.emojis.voteup) {
+        return bot.helpers.addLocalXP(channel.guildID, feedbackMember.id, 3, true);
       }
   }
 };

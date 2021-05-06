@@ -1,5 +1,5 @@
 import {
-  botCache,
+  bot,
   cache,
   deleteMessage,
   deleteMessageByID,
@@ -13,9 +13,9 @@ import { EventsSchema } from "../database/schemas.ts";
 import { Embed } from "../utils/Embed.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.tasks.set("events", {
+bot.tasks.set("events", {
   name: "events",
-  interval: botCache.constants.milliseconds.MINUTE,
+  interval: bot.constants.milliseconds.MINUTE,
   execute: async function () {
     // First fetch all the events from the database
     const events = await db.events.getAll(true);
@@ -63,7 +63,7 @@ async function endEvent(event: EventsSchema) {
   event.executedReminders = [];
 
   // If vip guild and they request clearing lists do it
-  if (event.removeRecurringAttendees && botCache.vipGuildIDs.has(event.guildID)) {
+  if (event.removeRecurringAttendees && bot.vipGuildIDs.has(event.guildID)) {
     event.acceptedUsers = [];
     event.waitingUsers = [];
     event.deniedUserIDs = [];
@@ -84,7 +84,7 @@ async function endEvent(event: EventsSchema) {
   if (!cardMessage) return;
 
   // If it existed, update it with new info
-  await botCache.commands.get("events")?.subcommands?.get("card")?.execute?.(
+  await bot.commands.get("events")?.subcommands?.get("card")?.execute?.(
     cardMessage,
     // @ts-ignore
     { eventID: event.eventID }
@@ -115,12 +115,12 @@ async function startEvent(event: EventsSchema) {
   await db.events.update(event.id, { hasStarted: true });
   // Send a reminder message to the channel
   const reminder = await sendMessage(event.cardChannelID, {
-    content: botCache.vipGuildIDs.has(event.guildID) ? event.alertRoleIDs.map((id) => `<@&${id}>`).join(" ") : "",
+    content: bot.vipGuildIDs.has(event.guildID) ? event.alertRoleIDs.map((id) => `<@&${id}>`).join(" ") : "",
     embed,
   }).catch(console.log);
   // Delete it after a minute
   if (reminder) {
-    await deleteMessage(reminder, undefined, botCache.constants.milliseconds.MINUTE).catch(console.log);
+    await deleteMessage(reminder, undefined, bot.constants.milliseconds.MINUTE).catch(console.log);
   }
 }
 
@@ -155,12 +155,12 @@ async function remindEvent(event: EventsSchema) {
   if (event.channelReminders) {
     // Send a reminder message to the channel
     const reminder = await sendMessage(event.cardChannelID, {
-      content: botCache.vipGuildIDs.has(event.guildID) ? event.alertRoleIDs.map((id) => `<@&${id}>`).join(" ") : "",
+      content: bot.vipGuildIDs.has(event.guildID) ? event.alertRoleIDs.map((id) => `<@&${id}>`).join(" ") : "",
       embed,
     });
     // Delete it after a minute
     if (reminder) {
-      await deleteMessage(reminder, undefined, botCache.constants.milliseconds.MINUTE).catch(console.log);
+      await deleteMessage(reminder, undefined, bot.constants.milliseconds.MINUTE).catch(console.log);
     }
   }
 

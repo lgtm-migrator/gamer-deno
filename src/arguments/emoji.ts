@@ -1,12 +1,12 @@
-import { botCache, cache } from "../../deps.ts";
+import { bot, cache } from "../../deps.ts";
 
-botCache.arguments.set("emoji", {
+bot.arguments.set("emoji", {
   name: "emoji",
   execute: async function (_argument, parameters, message) {
     let [id] = parameters;
     if (!id) return;
 
-    if (botCache.constants.emojis.defaults.has(id)) return id;
+    if (bot.constants.emojis.defaults.has(id)) return id;
 
     if (id.startsWith("<:") || id.startsWith("<a:")) {
       id = id.substring(id.lastIndexOf(":") + 1, id.length - 1);
@@ -26,6 +26,6 @@ botCache.arguments.set("emoji", {
     }
 
     // @ts-ignore
-    return botCache.helpers.emojiUnicode(emoji);
+    return bot.helpers.emojiUnicode(emoji);
   },
 });

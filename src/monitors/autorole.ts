@@ -1,8 +1,8 @@
-import { addRole, bgBlue, bgYellow, black, botCache, cache } from "../../deps.ts";
+import { addRole, bgBlue, bgYellow, black, bot, cache } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { getTime } from "../utils/helpers.ts";
 
-botCache.monitors.set("autorole", {
+bot.monitors.set("autorole", {
   name: "autorole",
   botServerPermissions: ["MANAGE_ROLES"],
   execute: async function (message) {

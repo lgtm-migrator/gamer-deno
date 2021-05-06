@@ -1,4 +1,4 @@
-import { botCache } from "../../../deps.ts";
+import { bot } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createCommand } from "../../utils/helpers.ts";
@@ -18,12 +18,12 @@ createCommand({
       await db.blacklisted.update(args.id, {
         type: args.userOrGuild as "user" | "guild",
       });
-      botCache.blacklistedIDs.add(args.id);
+      bot.blacklistedIDs.add(args.id);
     } else {
       await db.blacklisted.delete(args.id);
-      botCache.blacklistedIDs.delete(args.id);
+      bot.blacklistedIDs.delete(args.id);
     }
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

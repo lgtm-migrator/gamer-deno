@@ -1,5 +1,5 @@
 import {
-  botCache,
+  bot,
   botHasChannelPermissions,
   botHasPermission,
   editMember,
@@ -13,10 +13,10 @@ import { Embed } from "../utils/Embed.ts";
 import { sendEmbed } from "../utils/helpers.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.eventHandlers.roleLost = async function (guild, member, roleID) {
+bot.eventHandlers.roleLost = async function (guild, member, roleID) {
   // VIP ONLY STUFF
-  if (!botCache.vipGuildIDs.has(guild.id)) return;
-  if (!botCache.fullyReady) return;
+  if (!bot.vipGuildIDs.has(guild.id)) return;
+  if (!bot.fullyReady) return;
 
   handleServerLog(guild, member, roleID, "removed").catch(console.log);
   handleRoleMessages(guild, member, roleID, "removed").catch(console.log);
@@ -44,9 +44,9 @@ botCache.eventHandlers.roleLost = async function (guild, member, roleID) {
   }).catch(console.log);
 };
 
-botCache.eventHandlers.roleGained = async function (guild, member, roleID) {
+bot.eventHandlers.roleGained = async function (guild, member, roleID) {
   // VIP ONLY STUFF
-  if (!botCache.vipGuildIDs.has(guild.id)) return;
+  if (!bot.vipGuildIDs.has(guild.id)) return;
 
   handleServerLog(guild, member, roleID, "added");
   handleRoleMessages(guild, member, roleID, "added");
@@ -104,13 +104,11 @@ botCache.eventHandlers.roleGained = async function (guild, member, roleID) {
 
 async function handleServerLog(guild: Guild, member: Member, roleID: string, type: "added" | "removed") {
   // VIP ONLY STUFF
-  if (!botCache.vipGuildIDs.has(guild.id)) return;
+  if (!bot.vipGuildIDs.has(guild.id)) return;
 
-  const logs = botCache.recentLogs.has(guild.id)
-    ? botCache.recentLogs.get(guild.id)
-    : await db.serverlogs.get(guild.id);
+  const logs = bot.recentLogs.has(guild.id) ? bot.recentLogs.get(guild.id) : await db.serverlogs.get(guild.id);
 
-  botCache.recentLogs.set(guild.id, logs);
+  bot.recentLogs.set(guild.id, logs);
 
   if (!logs?.roleMembersChannelID) return;
 
@@ -143,10 +141,10 @@ async function handleServerLog(guild: Guild, member: Member, roleID: string, typ
 }
 
 async function handleRoleMessages(guild: Guild, member: Member, roleID: string, type: "added" | "removed" = "added") {
-  const roleMessage = botCache.recentRoleMessages.has(roleID)
-    ? botCache.recentRoleMessages.get(roleID)
+  const roleMessage = bot.recentRoleMessages.has(roleID)
+    ? bot.recentRoleMessages.get(roleID)
     : await db.rolemessages.get(roleID);
-  botCache.recentRoleMessages.set(roleID, roleMessage);
+  bot.recentRoleMessages.set(roleID, roleMessage);
 
   // If this role id did not have a role message cancel.
   if (!roleMessage) return;
@@ -159,7 +157,7 @@ async function handleRoleMessages(guild: Guild, member: Member, roleID: string, 
   // If there is no text for this role.
   if (!text) return;
 
-  const transformed = await botCache.helpers.variables(
+  const transformed = await bot.helpers.variables(
     type === "added" ? roleMessage.roleAddedText : roleMessage.roleRemovedText,
     member,
     guild,

@@ -1,9 +1,9 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 import { db } from "../database/database.ts";
 
-botCache.tasks.set("polls", {
+bot.tasks.set("polls", {
   name: "polls",
-  interval: botCache.constants.milliseconds.MINUTE * 2,
+  interval: bot.constants.milliseconds.MINUTE * 2,
   execute: async function () {
     const now = Date.now();
 
@@ -14,7 +14,7 @@ botCache.tasks.set("polls", {
       // If the endsAt is 0 the poll should not expire
       if (!poll.endsAt) return;
 
-      botCache.helpers.processPollResults(poll);
+      bot.helpers.processPollResults(poll);
     });
   },
 });

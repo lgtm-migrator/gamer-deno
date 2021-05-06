@@ -6,7 +6,7 @@ import {
   bgMagenta,
   bgYellow,
   black,
-  botCache,
+  bot,
   botID,
   cache,
   delay,
@@ -25,14 +25,14 @@ import { translate } from "../utils/i18next.ts";
 
 async function invalidCommand(message: Message, commandName: string, parameters: string[], prefix: string) {
   if (!message.guildID) return;
-  if (!botCache.vipGuildIDs.has(message.guildID)) return;
+  if (!bot.vipGuildIDs.has(message.guildID)) return;
 
   const shortcut = await db.shortcuts.get(`${message.guildID}-${commandName}`);
   if (!shortcut) return;
 
   // Valid shortcut was found now we need to process it
   for (const action of shortcut.actions) {
-    const command = botCache.commands.get(action.commandName);
+    const command = bot.commands.get(action.commandName);
     if (!command) continue;
 
     let content = `${prefix}${action.commandName} ${action.args}`;
@@ -45,7 +45,7 @@ async function invalidCommand(message: Message, commandName: string, parameters:
     message.content = content;
 
     // Execute the command
-    await botCache.eventHandlers.messageCreate?.(message);
+    await bot.eventHandlers.messageCreate?.(message);
 
     // Make the bot wait 2 seconds before running next command so it doesnt get inhibited by the slowmode
     await delay(2000);
@@ -55,16 +55,16 @@ async function invalidCommand(message: Message, commandName: string, parameters:
 }
 
 export const parsePrefix = (guildID: string | undefined) => {
-  const prefix = guildID ? botCache.guildPrefixes.get(guildID) : configs.prefix;
+  const prefix = guildID ? bot.guildPrefixes.get(guildID) : configs.prefix;
   return prefix || configs.prefix;
 };
 
 export const parseCommand = (commandName: string) => {
-  const command = botCache.commands.get(commandName);
+  const command = bot.commands.get(commandName);
   if (command) return command;
 
   // Check aliases if the command wasn't found
-  return botCache.commands.find((cmd) => Boolean(cmd.aliases?.includes(commandName)));
+  return bot.commands.find((cmd) => Boolean(cmd.aliases?.includes(commandName)));
 };
 
 export const logCommand = (
@@ -74,7 +74,7 @@ export const logCommand = (
   commandName: string
 ) => {
   if (type === "Trigger") {
-    botCache.stats.commandsRan += 1;
+    bot.stats.commandsRan += 1;
   }
   const command = `[COMMAND: ${bgYellow(black(commandName || "Unknown"))} - ${bgBlack(
     ["Failure", "Slowmode", "Missing"].includes(type) ? red(type) : type === "Success" ? green(type) : white(type)
@@ -98,7 +98,7 @@ async function parseArguments(message: Message, command: Command<any>, parameter
 
   // Loop over each argument and validate
   for (const argument of command.arguments) {
-    const resolver = botCache.arguments.get(argument.type || "string");
+    const resolver = bot.arguments.get(argument.type || "string");
     if (!resolver) continue;
 
     const result = await resolver.execute(argument, params, message, command);
@@ -134,7 +134,7 @@ async function parseArguments(message: Message, command: Command<any>, parameter
         )
         .catch(console.log);
       if (question) {
-        const response = await botCache.helpers.needMessage(message.author.id, message.channelID).catch(console.log);
+        const response = await bot.helpers.needMessage(message.author.id, message.channelID).catch(console.log);
         if (response) {
           const responseArg = await resolver.execute(argument, [response.content], message, command);
           if (responseArg) {
@@ -160,7 +160,7 @@ async function parseArguments(message: Message, command: Command<any>, parameter
 /** Runs the inhibitors to see if a command is allowed to run. */
 async function commandAllowed(message: Message, command: Command<any>, guild?: Guild) {
   const inhibitorResults = await Promise.all(
-    [...botCache.inhibitors.values()].map((inhibitor) => inhibitor(message, command, guild))
+    [...bot.inhibitors.values()].map((inhibitor) => inhibitor(message, command, guild))
   );
 
   if (inhibitorResults.includes(true)) {
@@ -173,13 +173,13 @@ async function commandAllowed(message: Message, command: Command<any>, guild?: G
 
 async function executeCommand(message: Message, command: Command<any>, parameters: string[], guild?: Guild) {
   try {
-    botCache.slowmode.set(message.author.id, message.timestamp);
+    bot.slowmode.set(message.author.id, message.timestamp);
 
     // Parsed args and validated
     const args = await parseArguments(message, command, parameters);
     // Some arg that was required was missing and handled already
     if (!args) {
-      await botCache.helpers.reactError(message);
+      await bot.helpers.reactError(message);
       return logCommand(message, guild?.name || "DM", "Missing", command.name);
     }
 
@@ -193,7 +193,7 @@ async function executeCommand(message: Message, command: Command<any>, parameter
 
       // @ts-ignore
       await command.execute?.(message, args, guild);
-      await botCache.helpers.completeMission(message.guildID, message.author.id, command.name);
+      await bot.helpers.completeMission(message.guildID, message.author.id, command.name);
       return logCommand(message, guild?.name || "DM", "Success", command.name);
     }
 
@@ -207,13 +207,13 @@ async function executeCommand(message: Message, command: Command<any>, parameter
   } catch (error) {
     console.log(error);
     logCommand(message, guild?.name || "DM", "Failure", command.name);
-    await botCache.helpers.reactError(message).catch(console.log);
+    await bot.helpers.reactError(message).catch(console.log);
     handleError(message, error);
   }
 }
 
 // The monitor itself for this file. Above is helper functions for this monitor.
-botCache.monitors.set("commandHandler", {
+bot.monitors.set("commandHandler", {
   name: "commandHandler",
   ignoreDM: false,
   /** The main code that will be run when this monitor is triggered. */
@@ -242,7 +242,7 @@ botCache.monitors.set("commandHandler", {
     const guild = cache.guilds.get(message.guildID);
     logCommand(message, guild?.name || "DM", "Trigger", commandName);
 
-    const lastUsed = botCache.slowmode.get(message.author.id);
+    const lastUsed = bot.slowmode.get(message.author.id);
     // Check if this user is spamming by checking slowmode
     if (lastUsed && message.timestamp - lastUsed < 2000) {
       if (message.guildID)
@@ -252,7 +252,7 @@ botCache.monitors.set("commandHandler", {
     }
 
     // Check if this user is blacklisted. Check if this guild is blacklisted
-    if (botCache.blacklistedIDs.has(message.author.id) || botCache.blacklistedIDs.has(message.guildID)) {
+    if (bot.blacklistedIDs.has(message.author.id) || bot.blacklistedIDs.has(message.guildID)) {
       return;
     }
 

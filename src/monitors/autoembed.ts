@@ -1,13 +1,13 @@
 import { bgBlue, bgYellow, black, deleteMessage, sendMessage } from "../../deps.ts";
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 import { getTime } from "../utils/helpers.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.monitors.set("autoembed", {
+bot.monitors.set("autoembed", {
   name: "autoembed",
   botChannelPermissions: ["SEND_MESSAGES", "MANAGE_MESSAGES"],
   execute: async function (message) {
-    if (!botCache.autoEmbedChannelIDs.has(message.channelID)) return;
+    if (!bot.autoEmbedChannelIDs.has(message.channelID)) return;
 
     console.log(`${bgBlue(`[${getTime()}]`)} => [MONITOR: ${bgYellow(black("autoembed"))}] Started.`);
 
@@ -18,7 +18,7 @@ botCache.monitors.set("autoembed", {
           .catch(console.log)
       : undefined;
 
-    const embed = botCache.helpers
+    const embed = bot.helpers
       .authorEmbed(message)
       .setDescription(message.content)
       .setColor("RANDOM")

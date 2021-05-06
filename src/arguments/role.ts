@@ -1,7 +1,7 @@
-import { botCache, cache } from "../../deps.ts";
+import { bot, cache } from "../../deps.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.arguments.set("role", {
+bot.arguments.set("role", {
   name: "role",
   execute: async function (_argument, parameters, message) {
     const [id] = parameters;

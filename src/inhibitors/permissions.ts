@@ -1,5 +1,5 @@
 import {
-  botCache,
+  bot,
   botHasChannelPermissions,
   botHasPermission,
   cache,
@@ -38,7 +38,7 @@ async function missingCommandPermission(
   await sendResponse(message, response).catch(console.log);
 }
 
-botCache.inhibitors.set("permissions", async function (message, command, guild) {
+bot.inhibitors.set("permissions", async function (message, command, guild) {
   if (!guild) return false;
 
   // No permissions are required

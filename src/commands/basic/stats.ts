@@ -1,4 +1,4 @@
-import { botCache, cache } from "../../../deps.ts";
+import { bot, cache } from "../../../deps.ts";
 import { createCommand, humanizeMilliseconds } from "../../utils/helpers.ts";
 import { translate } from "../../utils/i18next.ts";
 import { Embed } from "./../../utils/Embed.ts";
@@ -16,23 +16,20 @@ createCommand({
       totalMemberCount += guild.memberCount;
     }
 
-    const commands = botCache.commands.reduce(
-      (subtotal, command) => subtotal + 1 + (command.subcommands?.size || 0),
-      0
-    );
+    const commands = bot.commands.reduce((subtotal, command) => subtotal + 1 + (command.subcommands?.size || 0), 0);
 
     const embed = new Embed()
       .setTitle(translate(message.guildID, "strings:BOT_STATS"))
       .setColor("random")
       .addField(
         translate(message.guildID, "strings:SERVERS"),
-        (cache.guilds.size + botCache.dispatchedGuildIDs.size).toLocaleString("en-US"),
+        (cache.guilds.size + bot.dispatchedGuildIDs.size).toLocaleString("en-US"),
         true
       )
       .addField(translate(message.guildID, "strings:MEMBERS"), totalMemberCount.toLocaleString("en-US"), true)
       .addField(
         translate(message.guildID, "strings:CHANNELS"),
-        (cache.channels.size + botCache.dispatchedChannelIDs.size).toLocaleString("en-US"),
+        (cache.channels.size + bot.dispatchedChannelIDs.size).toLocaleString("en-US"),
         true
       )
       .addField(translate(message.guildID, "strings:UPTIME"), humanizeMilliseconds(Date.now() - UPTIME), true)

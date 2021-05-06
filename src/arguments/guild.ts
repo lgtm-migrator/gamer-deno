@@ -1,7 +1,7 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 import { cache } from "../../deps.ts";
 
-botCache.arguments.set("guild", {
+bot.arguments.set("guild", {
   name: "guild",
   execute: async function (_argument, parameters, message) {
     const [id] = parameters;

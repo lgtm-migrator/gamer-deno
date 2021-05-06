@@ -1,5 +1,5 @@
 import { configs } from "../../../configs.ts";
-import { botCache, botHasPermission, cache, memberIDHasPermission } from "../../../deps.ts";
+import { bot, botHasPermission, cache, memberIDHasPermission } from "../../../deps.ts";
 import { parsePrefix } from "../../monitors/commandHandler.ts";
 import { Command, createCommand } from "../../utils/helpers.ts";
 import { translate } from "../../utils/i18next.ts";
@@ -31,7 +31,7 @@ createCommand({
         [
           "",
           translate(message.guildID, "strings:HELP_WIKI"),
-          `${translate(message.guildID, "strings:NEED_SUPPORT")} ${botCache.constants.botSupportInvite}`,
+          `${translate(message.guildID, "strings:NEED_SUPPORT")} ${bot.constants.botSupportInvite}`,
         ].join("\n")
       );
     }
@@ -42,7 +42,7 @@ createCommand({
           "",
           translate(message.guildID, "strings:HELP_SPECIFIC", { prefix }),
           translate(message.guildID, "strings:HELP_WIKI"),
-          `${translate(message.guildID, "strings:NEED_SUPPORT")} ${botCache.constants.botSupportInvite}`,
+          `${translate(message.guildID, "strings:NEED_SUPPORT")} ${bot.constants.botSupportInvite}`,
         ].join("\n")
       );
     }
@@ -57,9 +57,8 @@ createCommand({
       // If no command name yet we search for a command itself
       if (!commandName) {
         const cmd =
-          botCache.commands.get(name) ||
-          botCache.commands.find((c) => Boolean(c.aliases?.includes(name.toLowerCase())));
-        if (!cmd) return botCache.helpers.reactError(message);
+          bot.commands.get(name) || bot.commands.find((c) => Boolean(c.aliases?.includes(name.toLowerCase())));
+        if (!cmd) return bot.helpers.reactError(message);
 
         commandName = cmd.name.toUpperCase();
         relevantCommand = cmd;
@@ -84,7 +83,7 @@ createCommand({
     //   const missingPermissionLevel = await Promise.all(
     //     Array.isArray(args.command.permissionLevels)
     //       ? args.command.permissionLevels.map((lvl) =>
-    //           botCache.permissionLevels.get(lvl)?.(message, args.command!, guild)
+    //           bot.permissionLevels.get(lvl)?.(message, args.command!, guild)
     //         )
     //       : [args.command.permissionLevels(message, args.command, guild)]
     //   );
@@ -108,7 +107,7 @@ createCommand({
         const hasPerm = await botHasPermission(message.guildID, [perm]);
         botServerPerms.push(
           `**${translate(message.guildID, `strings:${perm}`)}**: ${
-            hasPerm ? botCache.constants.emojis.success : botCache.constants.emojis.failure
+            hasPerm ? bot.constants.emojis.success : bot.constants.emojis.failure
           }`
         );
       }
@@ -119,7 +118,7 @@ createCommand({
         const hasPerm = await botHasPermission(message.guildID, [perm]);
         botChannelPerms.push(
           `**${translate(message.guildID, `strings:${perm}`)}**: ${
-            hasPerm ? botCache.constants.emojis.success : botCache.constants.emojis.failure
+            hasPerm ? bot.constants.emojis.success : bot.constants.emojis.failure
           }`
         );
       }
@@ -130,7 +129,7 @@ createCommand({
         const hasPerm = await botHasPermission(message.guildID, [perm]);
         userServerPerms.push(
           `**${translate(message.guildID, `strings:${perm}`)}**: ${
-            hasPerm ? botCache.constants.emojis.success : botCache.constants.emojis.failure
+            hasPerm ? bot.constants.emojis.success : bot.constants.emojis.failure
           }`
         );
       }
@@ -141,7 +140,7 @@ createCommand({
         const hasPerm = await botHasPermission(message.guildID, [perm]);
         userChannelPerms.push(
           `**${translate(message.guildID, `strings:${perm}`)}**: ${
-            hasPerm ? botCache.constants.emojis.success : botCache.constants.emojis.failure
+            hasPerm ? bot.constants.emojis.success : bot.constants.emojis.failure
           }`
         );
       }
@@ -158,7 +157,7 @@ createCommand({
       : "";
     if (Array.isArray(DESCRIPTION)) DESCRIPTION = DESCRIPTION.join("\n");
 
-    const embed = botCache.helpers
+    const embed = bot.helpers
       .authorEmbed(message)
       .setTitle(
         translate(message.guildID, `strings:COMMAND`, {

@@ -1,10 +1,10 @@
-import { botCache, cache, getUser } from "../../deps.ts";
+import { bot, cache, getUser } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { Embed } from "../utils/Embed.ts";
 import { humanizeMilliseconds, sendEmbed } from "../utils/helpers.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.helpers.createModlog = async function (message, options) {
+bot.helpers.createModlog = async function (message, options) {
   const settings = await db.serverlogs.get(message.guildID);
 
   const modlogChannel = settings ? cache.channels.get(settings.modChannelID) : undefined;
@@ -14,7 +14,7 @@ botCache.helpers.createModlog = async function (message, options) {
   const allLogs = await db.modlogs.findMany({ guildID: message.guildID }, true);
   const highestID = allLogs.reduce((id, log) => (id > log.modlogID ? id : log.modlogID), 0);
   const modlogID = highestID + 1;
-  const embed = await botCache.helpers.modlogEmbed(message, modlogID, options);
+  const embed = await bot.helpers.modlogEmbed(message, modlogID, options);
 
   let messageID = "";
 
@@ -56,29 +56,29 @@ botCache.helpers.createModlog = async function (message, options) {
   return modlogID;
 };
 
-botCache.helpers.modlogEmbed = async function (message, id, options) {
-  let color = botCache.constants.modlogs.colors.warn;
-  let image = botCache.constants.modlogs.images.warn;
+bot.helpers.modlogEmbed = async function (message, id, options) {
+  let color = bot.constants.modlogs.colors.warn;
+  let image = bot.constants.modlogs.images.warn;
   switch (options.action) {
     case `ban`:
-      color = botCache.constants.modlogs.colors.ban;
-      image = botCache.constants.modlogs.images.ban;
+      color = bot.constants.modlogs.colors.ban;
+      image = bot.constants.modlogs.images.ban;
       break;
     case `unban`:
-      color = botCache.constants.modlogs.colors.unban;
-      image = botCache.constants.modlogs.images.unban;
+      color = bot.constants.modlogs.colors.unban;
+      image = bot.constants.modlogs.images.unban;
       break;
     case `mute`:
-      color = botCache.constants.modlogs.colors.mute;
-      image = botCache.constants.modlogs.images.mute;
+      color = bot.constants.modlogs.colors.mute;
+      image = bot.constants.modlogs.images.mute;
       break;
     case `unmute`:
-      color = botCache.constants.modlogs.colors.unmute;
-      image = botCache.constants.modlogs.images.unmute;
+      color = bot.constants.modlogs.colors.unmute;
+      image = bot.constants.modlogs.images.unmute;
       break;
     case `kick`:
-      color = botCache.constants.modlogs.colors.kick;
-      image = botCache.constants.modlogs.images.kick;
+      color = bot.constants.modlogs.colors.kick;
+      image = bot.constants.modlogs.images.kick;
       break;
   }
 
@@ -113,7 +113,7 @@ botCache.helpers.modlogEmbed = async function (message, id, options) {
   if (DURATION) description.push(DURATION);
 
   return new Embed()
-    .setAuthor(botCache.helpers.toTitleCase(options.action), options.member ? options.member.avatarURL : undefined)
+    .setAuthor(bot.helpers.toTitleCase(options.action), options.member ? options.member.avatarURL : undefined)
     .setColor(color)
     .setThumbnail(image)
     .setDescription(description.join(`\n`))

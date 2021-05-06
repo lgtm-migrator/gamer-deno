@@ -1,14 +1,4 @@
-import {
-  bgBlue,
-  bgYellow,
-  black,
-  botCache,
-  botID,
-  cache,
-  chooseRandom,
-  deleteMessage,
-  executeWebhook,
-} from "../../deps.ts";
+import { bgBlue, bgYellow, black, bot, botID, cache, chooseRandom, deleteMessage, executeWebhook } from "../../deps.ts";
 import { getTime } from "../utils/helpers.ts";
 
 const funnyAnonymousNames = [
@@ -30,11 +20,11 @@ const funnyAnonymousNames = [
   "Santa Claus",
 ];
 
-botCache.monitors.set("mirrors", {
+bot.monitors.set("mirrors", {
   name: "mirrors",
   ignoreBots: false,
   execute: async function (message) {
-    const mirrors = botCache.mirrors.get(message.channelID);
+    const mirrors = bot.mirrors.get(message.channelID);
     if (!mirrors) return;
 
     const member = cache.members.get(message.author.id);
@@ -50,7 +40,7 @@ botCache.monitors.set("mirrors", {
     );
     mirrors.forEach(async (mirror) => {
       // This mirror keeps failing so stop it.
-      if (botCache.failedWebhooks.has(mirror.webhookID)) return;
+      if (bot.failedWebhooks.has(mirror.webhookID)) return;
 
       let username = mirror.anonymous ? `${chooseRandom(funnyAnonymousNames)}#0000` : member.tag;
       if (!username.endsWith(" - Gamer Mirror")) username += " - Gamer Mirror";
@@ -70,7 +60,7 @@ botCache.monitors.set("mirrors", {
         : undefined;
 
       // Prevent annoying infinite spam using webhooks between 2 channels
-      if (botCache.vipGuildIDs.has(message.guildID) && message.webhook_id) {
+      if (bot.vipGuildIDs.has(message.guildID) && message.webhook_id) {
         return;
       }
 
@@ -92,7 +82,7 @@ botCache.monitors.set("mirrors", {
         username: username.substring(0, 80) || "Unknown User - Gamer Mirror",
         avatar_url: mirror.anonymous ? botMember.avatarURL : member.avatarURL,
         mentions: { parse: [] },
-      }).catch(() => botCache.failedWebhooks.add(mirror.webhookID));
+      }).catch(() => bot.failedWebhooks.add(mirror.webhookID));
     });
   },
 });

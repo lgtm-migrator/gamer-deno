@@ -17,7 +17,7 @@ import { Monitor } from "./src/types/monitors.ts";
 import { Task } from "./src/types/tasks.ts";
 import { Argument, Command } from "./src/utils/helpers.ts";
 
-export const botCache = {
+export const bot = {
   fullyReady: false,
   dispatchedGuildIDs: new Set<string>(),
   dispatchedChannelIDs: new Set<string>(),

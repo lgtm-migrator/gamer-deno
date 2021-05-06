@@ -1,4 +1,4 @@
-import { botCache, cache } from "../../../deps.ts";
+import { bot, cache } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createSubcommand } from "../../utils/helpers.ts";
@@ -11,53 +11,53 @@ createSubcommand("settings", {
     if (!guild) return;
 
     // REMOVE ALL GUILD RELATED STUFF FROM CACHE
-    botCache.analyticsDetails.forEach(async (value, key) => {
+    bot.analyticsDetails.forEach(async (value, key) => {
       const [x, guildID] = key.split("-");
-      if (guildID === message.guildID) botCache.analyticsDetails.delete(key);
+      if (guildID === message.guildID) bot.analyticsDetails.delete(key);
     });
-    botCache.analyticsMemberJoin.delete(message.guildID);
-    botCache.analyticsMemberLeft.delete(message.guildID);
-    botCache.analyticsMessages.delete(message.guildID);
-    botCache.autoEmbedChannelIDs.forEach(async (id) => {
+    bot.analyticsMemberJoin.delete(message.guildID);
+    bot.analyticsMemberLeft.delete(message.guildID);
+    bot.analyticsMessages.delete(message.guildID);
+    bot.autoEmbedChannelIDs.forEach(async (id) => {
       const channel = cache.channels.get(id);
       if (channel?.guildID === message.guildID) {
-        return botCache.autoEmbedChannelIDs.delete(id);
+        return bot.autoEmbedChannelIDs.delete(id);
       }
     });
-    botCache.commandPermissions.forEach(async (perm, key) => {
+    bot.commandPermissions.forEach(async (perm, key) => {
       if (perm.guildID === message.guildID) {
-        botCache.commandPermissions.delete(key);
+        bot.commandPermissions.delete(key);
       }
     });
-    botCache.guildLanguages.delete(message.guildID);
-    botCache.guildPrefixes.delete(message.guildID);
-    botCache.guildsXPPerMessage.delete(message.guildID);
-    botCache.guildsXPPerMinuteVoice.delete(message.guildID);
-    botCache.guildSupportChannelIDs.forEach(async (id) => {
+    bot.guildLanguages.delete(message.guildID);
+    bot.guildPrefixes.delete(message.guildID);
+    bot.guildsXPPerMessage.delete(message.guildID);
+    bot.guildsXPPerMinuteVoice.delete(message.guildID);
+    bot.guildSupportChannelIDs.forEach(async (id) => {
       const channel = cache.channels.get(id);
       if (channel?.guildID === message.guildID) {
-        return botCache.guildSupportChannelIDs.delete(id);
+        return bot.guildSupportChannelIDs.delete(id);
       }
     });
-    botCache.invites.forEach(async (invite, key) => {
-      if (invite.guildID === message.guildID) botCache.invites.delete(key);
+    bot.invites.forEach(async (invite, key) => {
+      if (invite.guildID === message.guildID) bot.invites.delete(key);
     });
-    botCache.mirrors.forEach(async (mirrors, key) => {
+    bot.mirrors.forEach(async (mirrors, key) => {
       mirrors.forEach(async (mirror) => {
         if (mirror.sourceGuildID === message.guildID) {
-          botCache.mirrors.delete(key);
+          bot.mirrors.delete(key);
         }
         if (mirror.sourceGuildID === message.guildID) {
-          botCache.mirrors.delete(key);
+          bot.mirrors.delete(key);
         }
         if (mirror.mirrorGuildID === message.guildID) {
-          botCache.mirrors.delete(key);
+          bot.mirrors.delete(key);
         }
       });
     });
-    botCache.missionsDisabledGuildIDs.delete(message.guildID);
-    botCache.tenorDisabledGuildIDs.delete(message.guildID);
-    botCache.xpEnabledGuildIDs.delete(message.guildID);
+    bot.missionsDisabledGuildIDs.delete(message.guildID);
+    bot.tenorDisabledGuildIDs.delete(message.guildID);
+    bot.xpEnabledGuildIDs.delete(message.guildID);
 
     // REMOVE ALL GUILD RELATED STUFF FROM DATABASE
     await Promise.all([
@@ -170,6 +170,6 @@ createSubcommand("settings", {
       });
     }
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

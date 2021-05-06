@@ -1,5 +1,5 @@
 import i18next from "https://deno.land/x/i18next@v19.6.3/index.js";
-import { botCache, updateEventHandlers } from "../../../deps.ts";
+import { bot, updateEventHandlers } from "../../../deps.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createCommand, fileLoader, importDirectory } from "../../utils/helpers.ts";
 import { loadLanguages } from "../../utils/i18next.ts";
@@ -44,7 +44,7 @@ createCommand({
       console.info("Loading Languages...");
       // Loads languages
       await loadLanguages();
-      return botCache.helpers.reactSuccess(message);
+      return bot.helpers.reactSuccess(message);
     }
     // Reload a specific folder
     if (args.folder) {
@@ -61,9 +61,9 @@ createCommand({
     // Reloads the main folders:
     await Promise.all([...folderPaths.values()].map((path) => importDirectory(Deno.realPathSync(path))));
     // Updates the events in the library
-    updateEventHandlers(botCache.eventHandlers);
+    updateEventHandlers(bot.eventHandlers);
     i18next.reloadResources(
-      botCache.constants.personalities.map((p) => p.id),
+      bot.constants.personalities.map((p) => p.id),
       undefined,
       undefined
     );

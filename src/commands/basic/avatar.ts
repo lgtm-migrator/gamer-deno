@@ -1,4 +1,4 @@
-import { botCache, cache, guildIconURL } from "../../../deps.ts";
+import { bot, cache, guildIconURL } from "../../../deps.ts";
 import { createCommand, sendEmbed } from "../../utils/helpers.ts";
 import { translate } from "../../utils/i18next.ts";
 
@@ -13,15 +13,12 @@ createCommand({
   ] as const,
   execute: (message, args, guild) => {
     const member = args.member || cache.members.get(message.mentions.length ? message.mentions[0] : message.author.id);
-    if (!member) return botCache.helpers.reactError(message);
+    if (!member) return bot.helpers.reactError(message);
 
     const url = args.server && guild ? guildIconURL(guild, 2048) : member.avatarURL.replace("?size=128", "?size=2048");
 
     const description = `[${translate(message.guildID, "strings:DOWNLOAD_LINK")}](${url})`;
 
-    return sendEmbed(
-      message.channelID,
-      botCache.helpers.authorEmbed(message).setDescription(description).setImage(url!)
-    );
+    return sendEmbed(message.channelID, bot.helpers.authorEmbed(message).setDescription(description).setImage(url!));
   },
 });

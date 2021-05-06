@@ -1,6 +1,6 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 
-botCache.constants.profanity = {
+bot.constants.profanity = {
   strict: [`faggot`, `fuck`, `nigger`, `kys`, `cunt`],
   soft: [
     `gay`,

@@ -1,6 +1,6 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 
-botCache.inhibitors.set("onlyIn", async function (message, command, guild) {
+bot.inhibitors.set("onlyIn", async function (message, command, guild) {
   // If the command is guildOnly and does not have a guild, inhibit the command
   if (command.guildOnly && !guild) {
     console.log(`${command.name} Inhibited: ONLY IN`);

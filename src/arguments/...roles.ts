@@ -1,7 +1,7 @@
 import { cache } from "../../deps.ts";
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 
-botCache.arguments.set("...roles", {
+bot.arguments.set("...roles", {
   name: "...roles",
   execute: async function (argument, parameters, message) {
     if (!parameters.length) return;

@@ -1,5 +1,5 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 
-botCache.eventHandlers.shardReady = function (shardID) {
+bot.eventHandlers.shardReady = function (shardID) {
   console.log(`[Shard Ready] Shard ${shardID} is ready`);
 };

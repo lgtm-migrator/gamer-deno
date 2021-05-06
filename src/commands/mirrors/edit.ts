@@ -1,4 +1,4 @@
-import { botCache } from "../../../deps.ts";
+import { bot } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { createSubcommand } from "../../utils/helpers.ts";
 
@@ -16,12 +16,12 @@ createSubcommand("mirrors", {
   vipServerOnly: true,
   execute: async (message, args) => {
     if (message.channelID === args.channel.id) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
-    const mirrors = botCache.mirrors.get(message.channelID);
+    const mirrors = bot.mirrors.get(message.channelID);
     if (!mirrors) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     const relevantMirrors = mirrors.filter((mirror) => mirror.mirrorChannelID === args.channel!.id);
@@ -61,6 +61,6 @@ createSubcommand("mirrors", {
       }
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

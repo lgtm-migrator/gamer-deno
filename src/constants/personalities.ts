@@ -1,6 +1,6 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 
-botCache.constants.personalities = [
+bot.constants.personalities = [
   {
     id: `en_US`,
     name: `🇺🇸 English (Default Language)`,

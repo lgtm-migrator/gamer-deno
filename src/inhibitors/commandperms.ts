@@ -1,6 +1,6 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 
-botCache.inhibitors.set("commandperms", async function (message, command) {
+bot.inhibitors.set("commandperms", async function (message, command) {
   // Command perms are only required on guilds
   if (!message.guildID) return false;
 
@@ -8,8 +8,8 @@ botCache.inhibitors.set("commandperms", async function (message, command) {
   if (["enable", "disable"].includes(command.name)) return false;
 
   // Check if a command perm has been created
-  const commandPerms = botCache.commandPermissions.get(`${message.guildID}-${command.name}`);
-  const allCommandsPerms = botCache.commandPermissions.get(`${message.guildID}-allcommands`);
+  const commandPerms = bot.commandPermissions.get(`${message.guildID}-${command.name}`);
+  const allCommandsPerms = bot.commandPermissions.get(`${message.guildID}-allcommands`);
 
   // If no custom its enabled
   if (!commandPerms && !allCommandsPerms) return false;

@@ -1,8 +1,8 @@
 import { configs } from "../../configs.ts";
-import { botCache, sendMessage } from "../../deps.ts";
+import { bot, sendMessage } from "../../deps.ts";
 import { Embed } from "../utils/Embed.ts";
 
-botCache.eventHandlers.debug = async function (data) {
+bot.eventHandlers.debug = async function (data) {
   // console.log(data);
   if (!data.type) return;
 
@@ -16,7 +16,7 @@ botCache.eventHandlers.debug = async function (data) {
       return;
     // RUN ALL OTHER EVENTS
     default:
-      if (configs.channelIDs.errorChannelID && botCache.fullyReady) {
+      if (configs.channelIDs.errorChannelID && bot.fullyReady) {
         const embed = new Embed()
           .setColor("RANDOM")
           .setTitle(data.type)

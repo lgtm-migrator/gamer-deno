@@ -1,4 +1,4 @@
-import { botCache, getBan, sendDirectMessage, unban } from "../../../deps.ts";
+import { bot, getBan, sendDirectMessage, unban } from "../../../deps.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createCommand } from "../../utils/helpers.ts";
 
@@ -12,10 +12,10 @@ createCommand({
   ] as const,
   guildOnly: true,
   execute: async function (message, args, guild) {
-    if (!guild) return botCache.helpers.reactError(message);
+    if (!guild) return bot.helpers.reactError(message);
 
     const banned = await getBan(message.guildID, args.userID);
-    if (!banned) return botCache.helpers.reactError(message);
+    if (!banned) return bot.helpers.reactError(message);
 
     await sendDirectMessage(
       args.userID,
@@ -24,12 +24,12 @@ createCommand({
 
     unban(message.guildID, args.userID);
 
-    botCache.helpers.createModlog(message, {
+    bot.helpers.createModlog(message, {
       action: "unban",
       reason: args.reason,
       userID: args.userID,
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

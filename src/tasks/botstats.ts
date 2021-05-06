@@ -1,12 +1,12 @@
 // This task will update the database once a minute with all the latest product analytics
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 import { botID } from "../../deps.ts";
 import { db } from "../database/database.ts";
 
-botCache.tasks.set(`botstats`, {
+bot.tasks.set(`botstats`, {
   name: `botstats`,
   // Runs this function once a minute
-  interval: botCache.constants.milliseconds.MINUTE * 5,
+  interval: bot.constants.milliseconds.MINUTE * 5,
   execute: async function () {
     const stats = await db.client.get(botID);
     if (!stats) {
@@ -27,18 +27,18 @@ botCache.tasks.set(`botstats`, {
     }
 
     // Clone the current stats
-    const currentBotStats = { ...botCache.stats };
+    const currentBotStats = { ...bot.stats };
 
     // Reset current stats
-    botCache.stats.messagesDeleted = 0;
-    botCache.stats.messagesEdited = 0;
-    botCache.stats.messagesProcessed = 0;
-    botCache.stats.messagesSent = 0;
-    botCache.stats.reactionsAddedProcessed = 0;
-    botCache.stats.reactionsRemovedProcessed = 0;
-    botCache.stats.commandsRan = 0;
-    botCache.stats.feedbacksSent = 0;
-    botCache.stats.automod = 0;
+    bot.stats.messagesDeleted = 0;
+    bot.stats.messagesEdited = 0;
+    bot.stats.messagesProcessed = 0;
+    bot.stats.messagesSent = 0;
+    bot.stats.reactionsAddedProcessed = 0;
+    bot.stats.reactionsRemovedProcessed = 0;
+    bot.stats.commandsRan = 0;
+    bot.stats.feedbacksSent = 0;
+    bot.stats.automod = 0;
 
     // Update the stats in the database.
     await db.client.update(botID, {

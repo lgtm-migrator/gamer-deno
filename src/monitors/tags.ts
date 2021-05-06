@@ -1,10 +1,10 @@
-import { botCache, cache, chooseRandom, deleteMessageByID, sendMessage } from "../../deps.ts";
+import { bot, cache, chooseRandom, deleteMessageByID, sendMessage } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { TagSchema } from "../database/schemas.ts";
 import { Embed } from "../utils/Embed.ts";
 import { sendEmbed } from "../utils/helpers.ts";
 
-botCache.monitors.set("tags", {
+bot.monitors.set("tags", {
   name: "tags",
   botChannelPermissions: ["SEND_MESSAGES", "EMBED_LINKS", "USE_EXTERNAL_EMOJIS"],
   execute: async function (message) {
@@ -17,10 +17,10 @@ botCache.monitors.set("tags", {
     const lowercaseContent = message.content.toLowerCase();
     const words = lowercaseContent.split(" ");
     const [firstWord] = words;
-    const tagNames = [...botCache.tagNames.values()];
+    const tagNames = [...bot.tagNames.values()];
     // Filter out all tag names to those even on other guilds
     const possiblyRelevant = words.filter(
-      (word) => botCache.tagNames.has(`${message.guildID}-${word}`) || tagNames.some((name) => name.endsWith(word))
+      (word) => bot.tagNames.has(`${message.guildID}-${word}`) || tagNames.some((name) => name.endsWith(word))
     );
     // If none of the words are even possible cancel out
     if (!possiblyRelevant.length) return;
@@ -30,7 +30,7 @@ botCache.monitors.set("tags", {
     const modules = await db.modules.findMany({ guildID: message.guildID }, true);
 
     for (const word of possiblyRelevant) {
-      const serverTag = botCache.tagNames.has(`${message.guildID}-${word}`);
+      const serverTag = bot.tagNames.has(`${message.guildID}-${word}`);
       if (serverTag) {
         tag = await db.tags.get(`${message.guildID}-${word}`);
         if (tag) break;
@@ -54,7 +54,7 @@ botCache.monitors.set("tags", {
     const usage = `Tag ${tag.name} used by ${member.tag}`;
 
     if (tag.type === "basic" && firstWord !== tag.name) return;
-    const isVIPGuild = botCache.vipGuildIDs.has(message.guildID);
+    const isVIPGuild = bot.vipGuildIDs.has(message.guildID);
 
     if (tag.type === "random" && firstWord === tag.name) {
       const random = chooseRandom(tag.randomOptions);
@@ -64,7 +64,7 @@ botCache.monitors.set("tags", {
       return sendMessage(message.channelID, [usage, "", random].join("\n"));
     }
 
-    const transformed = await botCache.helpers.variables(tag.embedCode, member, guild, member);
+    const transformed = await bot.helpers.variables(tag.embedCode, member, guild, member);
 
     // Not an embed
     if (!transformed.startsWith("{")) {
@@ -82,7 +82,7 @@ botCache.monitors.set("tags", {
       const response = await sendEmbed(message.channelID, embed);
       if (!response || !isVIPGuild) return;
 
-      await deleteMessageByID(message.channelID, response.id, "Spam clean", botCache.constants.milliseconds.MINUTE * 5);
+      await deleteMessageByID(message.channelID, response.id, "Spam clean", bot.constants.milliseconds.MINUTE * 5);
       if (tag.type === "basic") {
         await deleteMessageByID(message.channelID, message.id, "Spam clean");
       }

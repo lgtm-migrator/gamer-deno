@@ -1,22 +1,22 @@
-import { botCache, cache, guildIconURL, rawAvatarURL } from "../../deps.ts";
+import { bot, cache, guildIconURL, rawAvatarURL } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { sendEmbed } from "../utils/helpers.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.eventHandlers.messageDelete = async function (partial, message) {
+bot.eventHandlers.messageDelete = async function (partial, message) {
   // UPDATE STATS
-  botCache.stats.messagesDeleted += 1;
+  bot.stats.messagesDeleted += 1;
 
   if (!message?.guildID) return;
 
   // VIP ONLY GETS SERVER LOGS
-  if (!botCache.vipGuildIDs.has(message.guildID)) return;
+  if (!bot.vipGuildIDs.has(message.guildID)) return;
 
   // SERVER LOGS
-  const logs = botCache.recentLogs.has(message.guildID)
-    ? botCache.recentLogs.get(message.guildID)
+  const logs = bot.recentLogs.has(message.guildID)
+    ? bot.recentLogs.get(message.guildID)
     : await db.serverlogs.get(message.guildID);
-  botCache.recentLogs.set(message.guildID, logs);
+  bot.recentLogs.set(message.guildID, logs);
   // DISABLED LOGS
   if (!logs?.messageDeleteChannelID) return;
   if (logs.messageDeleteIgnoredChannelIDs?.includes(message.channelID)) {
@@ -39,7 +39,7 @@ botCache.eventHandlers.messageDelete = async function (partial, message) {
     }),
   ];
 
-  const embed = botCache.helpers
+  const embed = bot.helpers
     .authorEmbed(message)
     .setDescription(texts.join("\n"))
     .setFooter(

@@ -1,10 +1,10 @@
-import { addReactions, bgBlue, bgYellow, black, botCache } from "../../deps.ts";
+import { addReactions, bgBlue, bgYellow, black, bot } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { getTime } from "../utils/helpers.ts";
 
 const SPECIAL_SERVER_IDS = new Set();
 
-botCache.monitors.set("autoreact", {
+bot.monitors.set("autoreact", {
   name: "autoreact",
   botChannelPermissions: [
     "SEND_MESSAGES",
@@ -15,7 +15,7 @@ botCache.monitors.set("autoreact", {
   ],
   ignoreBots: false,
   execute: async function (message) {
-    if (!botCache.autoreactChannelIDs.has(message.channelID)) return;
+    if (!bot.autoreactChannelIDs.has(message.channelID)) return;
 
     if (message.author.bot && !SPECIAL_SERVER_IDS.has(message.guildID)) return;
 

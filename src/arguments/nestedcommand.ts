@@ -1,10 +1,10 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 import { Command } from "../utils/helpers.ts";
 
-botCache.arguments.set("nestedcommand", {
+bot.arguments.set("nestedcommand", {
   name: "nestedcommand",
   execute: async function (_argument, parameters) {
-    let command = botCache.commands.get(parameters.join("\n").toLowerCase());
+    let command = bot.commands.get(parameters.join("\n").toLowerCase());
     if (command) return command;
 
     for (const word of parameters) {
@@ -12,7 +12,7 @@ botCache.arguments.set("nestedcommand", {
         ? // IF A COMMAND WAS FOUND WE SEARCH FOR ITS SUBCOMMANDS
           command.subcommands?.get(word)
         : // ELSE FIND THE VALID COMMAND OR COMMAND BY ITS ALIAS
-          botCache.commands.get(word) || botCache.commands.find((cmd) => Boolean(cmd.aliases?.includes(word)));
+          bot.commands.get(word) || bot.commands.find((cmd) => Boolean(cmd.aliases?.includes(word)));
       if (!isCommand) continue;
 
       command = isCommand;

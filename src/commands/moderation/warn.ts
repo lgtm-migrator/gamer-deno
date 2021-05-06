@@ -1,4 +1,4 @@
-import { botCache, botID, higherRolePosition, highestRole, sendDirectMessage } from "../../../deps.ts";
+import { bot, botID, higherRolePosition, highestRole, sendDirectMessage } from "../../../deps.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createCommand } from "../../utils/helpers.ts";
 
@@ -24,7 +24,7 @@ createCommand({
         !membersHighestRole ||
         !(await higherRolePosition(message.guildID, botsHighestRole.id, membersHighestRole.id))
       ) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
 
       if (
@@ -32,10 +32,10 @@ createCommand({
         !membersHighestRole ||
         !(await higherRolePosition(message.guildID, modsHighestRole.id, membersHighestRole.id))
       ) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
     } else {
-      if (!args.member) return botCache.helpers.reactError(message);
+      if (!args.member) return bot.helpers.reactError(message);
     }
 
     await sendDirectMessage(
@@ -43,13 +43,13 @@ createCommand({
       `**__You have been warned__\nServer:** *${guild.name}*\n**Moderator:** *${message.author.username}*\n**Reason:** *${args.reason}*`
     ).catch(console.log);
 
-    await botCache.helpers.createModlog(message, {
+    await bot.helpers.createModlog(message, {
       action: "warn",
       reason: args.reason,
       member: args.member,
       userID: args.member.id,
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

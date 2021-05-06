@@ -1,7 +1,7 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.arguments.set("boolean", {
+bot.arguments.set("boolean", {
   name: "boolean",
   execute: async function (_argument, parameters, message) {
     const [boolean] = parameters;

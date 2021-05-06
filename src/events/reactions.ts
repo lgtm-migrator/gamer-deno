@@ -1,5 +1,5 @@
 import {
-  botCache,
+  bot,
   botHasPermission,
   botID,
   cache,
@@ -20,32 +20,32 @@ import { db } from "../database/database.ts";
 import { humanizeMilliseconds, sendAlertMessage } from "../utils/helpers.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.eventHandlers.reactionAdd = async function (message, emoji, userID) {
+bot.eventHandlers.reactionAdd = async function (message, emoji, userID) {
   // Update stats in cache
-  botCache.stats.reactionsAddedProcessed += 1;
+  bot.stats.reactionsAddedProcessed += 1;
 
   // Check if this user is blacklisted. Check if this guild is blacklisted
-  if (botCache.blacklistedIDs.has(userID) || botCache.blacklistedIDs.has(message.guildID!)) {
+  if (bot.blacklistedIDs.has(userID) || bot.blacklistedIDs.has(message.guildID!)) {
     return;
   }
 
   // IGNORE REACTIONS UNTIL BOT IS READY
-  if (!botCache.fullyReady) return;
+  if (!bot.fullyReady) return;
 
   // Ignore all bot reactions
   if (userID === botID) return;
 
   // Process reaction collectors.
-  botCache.helpers.processReactionCollectors(message, emoji, userID);
+  bot.helpers.processReactionCollectors(message, emoji, userID);
 
   // ONE OF THESE CHECKS MUST PASS TO FETCH THE MESSAGE
   if (
-    !botCache.reactionRoleMessageIDs.has(message.id) &&
-    !botCache.giveawayMessageIDs.has(message.id) &&
-    !botCache.feedbackChannelIDs.has(message.channelID) &&
-    !botCache.pollMessageIDs.has(message.id) &&
-    !botCache.todoChannelIDs.has(message.channelID) &&
-    !botCache.eventMessageIDs.has(message.id)
+    !bot.reactionRoleMessageIDs.has(message.id) &&
+    !bot.giveawayMessageIDs.has(message.id) &&
+    !bot.feedbackChannelIDs.has(message.channelID) &&
+    !bot.pollMessageIDs.has(message.id) &&
+    !bot.todoChannelIDs.has(message.channelID) &&
+    !bot.eventMessageIDs.has(message.id)
   ) {
     return;
   }
@@ -66,36 +66,36 @@ botCache.eventHandlers.reactionAdd = async function (message, emoji, userID) {
   // These features require the author to be the bot
   if (fullMessage.author.id !== botID) return;
 
-  botCache.helpers.todoReactionHandler(fullMessage, emoji, userID).catch(console.log);
-  botCache.helpers.handleFeedbackReaction(fullMessage, emoji, userID).catch(console.log);
+  bot.helpers.todoReactionHandler(fullMessage, emoji, userID).catch(console.log);
+  bot.helpers.handleFeedbackReaction(fullMessage, emoji, userID).catch(console.log);
   handleEventReaction(fullMessage, emoji, userID).catch(console.log);
   handlePollReaction(fullMessage, emoji, userID, "add").catch(console.log);
 };
 
-botCache.eventHandlers.reactionRemove = async function (message, emoji, userID) {
+bot.eventHandlers.reactionRemove = async function (message, emoji, userID) {
   // I dont care about dm reactions removes
   if (!message.guildID) return;
 
   // Check if this user is blacklisted. Check if this guild is blacklisted
-  if (botCache.blacklistedIDs.has(userID) || botCache.blacklistedIDs.has(message.guildID)) {
+  if (bot.blacklistedIDs.has(userID) || bot.blacklistedIDs.has(message.guildID)) {
     return;
   }
 
   // Update stats in cache
-  botCache.stats.reactionsRemovedProcessed += 1;
+  bot.stats.reactionsRemovedProcessed += 1;
 
   // Ignore all bot reactions
   if (userID === botID) return;
 
   // IGNORE REACTIONS UNTIL BOT IS READY
-  if (!botCache.fullyReady) return;
+  if (!bot.fullyReady) return;
 
   // ONE OF THESE CHECKS MUST PASS TO FETCH THE MESSAGE
   if (
-    !botCache.reactionRoleMessageIDs.has(message.id) &&
-    !botCache.giveawayMessageIDs.has(message.id) &&
-    !botCache.feedbackChannelIDs.has(message.channelID) &&
-    !botCache.pollMessageIDs.has(message.id)
+    !bot.reactionRoleMessageIDs.has(message.id) &&
+    !bot.giveawayMessageIDs.has(message.id) &&
+    !bot.feedbackChannelIDs.has(message.channelID) &&
+    !bot.pollMessageIDs.has(message.id)
   ) {
     return;
   }
@@ -116,7 +116,7 @@ botCache.eventHandlers.reactionRemove = async function (message, emoji, userID) 
   // These features require the author to be the bot
   if (fullMessage.author.id !== botID) return;
 
-  botCache.helpers.removeFeedbackReaction(fullMessage, emoji, userID).catch(console.log);
+  bot.helpers.removeFeedbackReaction(fullMessage, emoji, userID).catch(console.log);
   handlePollReaction(fullMessage, emoji, userID, "remove").catch(console.log);
 };
 
@@ -132,7 +132,7 @@ async function handleReactionRole(message: Message, emoji: ReactionPayload, user
   const reactionRole = await db.reactionroles.get(message.id);
   if (!reactionRole) return;
 
-  const emojiKey = emoji.id ? botCache.helpers.emojiUnicode(emoji) : emoji.name;
+  const emojiKey = emoji.id ? bot.helpers.emojiUnicode(emoji) : emoji.name;
 
   const relevantReaction = reactionRole.reactions.find(
     (r) =>
@@ -167,13 +167,9 @@ async function handleReactionRole(message: Message, emoji: ReactionPayload, user
 }
 
 async function handleEventReaction(message: Message, emoji: ReactionPayload, userID: string) {
-  const emojiKey = botCache.helpers.emojiUnicode(emoji);
+  const emojiKey = bot.helpers.emojiUnicode(emoji);
   // Cancel if not a event reaction
-  if (
-    ![botCache.constants.emojis.success, botCache.constants.emojis.failure, botCache.constants.emojis.shrug].includes(
-      emojiKey
-    )
-  ) {
+  if (![bot.constants.emojis.success, bot.constants.emojis.failure, bot.constants.emojis.shrug].includes(emojiKey)) {
     return;
   }
 
@@ -183,7 +179,7 @@ async function handleEventReaction(message: Message, emoji: ReactionPayload, use
   const guildID = message.guildID || message.channel?.guildID;
   if (!guildID) return;
 
-  const member = await botCache.helpers.fetchMember(guildID, userID).catch(console.log);
+  const member = await bot.helpers.fetchMember(guildID, userID).catch(console.log);
   if (!member) return;
 
   const guildMember = member?.guilds.get(guildID);
@@ -194,7 +190,7 @@ async function handleEventReaction(message: Message, emoji: ReactionPayload, use
   let finalPosition = "";
 
   switch (emojiKey) {
-    case botCache.constants.emojis.success:
+    case bot.constants.emojis.success:
       // Leaving the event
       if (event.acceptedUsers.some((user) => user.id === userID)) {
         // Remove this id from the event
@@ -207,7 +203,7 @@ async function handleEventReaction(message: Message, emoji: ReactionPayload, use
           if (id) acceptedUsers.push(id);
         }
 
-        await botCache.helpers.reactSuccess(message);
+        await bot.helpers.reactSuccess(message);
 
         // Remove them from the event
         await db.events.update(event.id, {
@@ -222,7 +218,7 @@ async function handleEventReaction(message: Message, emoji: ReactionPayload, use
       if (event.acceptedUsers.length >= event.maxAttendees) return;
 
       // User is joining the event
-      if (botCache.vipGuildIDs.has(guildID)) {
+      if (bot.vipGuildIDs.has(guildID)) {
         // VIPs can restrict certain users from joining
         if (event.allowedRoleIDs.length && !event.allowedRoleIDs.some((id) => guildMember.roles.includes(id))) {
           return;
@@ -236,7 +232,7 @@ async function handleEventReaction(message: Message, emoji: ReactionPayload, use
               positions: event.positions.map((p) => `**${p.name}** (${p.amount})`),
             })
           );
-          const positionResponse = await botCache.helpers.needMessage(userID, message.channelID);
+          const positionResponse = await bot.helpers.needMessage(userID, message.channelID);
           // Validate this position
           const position = event.positions.find((p) => p.name.toLowerCase() === positionResponse.content.toLowerCase());
           // Make sure there is enough space in this position
@@ -244,7 +240,7 @@ async function handleEventReaction(message: Message, emoji: ReactionPayload, use
             !position ||
             position.amount <= event.acceptedUsers.filter((user) => user.position === position.name).length
           ) {
-            await botCache.helpers.reactError(positionResponse);
+            await bot.helpers.reactError(positionResponse);
             // Delete both messages to keep it clean
             await delay(2000);
             return deleteMessages(message.channelID, [requestPosition.id, positionResponse.id]).catch(console.log);
@@ -260,7 +256,7 @@ async function handleEventReaction(message: Message, emoji: ReactionPayload, use
         deniedUserIDs: event.deniedUserIDs.filter((id) => id !== userID),
       });
       break;
-    case botCache.constants.emojis.failure:
+    case bot.constants.emojis.failure:
       // User is already denied
       if (event.deniedUserIDs.includes(userID)) return;
       await db.events.update(event.id, {
@@ -268,7 +264,7 @@ async function handleEventReaction(message: Message, emoji: ReactionPayload, use
         deniedUserIDs: [...event.deniedUserIDs, userID],
       });
       break;
-    case botCache.constants.emojis.shrug:
+    case bot.constants.emojis.shrug:
       if (event.maybeUserIDs.includes(userID)) return;
       // User has already joined so ignore this
       await db.events.update(event.id, {
@@ -281,7 +277,7 @@ async function handleEventReaction(message: Message, emoji: ReactionPayload, use
 
   recentlyCreatedEventIDs.add(event.eventID);
   // Trigger the card
-  botCache.commands.get("events")?.subcommands?.get("card")?.execute?.(
+  bot.commands.get("events")?.subcommands?.get("card")?.execute?.(
     message,
     // @ts-ignore
     { eventID: event.eventID }
@@ -290,16 +286,16 @@ async function handleEventReaction(message: Message, emoji: ReactionPayload, use
 
 async function handleGiveawayReaction(message: Message, emoji: ReactionPayload, userID: string) {
   // This user reacted recently and can be ignored for 2 minutes
-  if (botCache.recentGiveawayReactors.has(userID)) return;
-  botCache.recentGiveawayReactors.set(userID, Date.now() + botCache.constants.milliseconds.MINUTE * 2);
+  if (bot.recentGiveawayReactors.has(userID)) return;
+  bot.recentGiveawayReactors.set(userID, Date.now() + bot.constants.milliseconds.MINUTE * 2);
 
   // When a giveaway is done, it usually gets @everyone so for that we check cache first without ddosing our db
-  const giveaway = botCache.activeGiveaways.get(message.id) || (await db.giveaways.get(message.id));
+  const giveaway = bot.activeGiveaways.get(message.id) || (await db.giveaways.get(message.id));
   if (!giveaway) return;
 
-  botCache.activeGiveaways.set(message.id, giveaway);
+  bot.activeGiveaways.set(message.id, giveaway);
 
-  const fullEmoji = botCache.helpers.emojiUnicode(emoji);
+  const fullEmoji = bot.helpers.emojiUnicode(emoji);
   if (giveaway.emoji !== fullEmoji) return;
 
   // This giveaway has ended.
@@ -340,7 +336,7 @@ async function handleGiveawayReaction(message: Message, emoji: ReactionPayload, 
     const channel = cache.channels.get(message.channelID);
     if (!channel) return;
 
-    const member = await botCache.helpers.fetchMember(channel.guildID, userID);
+    const member = await bot.helpers.fetchMember(channel.guildID, userID);
     if (!member?.guilds.has(channel.guildID)) return;
 
     const allowed = giveaway.requiredRoleIDsToJoin.some((id) => member.guilds.get(channel.guildID)?.roles.includes(id));
@@ -388,7 +384,7 @@ async function handleGiveawayReaction(message: Message, emoji: ReactionPayload, 
 }
 
 async function handlePollReaction(message: Message, emoji: ReactionPayload, userID: string, type: "add" | "remove") {
-  if (!emoji.name || !botCache.constants.emojis.letters.includes(emoji.name)) {
+  if (!emoji.name || !bot.constants.emojis.letters.includes(emoji.name)) {
     return;
   }
 
@@ -398,14 +394,14 @@ async function handlePollReaction(message: Message, emoji: ReactionPayload, user
   const poll = await db.polls.get(message.id);
   if (!poll) return;
 
-  const member = await botCache.helpers.fetchMember(channel.guildID, userID);
+  const member = await bot.helpers.fetchMember(channel.guildID, userID);
   if (!member) return;
 
   // REMOVING REACTION
   if (type === "remove") {
     return db.polls.update(poll.id, {
       votes: poll.votes.filter(
-        (v) => !(v.id === userID && v.option === botCache.constants.emojis.letters.findIndex((l) => l === emoji.name))
+        (v) => !(v.id === userID && v.option === bot.constants.emojis.letters.findIndex((l) => l === emoji.name))
       ),
     });
   }
@@ -430,7 +426,7 @@ async function handlePollReaction(message: Message, emoji: ReactionPayload, user
         ...poll.votes,
         {
           id: userID,
-          option: botCache.constants.emojis.letters.findIndex((l) => l === emoji.name),
+          option: bot.constants.emojis.letters.findIndex((l) => l === emoji.name),
         },
       ],
     });

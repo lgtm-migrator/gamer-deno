@@ -1,4 +1,4 @@
-import { botCache, cache, fetchMembers } from "../../../deps.ts";
+import { bot, cache, fetchMembers } from "../../../deps.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createCommand } from "../../utils/helpers.ts";
 
@@ -9,7 +9,7 @@ createCommand({
   vipServerOnly: true,
   permissionLevels: [PermissionLevels.MODERATOR, PermissionLevels.ADMIN],
   cooldown: {
-    seconds: (botCache.constants.milliseconds.MINUTE / 1000) * 30,
+    seconds: (bot.constants.milliseconds.MINUTE / 1000) * 30,
   },
   execute: async function (message, _args, guild) {
     if (!guild) return;

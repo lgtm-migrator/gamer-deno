@@ -1,4 +1,4 @@
-import { botCache, chooseRandom } from "../../deps.ts";
+import { bot, chooseRandom } from "../../deps.ts";
 import { humanizeMilliseconds, sendResponse } from "../utils/helpers.ts";
 
 const membersInCooldown = new Map<string, Cooldown>();
@@ -9,17 +9,17 @@ export interface Cooldown {
 }
 
 const emojis = [
-  botCache.constants.emojis.dab,
-  botCache.constants.emojis.furious,
-  botCache.constants.emojis.gamerCry,
-  botCache.constants.emojis.poke,
-  botCache.constants.emojis.slam,
-  botCache.constants.emojis.snap,
-  botCache.constants.emojis.tantrum,
-  botCache.constants.emojis.twohundretIQ,
+  bot.constants.emojis.dab,
+  bot.constants.emojis.furious,
+  bot.constants.emojis.gamerCry,
+  bot.constants.emojis.poke,
+  bot.constants.emojis.slam,
+  bot.constants.emojis.snap,
+  bot.constants.emojis.tantrum,
+  bot.constants.emojis.twohundretIQ,
 ];
 
-botCache.inhibitors.set("cooldown", async function (message, command, guild) {
+bot.inhibitors.set("cooldown", async function (message, command, guild) {
   if (!command.cooldown) return false;
 
   const key = `${message.author.id}-${command.name}`;

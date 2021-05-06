@@ -1,9 +1,9 @@
-import { botCache, cache, editMember, getMember } from "../../deps.ts";
+import { bot, cache, editMember, getMember } from "../../deps.ts";
 import { db } from "../database/database.ts";
 
-botCache.tasks.set(`unmute`, {
+bot.tasks.set(`unmute`, {
   name: `unmute`,
-  interval: botCache.constants.milliseconds.MINUTE * 2,
+  interval: bot.constants.milliseconds.MINUTE * 2,
   execute: async function () {
     const now = Date.now();
     const mutedLogs = await db.mutes.findMany((m) => m.unmuteAt <= now);

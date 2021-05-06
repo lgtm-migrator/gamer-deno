@@ -1,10 +1,10 @@
-import { botCache, guildIconURL } from "../../deps.ts";
+import { bot, guildIconURL } from "../../deps.ts";
 import { TenorGif } from "../commands/fun/fungifs.ts";
 import { db } from "../database/database.ts";
 
 const REGEXP = /%AUTHOR%|%AUTHORMENTION%|%USER%|%GUILD%|%USERMENTION%|%USERTAG%|%USERCOUNT%|%MEMBERCOUNT%|%AUTHORIMAGE%|%USERIMAGE%|%GUILDIMAGE%/gi;
 
-botCache.helpers.variables = async function (text, user, guild, author) {
+bot.helpers.variables = async function (text, user, guild, author) {
   let fullContent = ``;
 
   const promises = text.split(` `).map(async (word) => {
@@ -19,7 +19,7 @@ botCache.helpers.variables = async function (text, user, guild, author) {
       if (!res) return word;
 
       if (!res.results.length) return word;
-      const randomResult = botCache.helpers.chooseRandom((res as TenorGif).results || []);
+      const randomResult = bot.helpers.chooseRandom((res as TenorGif).results || []);
       const [media] = randomResult.media;
 
       return media?.gif.url;

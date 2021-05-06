@@ -1,6 +1,6 @@
 import {
   addRole,
-  botCache,
+  bot,
   botID,
   delay,
   fetchMembers,
@@ -30,21 +30,21 @@ createSubcommand("roles", {
     if (!guild) return;
 
     // SPECIAL ROLES CANNOT BE ASSIGNED/REMOVED
-    if (args.role.id === message.guildID) return botCache.helpers.reactError(message);
-    if (args.role.isNitroBoostRole) return botCache.helpers.reactError(message);
-    if (args.role.managed) return botCache.helpers.reactError(message);
+    if (args.role.id === message.guildID) return bot.helpers.reactError(message);
+    if (args.role.isNitroBoostRole) return bot.helpers.reactError(message);
+    if (args.role.managed) return bot.helpers.reactError(message);
 
     const botsHighestRole = await highestRole(message.guildID, botID);
-    if (!botsHighestRole) return botCache.helpers.reactError(message);
+    if (!botsHighestRole) return bot.helpers.reactError(message);
 
     const botIsHigher = await higherRolePosition(message.guildID, botsHighestRole.id, args.role.id);
-    if (!botIsHigher) return botCache.helpers.reactError(message);
+    if (!botIsHigher) return bot.helpers.reactError(message);
 
     const membersHighestRole = await highestRole(message.guildID, botID);
-    if (!membersHighestRole) return botCache.helpers.reactError(message);
+    if (!membersHighestRole) return bot.helpers.reactError(message);
 
     const memberIsHigher = await higherRolePosition(message.guildID, membersHighestRole.id, args.role.id);
-    if (!memberIsHigher) return botCache.helpers.reactError(message);
+    if (!memberIsHigher) return bot.helpers.reactError(message);
 
     const REASON = translate(message.guildID, "strings:ROLE_TO_ALL_REASON", {
       username: message.author.username,

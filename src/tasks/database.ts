@@ -1,9 +1,9 @@
-// import { botCache, cache, getChannel } from "../../deps.ts";
+// import { bot, cache, getChannel } from "../../deps.ts";
 // import { db } from "../database/database.ts";
 
-// botCache.tasks.set("database", {
+// bot.tasks.set("database", {
 //   name: "database",
-//   interval: botCache.constants.milliseconds.WEEK,
+//   interval: bot.constants.milliseconds.WEEK,
 //   execute: async function () {
 //     const now = Date.now();
 
@@ -13,11 +13,11 @@
 //     const aggregatedanalytics = await db.aggregatedanalytics.getAll(true);
 //     aggregatedanalytics.forEach(async (analytic) => {
 //       // IF THE GUILD IS NO LONGER VIP WE HAVE NO REASON TO KEEP IT
-//       if (!botCache.vipGuildIDs.has(analytic.guildID)) {
+//       if (!bot.vipGuildIDs.has(analytic.guildID)) {
 //         return db.aggregatedanalytics.delete(analytic.id);
 //       }
 //       // IF IT IS MORE THAN 3 MONTHS OLD DELETE IT
-//       if (now > botCache.constants.milliseconds.MONTH * 3) {
+//       if (now > bot.constants.milliseconds.MONTH * 3) {
 //         await db.aggregatedanalytics.delete(analytic.id);
 //       }
 //     });
@@ -28,14 +28,14 @@
 //     const autoreacts = await db.autoreact.getAll(true);
 //     autoreacts.forEach(async (react) => {
 //       // IF NO LONGER VIP, DELETE IT
-//       if (!botCache.vipGuildIDs.has(react.guildID)) {
+//       if (!bot.vipGuildIDs.has(react.guildID)) {
 //         return db.autoreact.delete(react.id);
 //       }
 
 //       // CHECK IF IT WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(react.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(react.guildID)) return;
 //       // CHANNEL WAS DISPATCHED SO SKIP
-//       if (botCache.dispatchedChannelIDs.has(react.id)) return;
+//       if (bot.dispatchedChannelIDs.has(react.id)) return;
 
 //       // CHECK IF GUILD EXISTS STILL
 //       const guild = cache.guilds.get(react.guildID);
@@ -44,7 +44,7 @@
 //         const channel = cache.channels.get(react.id);
 //         if (channel) return;
 //         // IF CHANNEL WAS DISPATCHED SKIP
-//         if (botCache.dispatchedChannelIDs.has(react.id)) return;
+//         if (bot.dispatchedChannelIDs.has(react.id)) return;
 //         // CHANNEL WAS NOT IN CACHE, TRY ONE SAFETY MEASURE CHECK
 //         if (await getChannel(react.id)) return;
 //         // CHANNEL NO LONGER EXISTS, DELETE FROM DB
@@ -62,7 +62,7 @@
 //     const commandPermissions = await db.commands.getAll();
 //     commandPermissions.forEach(async (perm) => {
 //       // CHECK IF IT WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(perm.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(perm.guildID)) return;
 
 //       // CHECK IF THE ROLE IDS OR CHANNEL IDS ARE NO LONGER VALID
 //       const guild = cache.guilds.get(perm.guildID);
@@ -88,9 +88,9 @@
 //     const counting = await db.counting.getAll();
 //     counting.forEach(async (count) => {
 //       // CHECK IF IT WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(count.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(count.guildID)) return;
 //       // CHANNEL WAS DISPATCHED SO SKIP
-//       if (botCache.dispatchedChannelIDs.has(count.id)) return;
+//       if (bot.dispatchedChannelIDs.has(count.id)) return;
 
 //       const channel = cache.channels.get(count.id);
 //       const guild = cache.guilds.get(count.guildID);
@@ -107,12 +107,12 @@
 //     const defaultSets = await db.defaultrolesets.getAll();
 //     defaultSets.forEach(async (set) => {
 //       // IF NO LONGER VIP DELETE
-//       if (!botCache.vipGuildIDs.has(set.guildID)) {
+//       if (!bot.vipGuildIDs.has(set.guildID)) {
 //         return db.defaultrolesets.delete(set.id);
 //       }
 
 //       // CHECK IF IT WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(set.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(set.guildID)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       const guild = cache.guilds.get(set.guildID);
@@ -133,7 +133,7 @@
 //     const emojis = await db.emojis.getAll();
 //     emojis.forEach(async (emoji) => {
 //       // CHECK IF IT WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(emoji.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(emoji.guildID)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       const guild = cache.guilds.get(emoji.guildID);
@@ -149,7 +149,7 @@
 //     const events = await db.events.getAll();
 //     events.forEach(async (event) => {
 //       // CHECK IF IT WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(event.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(event.guildID)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       const guild = cache.guilds.get(event.guildID);
@@ -160,7 +160,7 @@
 //     const feedbacks = await db.feedbacks.getAll();
 //     feedbacks.forEach(async (feedback) => {
 //       // CHECK IF IT WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(feedback.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(feedback.guildID)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       if (!cache.guilds.has(feedback.guildID)) return db.feedbacks.delete(feedback.id);
@@ -170,7 +170,7 @@
 //     const giveaways = await db.giveaways.getAll();
 //     giveaways.forEach(async (giveaway) => {
 //       // CHECK IF IT WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(giveaway.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(giveaway.guildID)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       if (!cache.guilds.has(giveaway.guildID)) return db.giveaways.delete(giveaway.id);
@@ -180,12 +180,12 @@
 //     const groupedSets = await db.groupedrolesets.getAll();
 //     groupedSets.forEach(async (set) => {
 //       // IF NO LONGER VIP DELETE
-//       if (!botCache.vipGuildIDs.has(set.guildID)) {
+//       if (!bot.vipGuildIDs.has(set.guildID)) {
 //         return db.groupedrolesets.delete(set.id);
 //       }
 
 //       // CHECK IF IT WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(set.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(set.guildID)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       const guild = cache.guilds.get(set.guildID);
@@ -205,7 +205,7 @@
 //     const guilds = await db.guilds.getAll();
 //     guilds.forEach(async (guild) => {
 //       // CHECK IF IT WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(guild.id)) return;
+//       if (bot.dispatchedGuildIDs.has(guild.id)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       const cached = cache.guilds.get(guild.id);
@@ -219,7 +219,7 @@
 
 //       for (const id of idle.guildIDs) {
 //         // CHECK IF IT WAS DISPATCHED.
-//         if (botCache.dispatchedGuildIDs.has(id)) continue;
+//         if (bot.dispatchedGuildIDs.has(id)) continue;
 
 //         // CHECK IF GUILD STILL EXISTS
 //         const guild = cache.guilds.get(id);
@@ -236,7 +236,7 @@
 //     const labels = await db.labels.getAll();
 //     labels.forEach(async (label) => {
 //       // CHECK IF IT WAS DISPATCHED. BOTH OF EM
-//       if (botCache.dispatchedGuildIDs.has(label.guildID) && botCache.dispatchedGuildIDs.has(label.mainGuildID)) {
+//       if (bot.dispatchedGuildIDs.has(label.guildID) && bot.dispatchedGuildIDs.has(label.mainGuildID)) {
 //         return;
 //       }
 
@@ -250,7 +250,7 @@
 //     const levels = await db.levels.getAll();
 //     levels.forEach(async (l) => {
 //       // CHECK IF GUILD WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(l.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(l.guildID)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       const guild = cache.guilds.get(l.guildID);
@@ -269,7 +269,7 @@
 //     const mails = await db.mails.getAll();
 //     mails.forEach((m) => {
 //       // CHECK IF GUILD WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(m.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(m.guildID)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       const guild = cache.guilds.get(m.guildID);
@@ -292,10 +292,10 @@
 //     const mirrors = await db.mirrors.getAll();
 //     mirrors.forEach((m) => {
 //       // CHECK IF WEBHOOK IS FAILING
-//       if (botCache.failedWebhooks.has(m.webhookID)) return db.mirrors.delete(m.id);
+//       if (bot.failedWebhooks.has(m.webhookID)) return db.mirrors.delete(m.id);
 
 //       // CHECK IF CHANNELS WERE DISPATCHED
-//       if (botCache.dispatchedChannelIDs.has(m.sourceChannelID) || botCache.dispatchedChannelIDs.has(m.mirrorChannelID))
+//       if (bot.dispatchedChannelIDs.has(m.sourceChannelID) || bot.dispatchedChannelIDs.has(m.mirrorChannelID))
 //         return;
 
 //       // CHECK IF CHANNEL STILL EXISTS
@@ -304,14 +304,14 @@
 //       if (!mirrorChannel || !sourceChannel) return db.mirrors.delete(m.id);
 
 //       // CHECK IF SOURCE GUILD WAS DISPATCHED
-//       if (!botCache.dispatchedGuildIDs.has(m.sourceGuildID)) return db.mirrors.delete(m.id);
+//       if (!bot.dispatchedGuildIDs.has(m.sourceGuildID)) return db.mirrors.delete(m.id);
 
 //       // CHECK IF SOURCE GUILD STILL EXISTS
 //       if (!cache.guilds.has(m.sourceGuildID)) return db.mirrors.delete(m.id);
 
 //       // CHECK IF MIRROR GUILD IS VIP
 //       if (m.sourceGuildID === m.mirrorGuildID) return;
-//       if (!botCache.vipGuildIDs.has(m.mirrorGuildID)) return db.mirrors.delete(m.id);
+//       if (!bot.vipGuildIDs.has(m.mirrorGuildID)) return db.mirrors.delete(m.id);
 //     });
 
 //     // TODO: mission: new SabrTable<MissionSchema>(sabr, "mission"),
@@ -320,7 +320,7 @@
 //     const modlogs = await db.modlogs.getAll();
 //     modlogs.forEach((m) => {
 //       // CHECK IF GUILD WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(m.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(m.guildID)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       if (!cache.guilds.has(m.guildID)) return db.modlogs.delete(m.messageID);
@@ -330,7 +330,7 @@
 //     const modules = await db.modules.getAll();
 //     modules.forEach((m) => {
 //       // CHECK IF GUILD WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(m.guildID) && botCache.dispatchedGuildIDs.has(m.sourceGuildID)) return;
+//       if (bot.dispatchedGuildIDs.has(m.guildID) && bot.dispatchedGuildIDs.has(m.sourceGuildID)) return;
 
 //       // CHECK IF GUILDS STILL EXISTS
 //       const guild = cache.guilds.get(m.guildID);
@@ -342,19 +342,19 @@
 //     const mutes = await db.mutes.getAll();
 //     mutes.forEach((m) => {
 //       // CHECK IF GUILD WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(m.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(m.guildID)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       if (!cache.guilds.has(m.guildID)) return db.mutes.delete(m.id);
 
 //       // CHECK IF USER IS STILL MUTED
-//       if (!(m.unmuteAt > Date.now() + botCache.constants.milliseconds.MINUTE * 10)) return db.mutes.delete(m.id);
+//       if (!(m.unmuteAt > Date.now() + bot.constants.milliseconds.MINUTE * 10)) return db.mutes.delete(m.id);
 //     });
 
 //     const polls = await db.polls.getAll();
 //     polls.forEach((p) => {
 //       // CHECK IF GUILD WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(p.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(p.guildID)) return;
 
 //       // CHECK IF GUILD AND CHANNEL STILL EXIST
 //       const guild = cache.guilds.get(p.guildID);
@@ -365,7 +365,7 @@
 //     const reactionroles = await db.reactionroles.getAll();
 //     reactionroles.forEach((rr) => {
 //       // CHECK IF CHANNEL WAS DISPATCHED
-//       if (botCache.dispatchedChannelIDs.has(rr.channelID)) return;
+//       if (bot.dispatchedChannelIDs.has(rr.channelID)) return;
 
 //       // CHECK IF CHANNEL STILL EXISTS
 //       const channel = cache.channels.get(rr.channelID);
@@ -375,7 +375,7 @@
 //     const reminders = await db.reminders.getAll();
 //     reminders.forEach((r) => {
 //       // CHECK IF CHANNEL WAS DISPATCHED
-//       if (botCache.dispatchedChannelIDs.has(r.channelID)) return;
+//       if (bot.dispatchedChannelIDs.has(r.channelID)) return;
 
 //       // CHECK IF CHANNEL STILL EXISTS
 //       const channel = cache.channels.get(r.channelID);
@@ -385,7 +385,7 @@
 //     const requiredrolesets = await db.requiredrolesets.getAll();
 //     requiredrolesets.forEach((rrs) => {
 //       // CHECK IF GUILD WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(rrs.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(rrs.guildID)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       const guild = cache.guilds.get(rrs.guildID);
@@ -406,12 +406,12 @@
 //     const rolemessages = await db.rolemessages.getAll();
 //     rolemessages.forEach(async (rm) => {
 //       // IF NO LONGER VIP DELETE
-//       if (!botCache.vipGuildIDs.has(rm.guildID)) {
+//       if (!bot.vipGuildIDs.has(rm.guildID)) {
 //         return db.rolemessages.delete(rm.id);
 //       }
 
 //       // CHECK IF IT WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(rm.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(rm.guildID)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       const guild = cache.guilds.get(rm.guildID);
@@ -426,7 +426,7 @@
 //     const serverlogs = await db.serverlogs.getAll();
 //     for (const sl of serverlogs.values()) {
 //       // CHECK IF GUILD WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(sl.id)) return;
+//       if (bot.dispatchedGuildIDs.has(sl.id)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       const guild = cache.guilds.get(sl.id);
@@ -472,13 +472,13 @@
 //     const shortcuts = await db.shortcuts.getAll();
 //     shortcuts.forEach((sc) => {
 //       // CHECK IF GUILD WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(sc.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(sc.guildID)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       if (!cache.guilds.has(sc.id)) return db.shortcuts.delete(sc.id);
 
 //       // CHECK IF GUILD IS STILL VIP
-//       if (!botCache.vipGuildIDs.has(sc.guildID)) return db.shortcuts.delete(sc.id);
+//       if (!bot.vipGuildIDs.has(sc.guildID)) return db.shortcuts.delete(sc.id);
 //     });
 
 //     // TODO: spy: new SabrTable<SpySchema>(sabr, "spy"),
@@ -486,7 +486,7 @@
 //     const surveys = await db.surveys.getAll();
 //     surveys.forEach((s) => {
 //       // CHECK IF CHANNEL WAS DISPATCHED
-//       if (botCache.dispatchedChannelIDs.has(s.channelID)) return;
+//       if (bot.dispatchedChannelIDs.has(s.channelID)) return;
 
 //       // CHECK IF CHANNEL STILL EXISTS
 //       const channel = cache.channels.get(s.channelID);
@@ -502,7 +502,7 @@
 //     const tags = await db.tags.getAll();
 //     tags.forEach((t) => {
 //       // CHECK IF GUILD WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(t.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(t.guildID)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       if (cache.guilds.has(t.guildID)) return;
@@ -511,7 +511,7 @@
 //     const uniquerolesets = await db.uniquerolesets.getAll();
 //     for (const urs of uniquerolesets) {
 //       // CHECK IF GUILD WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(urs[1].guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(urs[1].guildID)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       const guild = cache.guilds.get(urs[1].guildID);
@@ -530,20 +530,20 @@
 //     const xp = await db.xp.getAll();
 //     xp.forEach(async (x) => {
 //       // CHECK IF GUILD WAS DISPATCHED
-//       if (botCache.dispatchedGuildIDs.has(x.guildID)) return;
+//       if (bot.dispatchedGuildIDs.has(x.guildID)) return;
 
 //       // CHECK IF GUILD STILL EXISTS
 //       const guild = cache.guilds.get(x.guildID);
 //       if (!guild) return db.xp.delete(x.id);
 
 //       // CHECK IF USER STILL IS IN GUILD
-//       if (!(await botCache.helpers.fetchMember(x.guildID, x.memberID))) return db.xp.delete(x.id);
+//       if (!(await bot.helpers.fetchMember(x.guildID, x.memberID))) return db.xp.delete(x.id);
 //     });
 
 //     const welcome = await db.welcome.getAll();
 //     welcome.forEach((w) => {
 //       // CHECK IF CHANNEL WAS DISPATCHED
-//       if (botCache.dispatchedChannelIDs.has(w.channelID)) return;
+//       if (bot.dispatchedChannelIDs.has(w.channelID)) return;
 
 //       // CHECK IF CHANNEL STILL EXISTS
 //       if (!cache.channels.has(w.channelID)) return db.welcome.delete(w.id);

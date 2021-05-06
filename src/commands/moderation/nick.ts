@@ -1,4 +1,4 @@
-import { botCache, botID, editMember, higherRolePosition, highestRole } from "../../../deps.ts";
+import { bot, botID, editMember, higherRolePosition, highestRole } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { createCommand } from "../../utils/helpers.ts";
 
@@ -18,8 +18,8 @@ createCommand({
     // IF A MEMBER IS PROVIDED MUST BE MOD/ADMIN
     if (args.member || args.userID) {
       const settings = await db.guilds.get(message.guildID);
-      if (!botCache.helpers.isModOrAdmin(message, settings)) {
-        return botCache.helpers.reactError(message);
+      if (!bot.helpers.isModOrAdmin(message, settings)) {
+        return bot.helpers.reactError(message);
       }
     } // IF NEITHER WAS PROVIDED, EDITING SELF
     else {
@@ -28,7 +28,7 @@ createCommand({
 
     if (args.member) {
       if (args.member.id === guild.ownerID) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
 
       const botsHighestRole = await highestRole(message.guildID, botID);
@@ -39,7 +39,7 @@ createCommand({
         !membersHighestRole ||
         !(await higherRolePosition(message.guildID, botsHighestRole.id, membersHighestRole.id))
       ) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
 
       // IF NOT EDITING SELF MAKE SURE USER IS HIGHER
@@ -50,19 +50,19 @@ createCommand({
           !membersHighestRole ||
           !(await higherRolePosition(message.guildID, modsHighestRole.id, membersHighestRole.id))
         ) {
-          return botCache.helpers.reactError(message);
+          return bot.helpers.reactError(message);
         }
       }
-    } else if (!args.userID) return botCache.helpers.reactError(message);
+    } else if (!args.userID) return bot.helpers.reactError(message);
 
     const userID = args.member?.id || args.userID!;
-    if (userID === guild.ownerID) return botCache.helpers.reactError(message);
+    if (userID === guild.ownerID) return bot.helpers.reactError(message);
 
     await editMember(message.guildID, userID, { nick: args.nick })
-      .then(async () => await botCache.helpers.reactSuccess(message))
+      .then(async () => await bot.helpers.reactSuccess(message))
       .catch((error) => {
         console.log(error);
-        botCache.helpers.reactError(message);
+        bot.helpers.reactError(message);
       });
   },
 });

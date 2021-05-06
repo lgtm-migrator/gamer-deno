@@ -1,12 +1,12 @@
-import { bgBlue, bgYellow, black, botCache } from "../../deps.ts";
+import { bgBlue, bgYellow, black, bot } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { getTime } from "../utils/helpers.ts";
 
-botCache.monitors.set("supportactivity", {
+bot.monitors.set("supportactivity", {
   name: "supportactivity",
   execute: async function (message) {
-    if (message.guildID !== botCache.constants.botSupportServerID) return;
-    if (botCache.activeMembersOnSupportServer.has(message.author.id)) return;
+    if (message.guildID !== bot.constants.botSupportServerID) return;
+    if (bot.activeMembersOnSupportServer.has(message.author.id)) return;
 
     console.log(`${bgBlue(`[${getTime()}]`)} => [MONITOR: ${bgYellow(black("supportactivity"))}] Started.`);
 
@@ -20,6 +20,6 @@ botCache.monitors.set("supportactivity", {
     //   "Thank you for being active on our server today! As a thank you, I have granted you some free coins to play with.",
     // );
 
-    botCache.activeMembersOnSupportServer.add(message.author.id);
+    bot.activeMembersOnSupportServer.add(message.author.id);
   },
 });

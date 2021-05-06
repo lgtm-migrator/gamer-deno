@@ -1,4 +1,4 @@
-import { botCache, cache, getMember, guildIconURL, Member } from "../../../deps.ts";
+import { bot, cache, getMember, guildIconURL, Member } from "../../../deps.ts";
 import { Embed } from "../../utils/Embed.ts";
 import { createCommand } from "../../utils/helpers.ts";
 import { translate } from "../../utils/i18next.ts";
@@ -53,17 +53,17 @@ createCommand({
       .addField(translate(guild.id, "strings:LANGUAGE"), guild.preferredLocale, true)
       .addField(
         translate(guild.id, "strings:BOOSTS"),
-        `${guild.premiumSubscriptionCount} ${botCache.constants.emojis.boosts}`,
+        `${guild.premiumSubscriptionCount} ${bot.constants.emojis.boosts}`,
         true
       )
       .addField(translate(guild.id, "strings:MEMBERS_IN_VOICE"), guild.voiceStates.size.toLocaleString("en-US"), true)
       .addField(translate(guild.id, "strings:SHARD_ID"), guild.shardID.toLocaleString("en-US"), true)
       .addField(
         translate(guild.id, "strings:SERVER_FEATURES"),
-        guild.features.map((feature) => botCache.helpers.toTitleCase(feature.split("_").join(" "))).join(", ") || "None"
+        guild.features.map((feature) => bot.helpers.toTitleCase(feature.split("_").join(" "))).join(", ") || "None"
       )
       .setFooter(guild.id)
-      .setTimestamp(botCache.helpers.snowflakeToTimestamp(guild.id));
+      .setTimestamp(bot.helpers.snowflakeToTimestamp(guild.id));
 
     for (const emojis of [firstEmojis, secondEmojis, thirdEmojis, fourthEmojis]) {
       if (emojis.length) {

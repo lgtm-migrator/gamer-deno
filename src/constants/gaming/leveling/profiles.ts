@@ -1,6 +1,6 @@
-import { botCache, Image } from "../../../../deps.ts";
+import { bot, Image } from "../../../../deps.ts";
 
-botCache.constants.backgrounds = [
+bot.constants.backgrounds = [
   {
     id: 1,
     name: `Animecat`,

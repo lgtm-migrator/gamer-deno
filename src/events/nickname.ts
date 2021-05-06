@@ -1,18 +1,16 @@
-import { botCache, getAuditLogs, guildIconURL, rawAvatarURL } from "../../deps.ts";
+import { bot, getAuditLogs, guildIconURL, rawAvatarURL } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { Embed } from "../utils/Embed.ts";
 import { sendEmbed } from "../utils/helpers.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.eventHandlers.nicknameUpdate = async function (guild, member, nick, oldNick) {
+bot.eventHandlers.nicknameUpdate = async function (guild, member, nick, oldNick) {
   // VIP ONLY STUFF
-  if (!botCache.vipGuildIDs.has(guild.id)) return;
+  if (!bot.vipGuildIDs.has(guild.id)) return;
 
-  const logs = botCache.recentLogs.has(guild.id)
-    ? botCache.recentLogs.get(guild.id)
-    : await db.serverlogs.get(guild.id);
+  const logs = bot.recentLogs.has(guild.id) ? bot.recentLogs.get(guild.id) : await db.serverlogs.get(guild.id);
 
-  botCache.recentLogs.set(guild.id, logs);
+  bot.recentLogs.set(guild.id, logs);
 
   if (!logs?.memberNickChannelID) return;
 

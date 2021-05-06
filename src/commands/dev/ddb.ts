@@ -1,5 +1,5 @@
 // DEV PURPOSES ONLY
-import { botCache, deleteMessages, getMessages } from "../../../deps.ts";
+import { bot, deleteMessages, getMessages } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { Command, createCommand } from "../../utils/helpers.ts";

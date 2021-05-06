@@ -1,5 +1,5 @@
 import {
-  botCache,
+  bot,
   botID,
   cache,
   delay,
@@ -12,8 +12,8 @@ import {
 
 const processing = new Set<string>();
 
-botCache.eventHandlers.dispatchRequirements = async function (data, shardID) {
-  if (!botCache.fullyReady) return;
+bot.eventHandlers.dispatchRequirements = async function (data, shardID) {
+  if (!bot.fullyReady) return;
 
   // DELETE MEANS WE DONT NEED TO FETCH. CREATE SHOULD HAVE DATA TO CACHE
   if (data.t && ["GUILD_CREATE", "GUILD_DELETE"].includes(data.t)) return;
@@ -25,11 +25,11 @@ botCache.eventHandlers.dispatchRequirements = async function (data, shardID) {
       : // deno-lint-ignore no-explicit-any
         (data.d as any)?.guild_id;
 
-  if (!id || botCache.activeGuildIDs.has(id)) return;
+  if (!id || bot.activeGuildIDs.has(id)) return;
 
   // If this guild is in cache, it has not been swept and we can cancel
   if (cache.guilds.has(id)) {
-    botCache.activeGuildIDs.add(id);
+    bot.activeGuildIDs.add(id);
     return;
   }
 
@@ -37,7 +37,7 @@ botCache.eventHandlers.dispatchRequirements = async function (data, shardID) {
   if (
     data.t &&
     ["GUILD_MEMBER_UPDATE", "MESSAGE_UPDATE", "MESSAGE_DELETE", "VOICE_STATE_UPDATE"].includes(data.t) &&
-    !botCache.vipGuildIDs.has(id)
+    !bot.vipGuildIDs.has(id)
   ) {
     return;
   }
@@ -102,9 +102,9 @@ botCache.eventHandlers.dispatchRequirements = async function (data, shardID) {
 
   // Add to cache
   cache.guilds.set(id, guild);
-  botCache.dispatchedGuildIDs.delete(id);
+  bot.dispatchedGuildIDs.delete(id);
   channels.forEach(async (channel) => {
-    botCache.dispatchedChannelIDs.delete(channel.id);
+    bot.dispatchedChannelIDs.delete(channel.id);
     cache.channels.set(channel.id, channel);
   });
 
@@ -156,22 +156,22 @@ botCache.eventHandlers.dispatchRequirements = async function (data, shardID) {
 
 export async function sweepInactiveGuildsCache() {
   for (const guild of cache.guilds.values()) {
-    if (botCache.activeGuildIDs.has(guild.id)) continue;
+    if (bot.activeGuildIDs.has(guild.id)) continue;
 
     // This is inactive guild. Not a single thing has happened for atleast 30 minutes.
     // Not a reaction, not a message, not any event!
     cache.guilds.delete(guild.id);
-    botCache.dispatchedGuildIDs.add(guild.id);
+    bot.dispatchedGuildIDs.add(guild.id);
   }
 
   // Remove all channel if they were dispatched
   cache.channels.forEach(async (channel) => {
-    if (!botCache.dispatchedGuildIDs.has(channel.guildID)) return;
+    if (!bot.dispatchedGuildIDs.has(channel.guildID)) return;
 
     cache.channels.delete(channel.id);
-    botCache.dispatchedChannelIDs.add(channel.id);
+    bot.dispatchedChannelIDs.add(channel.id);
   });
 
   // Reset activity for next interval
-  botCache.activeGuildIDs.clear();
+  bot.activeGuildIDs.clear();
 }

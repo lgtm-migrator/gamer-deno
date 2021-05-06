@@ -1,6 +1,6 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 
-botCache.inhibitors.set("permlevel", async function (message, command, guild) {
+bot.inhibitors.set("permlevel", async function (message, command, guild) {
   // This command doesnt require a perm level so allow the command.
   if (!command.permissionLevels?.length) return false;
 
@@ -15,7 +15,7 @@ botCache.inhibitors.set("permlevel", async function (message, command, guild) {
 
   // If an array of perm levels was provided
   for (const permlevel of command.permissionLevels) {
-    const hasPermission = botCache.permissionLevels.get(permlevel);
+    const hasPermission = bot.permissionLevels.get(permlevel);
     if (!hasPermission) continue;
 
     const allowed = await hasPermission(message, command, guild);

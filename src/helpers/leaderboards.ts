@@ -1,4 +1,4 @@
-import { botCache, Image } from "../../deps.ts";
+import { bot, Image } from "../../deps.ts";
 import fonts from "../../fonts.ts";
 import { db } from "../database/database.ts";
 import { translate } from "../utils/i18next.ts";
@@ -127,8 +127,7 @@ async function buildCanvas(
     } catch {}
 
     const currentLevel =
-      botCache.constants.levels.find((level) => level.xpNeeded > userData.currentXP) ||
-      botCache.constants.levels.last();
+      bot.constants.levels.find((level) => level.xpNeeded > userData.currentXP) || bot.constants.levels.last();
 
     const currentName = Image.renderText(fonts.SFTMedium, 18, userData.username, parseInt("2c2c2cFF", 16));
     const currentDiscrim = Image.renderText(
@@ -153,10 +152,10 @@ async function buildCanvas(
   return new Blob([await canvas.encode()], { type: "image/png" });
 }
 
-botCache.helpers.makeLocalCanvas = async function (message, member) {
+bot.helpers.makeLocalCanvas = async function (message, member) {
   const settings = await db.xp.get(`${message.guildID}-${member.id}`);
   if (!settings?.xp) {
-    await botCache.helpers.reactError(message);
+    await bot.helpers.reactError(message);
     return;
   }
 
@@ -189,7 +188,7 @@ botCache.helpers.makeLocalCanvas = async function (message, member) {
     if (topUserData.length === 3) break;
 
     // Get the user
-    const user = await botCache.helpers.fetchMember(message.guildID, userData.memberID);
+    const user = await bot.helpers.fetchMember(message.guildID, userData.memberID);
     if (!user) continue;
 
     topUserData.push({
@@ -213,10 +212,10 @@ botCache.helpers.makeLocalCanvas = async function (message, member) {
   );
 };
 
-botCache.helpers.makeVoiceCanvas = async function (message, member) {
+bot.helpers.makeVoiceCanvas = async function (message, member) {
   const settings = await db.xp.get(`${message.guildID}-${member.id}`);
   if (!settings?.voiceXP) {
-    await botCache.helpers.reactError(message);
+    await bot.helpers.reactError(message);
     return;
   }
 
@@ -249,7 +248,7 @@ botCache.helpers.makeVoiceCanvas = async function (message, member) {
     if (topUserData.length === 3) break;
 
     // Get the user
-    const user = await botCache.helpers.fetchMember(message.guildID, userData.memberID);
+    const user = await bot.helpers.fetchMember(message.guildID, userData.memberID);
     if (!user) continue;
 
     topUserData.push({
@@ -273,10 +272,10 @@ botCache.helpers.makeVoiceCanvas = async function (message, member) {
   );
 };
 
-botCache.helpers.makeGlobalCanvas = async function (message, member) {
+bot.helpers.makeGlobalCanvas = async function (message, member) {
   const settings = await db.users.get(member.id);
   if (!settings?.xp) {
-    await botCache.helpers.reactError(message);
+    await bot.helpers.reactError(message);
     return;
   }
 
@@ -309,7 +308,7 @@ botCache.helpers.makeGlobalCanvas = async function (message, member) {
     if (topUserData.length === 3) break;
 
     // Get the user
-    const user = await botCache.helpers.fetchMember(message.guildID, userData.id);
+    const user = await bot.helpers.fetchMember(message.guildID, userData.id);
     if (!user) continue;
 
     topUserData.push({
@@ -333,10 +332,10 @@ botCache.helpers.makeGlobalCanvas = async function (message, member) {
   );
 };
 
-botCache.helpers.makeCoinsCanvas = async function (message, member) {
+bot.helpers.makeCoinsCanvas = async function (message, member) {
   const settings = await db.users.get(member.id);
   if (!settings?.coins) {
-    await botCache.helpers.reactError(message);
+    await bot.helpers.reactError(message);
     return;
   }
 
@@ -369,7 +368,7 @@ botCache.helpers.makeCoinsCanvas = async function (message, member) {
     if (topUserData.length === 3) break;
 
     // Get the user
-    const user = await botCache.helpers.fetchMember(message.guildID, userData.id);
+    const user = await bot.helpers.fetchMember(message.guildID, userData.id);
     if (!user) continue;
 
     topUserData.push({

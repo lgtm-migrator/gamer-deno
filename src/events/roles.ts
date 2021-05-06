@@ -1,18 +1,18 @@
-import { botCache, calculatePermissions, getAuditLogs, Guild, Message, rawAvatarURL, Role } from "../../deps.ts";
+import { bot, calculatePermissions, getAuditLogs, Guild, Message, rawAvatarURL, Role } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { Embed } from "../utils/Embed.ts";
 import { permsToString, sendEmbed } from "../utils/helpers.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.eventHandlers.roleCreate = async function (guild, role) {
+bot.eventHandlers.roleCreate = async function (guild, role) {
   handleServerLog(guild, role, "created").catch(console.log);
 };
 
-botCache.eventHandlers.roleDelete = async function (guild, role) {
+bot.eventHandlers.roleDelete = async function (guild, role) {
   handleServerLog(guild, role, "deleted").catch(console.log);
 };
 
-botCache.eventHandlers.roleUpdate = async function (guild, role, cachedRole) {
+bot.eventHandlers.roleUpdate = async function (guild, role, cachedRole) {
   handleServerLog(guild, role, "updated", cachedRole).catch(console.log);
 };
 
@@ -21,14 +21,12 @@ async function handleServerLog(guild: Guild, role: Role, type: "created" | "dele
 async function handleServerLog(guild: Guild, role: Role, type: "created" | "deleted" | "updated", cachedRole?: Role) {
   if (type === "updated") {
     // VIP ONLY STUFF
-    if (!botCache.vipGuildIDs.has(guild.id)) return;
+    if (!bot.vipGuildIDs.has(guild.id)) return;
   }
 
-  const logs = botCache.recentLogs.has(guild.id)
-    ? botCache.recentLogs.get(guild.id)
-    : await db.serverlogs.get(guild.id);
+  const logs = bot.recentLogs.has(guild.id) ? bot.recentLogs.get(guild.id) : await db.serverlogs.get(guild.id);
 
-  botCache.recentLogs.set(guild.id, logs);
+  bot.recentLogs.set(guild.id, logs);
 
   if (!logs) return;
   if (type === "created" && !logs.roleCreateChannelID) return;
@@ -50,13 +48,13 @@ async function handleServerLog(guild: Guild, role: Role, type: "created" | "dele
     texts.push(
       translate(guild.id, "strings:TOTAL_ROLES", { amount: guild.roles.size }),
       translate(guild.id, "strings:LOGS_MENTIONABLE", {
-        value: botCache.helpers.booleanEmoji(role.mentionable),
+        value: bot.helpers.booleanEmoji(role.mentionable),
       }),
       translate(guild.id, "strings:HOISTED", {
-        value: botCache.helpers.booleanEmoji(role.hoist),
+        value: bot.helpers.booleanEmoji(role.hoist),
       }),
       translate(guild.id, "strings:ROLE_MANAGED", {
-        value: botCache.helpers.booleanEmoji(role.managed),
+        value: bot.helpers.booleanEmoji(role.managed),
       }),
       translate(guild.id, "strings:ROLE_POSITION", { value: role.position }),
       translate(guild.id, "strings:ROLE_PERMISSIONS", {
@@ -67,7 +65,7 @@ async function handleServerLog(guild: Guild, role: Role, type: "created" | "dele
     if (role.mentionable !== cachedRole?.mentionable) {
       texts.push(
         translate(guild.id, "strings:LOGS_MENTIONABLE", {
-          value: botCache.helpers.booleanEmoji(role.mentionable),
+          value: bot.helpers.booleanEmoji(role.mentionable),
         })
       );
     }
@@ -75,7 +73,7 @@ async function handleServerLog(guild: Guild, role: Role, type: "created" | "dele
     if (role.hoist !== cachedRole?.hoist) {
       texts.push(
         translate(guild.id, "strings:HOISTED", {
-          value: botCache.helpers.booleanEmoji(role.hoist),
+          value: bot.helpers.booleanEmoji(role.hoist),
         })
       );
     }
@@ -116,11 +114,11 @@ async function handleServerLog(guild: Guild, role: Role, type: "created" | "dele
     .setTimestamp();
 
   // Non VIP get basic logs only
-  if (!botCache.vipGuildIDs.has(guild.id)) {
+  if (!bot.vipGuildIDs.has(guild.id)) {
     return sendEmbed(type === "created" ? logs.roleCreateChannelID : logs.roleDeleteChannelID, embed);
   }
 
-  if (botCache.vipGuildIDs.has(guild.id)) {
+  if (bot.vipGuildIDs.has(guild.id)) {
     if (
       (type === "created" && logs.roleCreatePublic) ||
       (type === "deleted" && logs.roleDeletePublic) ||

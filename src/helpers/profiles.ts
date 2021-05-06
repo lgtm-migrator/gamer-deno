@@ -1,4 +1,4 @@
-import { botCache, cache, chooseRandom, Image } from "../../deps.ts";
+import { bot, cache, chooseRandom, Image } from "../../deps.ts";
 import fonts from "../../fonts.ts";
 import { db } from "../database/database.ts";
 import { translate } from "../utils/i18next.ts";
@@ -11,7 +11,7 @@ const profileBuffers = {
   botLogo: await Image.decode(Deno.readFileSync(new URL("./../../assets/profile/gamer.png", import.meta.url))),
 };
 
-botCache.helpers.makeProfileCanvas = async function makeCanvas(guildID, memberID, options) {
+bot.helpers.makeProfileCanvas = async function makeCanvas(guildID, memberID, options) {
   const member = cache.members.get(memberID);
   if (!member) return;
 
@@ -24,21 +24,20 @@ botCache.helpers.makeProfileCanvas = async function makeCanvas(guildID, memberID
 
   const spouse = cache.members.get(marriage?.spouseID!);
   // Select the background theme & id from their settings if no override options were provided
-  const style = options?.style || (botCache.vipUserIDs.has(memberID) && userSettings?.theme) || "white";
+  const style = options?.style || (bot.vipUserIDs.has(memberID) && userSettings?.theme) || "white";
   // Default to a random background
   const backgroundID = options?.backgroundID || userSettings?.backgroundID;
 
   // Get background data OR If the background is invalid then set it to default values
-  let bg =
-    botCache.constants.backgrounds.find((b) => b.id === backgroundID) || chooseRandom(botCache.constants.backgrounds);
+  let bg = bot.constants.backgrounds.find((b) => b.id === backgroundID) || chooseRandom(bot.constants.backgrounds);
   if (!bg) return;
 
   let bgURL = "";
 
   // VIP Guilds can prevent certain backgrounds
-  if (botCache.vipGuildIDs.has(guildID)) {
+  if (bot.vipGuildIDs.has(guildID)) {
     // VIP Users can override them still
-    if (!botCache.vipUserIDs.has(memberID)) {
+    if (!bot.vipUserIDs.has(memberID)) {
       if (settings?.allowedBackgroundURLs && !settings.allowedBackgroundURLs.includes(String(bg.id))) {
         // User selected an invalid background
         bgURL = chooseRandom(settings.allowedBackgroundURLs);
@@ -47,14 +46,12 @@ botCache.helpers.makeProfileCanvas = async function makeCanvas(guildID, memberID
   }
 
   // SERVER XP DATA
-  const serverLevelDetails = botCache.constants.levels.find((lev) => lev.xpNeeded > (xpSettings?.xp || 0));
-  const globalLevelDetails = botCache.constants.levels.find((lev) => lev.xpNeeded > (userSettings?.xp || 0));
+  const serverLevelDetails = bot.constants.levels.find((lev) => lev.xpNeeded > (xpSettings?.xp || 0));
+  const globalLevelDetails = bot.constants.levels.find((lev) => lev.xpNeeded > (userSettings?.xp || 0));
   const previousServerLevelDetails =
-    botCache.constants.levels.find((lev) => lev.id === (serverLevelDetails?.id || 0) - 1) ||
-    botCache.constants.levels.get(0);
+    bot.constants.levels.find((lev) => lev.id === (serverLevelDetails?.id || 0) - 1) || bot.constants.levels.get(0);
   const previousGlobalLevelDetails =
-    botCache.constants.levels.find((lev) => lev.id === (globalLevelDetails?.id || 0) - 1) ||
-    botCache.constants.levels.get(0);
+    bot.constants.levels.find((lev) => lev.id === (globalLevelDetails?.id || 0) - 1) || bot.constants.levels.get(0);
   if (!serverLevelDetails || !globalLevelDetails || !previousServerLevelDetails || !previousGlobalLevelDetails) {
     return;
   }
@@ -68,7 +65,7 @@ botCache.helpers.makeProfileCanvas = async function makeCanvas(guildID, memberID
   // Create the cleaner xp based on the level of the member
   let memberXP = totalMemberXP;
   if (memberLevel >= 1) {
-    const previousLevel = botCache.constants.levels.find((lev) => lev.id === memberLevel - 1);
+    const previousLevel = bot.constants.levels.find((lev) => lev.id === memberLevel - 1);
     if (!previousLevel) return;
 
     memberXP = totalMemberXP - previousLevel.xpNeeded;
@@ -77,7 +74,7 @@ botCache.helpers.makeProfileCanvas = async function makeCanvas(guildID, memberID
   // Create the cleaner xp based on the level of the user
   let globalXP = totalGlobalXP;
   if (globalLevel >= 1) {
-    const previousLevel = botCache.constants.levels.find((lev) => lev.id === globalLevel - 1);
+    const previousLevel = bot.constants.levels.find((lev) => lev.id === globalLevel - 1);
     if (!previousLevel) return;
     globalXP = totalGlobalXP - previousLevel.xpNeeded;
   }
@@ -98,15 +95,15 @@ botCache.helpers.makeProfileCanvas = async function makeCanvas(guildID, memberID
   const gProgress = xpBarWidth * gRatio;
 
   // STYLES EVALUATION AND DATA
-  const mode = botCache.constants.themes.get(style) || botCache.constants.themes.get("white")!;
+  const mode = bot.constants.themes.get(style) || bot.constants.themes.get("white")!;
   const canvas = new Image(852, 581);
   const badgeSpots = [70, 145, 220, 295, 370, 445];
   for (const spot of badgeSpots) {
-    canvas.drawCircle(spot, 480, 27, parseInt(botCache.constants.themes.get("white")!.badgeFilling, 16));
+    canvas.drawCircle(spot, 480, 27, parseInt(bot.constants.themes.get("white")!.badgeFilling, 16));
   }
 
   // VIP USERS BACKGROUNDS
-  if (botCache.vipUserIDs.has(memberID)) {
+  if (bot.vipUserIDs.has(memberID)) {
     // CUSTOM BACKGROUND
     const backgroundURL = userSettings?.backgroundURL;
     if (backgroundURL) {
@@ -147,7 +144,7 @@ botCache.helpers.makeProfileCanvas = async function makeCanvas(guildID, memberID
   }
 
   // CUSTOM BADGES FOR VIPS
-  const badges = botCache.vipUserIDs.has(memberID) ? userSettings?.badges || [] : [];
+  const badges = bot.vipUserIDs.has(memberID) ? userSettings?.badges || [] : [];
   if (badges.length) {
     for (let i = 0; i < 6; i++) {
       // A custom badge is availble
@@ -155,7 +152,7 @@ botCache.helpers.makeProfileCanvas = async function makeCanvas(guildID, memberID
 
       const badge = userSettings?.badges?.[i];
       if (!badge) {
-        canvas.drawCircle(x, 480, 27, parseInt(botCache.constants.themes.get("white")!.badgeFilling, 16));
+        canvas.drawCircle(x, 480, 27, parseInt(bot.constants.themes.get("white")!.badgeFilling, 16));
         continue;
       }
 
@@ -163,7 +160,7 @@ botCache.helpers.makeProfileCanvas = async function makeCanvas(guildID, memberID
         .then((res) => res.arrayBuffer())
         .catch(() => undefined);
       if (!buffer) {
-        canvas.drawCircle(x, 480, 27, parseInt(botCache.constants.themes.get("white")!.badgeFilling, 16));
+        canvas.drawCircle(x, 480, 27, parseInt(bot.constants.themes.get("white")!.badgeFilling, 16));
         continue;
       }
 
@@ -173,7 +170,7 @@ botCache.helpers.makeProfileCanvas = async function makeCanvas(guildID, memberID
   else {
     const badgeSpots = [70, 145, 220, 295, 370, 445];
     for (const spot of badgeSpots) {
-      canvas.drawCircle(spot, 480, 27, parseInt(botCache.constants.themes.get("white")!.badgeFilling, 16));
+      canvas.drawCircle(spot, 480, 27, parseInt(bot.constants.themes.get("white")!.badgeFilling, 16));
     }
   }
 
@@ -228,7 +225,7 @@ botCache.helpers.makeProfileCanvas = async function makeCanvas(guildID, memberID
     // DRAW XP BARS.
     .composite(xpBackground, 45, 239)
     .composite(xpBackground, 45, 309)
-    .drawBox(158, 135, 240, 2, parseInt(botCache.constants.themes.get("white")!.userdivider, 16));
+    .drawBox(158, 135, 240, 2, parseInt(bot.constants.themes.get("white")!.userdivider, 16));
 
   // DEFAULT STRINGS ARE PRE-CACHED if english and white color
   const xp = Image.renderText(
@@ -260,7 +257,7 @@ botCache.helpers.makeProfileCanvas = async function makeCanvas(guildID, memberID
   const clanBox = new Image(250, 90).fill(parseInt(mode.clanRectFilling, 16)).roundCorners(10);
   canvas.composite(clanBox, 590, 425);
 
-  if (botCache.vipUserIDs.has(memberID)) {
+  if (bot.vipUserIDs.has(memberID)) {
     // CUSTOM DESCRIPTION
     const desc = userSettings?.description
       ? Image.renderText(fonts.LatoBold, 14, userSettings.description, parseInt(mode.clanName, 16), 230)
@@ -275,11 +272,11 @@ botCache.helpers.makeProfileCanvas = async function makeCanvas(guildID, memberID
   let showMarriage = true;
 
   // VIP GUILDS CAN HIDE MARRIAGE
-  if (botCache.vipGuildIDs.has(guildID) && settings && !settings.showMarriage) {
+  if (bot.vipGuildIDs.has(guildID) && settings && !settings.showMarriage) {
     showMarriage = false;
   }
   // VIP USERS SHOULD BE FULL OVVERIDE
-  if (botCache.vipUserIDs.has(memberID) && userSettings?.showMarriage) {
+  if (bot.vipUserIDs.has(memberID) && userSettings?.showMarriage) {
     showMarriage = true;
   }
 

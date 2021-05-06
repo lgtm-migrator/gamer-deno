@@ -1,4 +1,4 @@
-import { botCache, cache, chooseRandom, delay, sendMessage } from "../../deps.ts";
+import { bot, cache, chooseRandom, delay, sendMessage } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { GiveawaySchema } from "../database/schemas.ts";
 import { Embed } from "../utils/Embed.ts";
@@ -7,9 +7,9 @@ import { sendEmbed } from "../utils/helpers.ts";
 /** The giveaways ids that are currently being processed incase the pick interval is wrong we dont want it to run multiple times. */
 const processingGiveaways = new Set<string>();
 
-botCache.tasks.set("giveaways", {
+bot.tasks.set("giveaways", {
   name: "giveaways",
-  interval: botCache.constants.milliseconds.MINUTE * 2,
+  interval: bot.constants.milliseconds.MINUTE * 2,
   execute: async function () {
     const giveaways = await db.giveaways.getAll(true);
 
@@ -32,7 +32,7 @@ botCache.tasks.set("giveaways", {
       // These giveaway have fully ended & a day has
       if (giveaway.hasEnded) {
         // If a day has passed, delete from the database.
-        if (endsAt + botCache.constants.milliseconds.DAY > now) {
+        if (endsAt + bot.constants.milliseconds.DAY > now) {
           return db.giveaways.delete(giveaway.id);
         }
 
@@ -58,7 +58,7 @@ export async function pickGiveawayWinners(giveaway: GiveawaySchema) {
   // All winners have been selected already delete from DB.
   if (giveaway.pickWinners && giveaway.amountOfWinners === giveaway.pickedParticipants.length) {
     await db.giveaways.update(giveaway.id, { hasEnded: true });
-    botCache.giveawayMessageIDs.delete(giveaway.id);
+    bot.giveawayMessageIDs.delete(giveaway.id);
     processingGiveaways.delete(giveaway.id);
 
     return sendMessage(
@@ -70,7 +70,7 @@ export async function pickGiveawayWinners(giveaway: GiveawaySchema) {
   // No one entered the giveaway
   if (!giveaway.participants.length) {
     await db.giveaways.update(giveaway.id, { hasEnded: true });
-    botCache.giveawayMessageIDs.delete(giveaway.id);
+    bot.giveawayMessageIDs.delete(giveaway.id);
     processingGiveaways.delete(giveaway.id);
 
     return sendMessage(
@@ -94,7 +94,7 @@ export async function pickGiveawayWinners(giveaway: GiveawaySchema) {
   });
 
   // If vip guild, fetch all members
-  if (botCache.vipGuildIDs.has(giveaway.guildID)) {
+  if (bot.vipGuildIDs.has(giveaway.guildID)) {
     // Removes any users who are no longer members
     filteredParticipants = filteredParticipants.filter((participant) =>
       cache.members.get(participant.memberID)?.guilds.has(giveaway.guildID)
@@ -114,7 +114,7 @@ export async function pickGiveawayWinners(giveaway: GiveawaySchema) {
       await sendEmbed(giveaway.notificationsChannelID, embed, `<@${participant.memberID}>`);
 
       // If VIP guild enabled the interval option, delay it for that time period
-      if (botCache.vipGuildIDs.has(giveaway.guildID) && giveaway.pickInterval) {
+      if (bot.vipGuildIDs.has(giveaway.guildID) && giveaway.pickInterval) {
         await delay(giveaway.pickInterval);
         continue;
       }
@@ -127,7 +127,7 @@ export async function pickGiveawayWinners(giveaway: GiveawaySchema) {
 
     processingGiveaways.delete(giveaway.id);
     db.giveaways.update(giveaway.id, { hasEnded: true });
-    return botCache.giveawayMessageIDs.delete(giveaway.id);
+    return bot.giveawayMessageIDs.delete(giveaway.id);
   }
 
   // No participants remain to be selected.
@@ -139,7 +139,7 @@ export async function pickGiveawayWinners(giveaway: GiveawaySchema) {
 
     processingGiveaways.delete(giveaway.id);
     db.giveaways.update(giveaway.id, { hasEnded: true });
-    return botCache.giveawayMessageIDs.delete(giveaway.id);
+    return bot.giveawayMessageIDs.delete(giveaway.id);
   }
 
   const randomParticipant = chooseRandom(filteredParticipants);
@@ -166,6 +166,6 @@ export async function pickGiveawayWinners(giveaway: GiveawaySchema) {
   // If VIP guild enabled the interval option, delay it for that time period
   setTimeout(
     () => pickGiveawayWinners(giveaway),
-    botCache.vipGuildIDs.has(giveaway.guildID) && giveaway.pickInterval ? giveaway.pickInterval : 1000
+    bot.vipGuildIDs.has(giveaway.guildID) && giveaway.pickInterval ? giveaway.pickInterval : 1000
   );
 }

@@ -1,4 +1,4 @@
-import { botCache, deleteMessages, getMessages } from "../../../deps.ts";
+import { bot, deleteMessages, getMessages } from "../../../deps.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createCommand } from "../../utils/helpers.ts";
 
@@ -21,10 +21,10 @@ createCommand({
   guildOnly: true,
   execute: async function (message, args) {
     const messages = await getMessages(message.channelID, { limit: 100 }).catch(() => undefined);
-    if (!messages) return botCache.helpers.reactError(message);
+    if (!messages) return bot.helpers.reactError(message);
 
     const now = Date.now();
-    const maxAge = botCache.constants.milliseconds.WEEK * 2;
+    const maxAge = bot.constants.milliseconds.WEEK * 2;
 
     const filteredMessages = messages.filter((msg) => {
       // Always delete the nuke command message
@@ -60,7 +60,7 @@ createCommand({
       messagesToDelete.map((m) => m.id)
     ).catch((error) => {
       console.log(error);
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     });
   },
 });

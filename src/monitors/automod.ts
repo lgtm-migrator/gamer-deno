@@ -2,7 +2,7 @@ import {
   bgBlue,
   bgYellow,
   black,
-  botCache,
+  bot,
   botHasChannelPermissions,
   Collection,
   confusables,
@@ -16,12 +16,12 @@ import { translate } from "../utils/i18next.ts";
 
 export const cachedSettingsAutomod = new Collection<string, GuildSchema>();
 
-botCache.monitors.set("automod", {
+bot.monitors.set("automod", {
   name: "automod",
   execute: async function (message) {
     if (message.author.bot) return;
     // Using mail feature and triggering automod will still show the message
-    if (botCache.guildSupportChannelIDs.has(message.channelID)) return;
+    if (bot.guildSupportChannelIDs.has(message.channelID)) return;
 
     let settings = cachedSettingsAutomod.get(message.guildID);
     if (!settings) {
@@ -40,16 +40,16 @@ botCache.monitors.set("automod", {
     if (!message.content.startsWith("modbypass")) {
       if (!message.guild || !message.guildMember) return;
 
-      if (await botCache.helpers.isModOrAdmin(message, settings)) {
+      if (await bot.helpers.isModOrAdmin(message, settings)) {
         return;
       }
     }
 
-    const embed = botCache.helpers.authorEmbed(message);
+    const embed = bot.helpers.authorEmbed(message);
     const reasons: string[] = [];
     let content = `${message.content}`;
 
-    const logEmbed = botCache.helpers
+    const logEmbed = bot.helpers
       .authorEmbed(message)
       .setTitle(translate(message.guildID, "strings:CAPITAL_SPAM"))
       .setThumbnail("https://i.imgur.com/E8IfeWc.png")
@@ -59,21 +59,21 @@ botCache.monitors.set("automod", {
       .setFooter(translate(message.guildID, "strings:XP_LOST", { amount: 3 }))
       .setTimestamp(message.timestamp);
 
-    const logs = botCache.recentLogs.has(message.guildID)
-      ? botCache.recentLogs.get(message.guildID)
+    const logs = bot.recentLogs.has(message.guildID)
+      ? bot.recentLogs.get(message.guildID)
       : await db.serverlogs.get(message.guildID);
-    botCache.recentLogs.set(message.guildID, logs);
+    bot.recentLogs.set(message.guildID, logs);
 
     // Run the filter and get back either null or cleaned string
     const capitalSpamCleanup = capitalSpamFilter(content, settings.capitalPercentage);
 
     // If a cleaned string is returned set the content to the string
     if (capitalSpamCleanup) {
-      botCache.stats.automod += 1;
+      bot.stats.automod += 1;
       content = capitalSpamCleanup;
 
       // Remove 3 XP for using capital letters
-      await botCache.helpers.removeXP(message.guildID, message.author.id, 3);
+      await bot.helpers.removeXP(message.guildID, message.author.id, 3);
 
       // send to automod log
       if (logs?.automodChannelID) {
@@ -89,16 +89,16 @@ botCache.monitors.set("automod", {
       settings.profanityEnabled,
       settings.profanityWords,
       settings.profanityStrictWords,
-      botCache.vipGuildIDs.has(message.guildID) ? settings.profanityPhrases : []
+      bot.vipGuildIDs.has(message.guildID) ? settings.profanityPhrases : []
     );
     if (naughtyWordCleanup) {
       const naughtyReason = translate(message.guildID, `strings:AUTOMOD_NAUGHTY`);
       for (const _word of naughtyWordCleanup.naughtyWords) {
         if (!reasons.includes(naughtyReason)) reasons.push(naughtyReason);
-        botCache.stats.automod += 1;
+        bot.stats.automod += 1;
 
         // Remove 5 XP per word used
-        await botCache.helpers.removeXP(message.guildID, message.author.id, 5);
+        await bot.helpers.removeXP(message.guildID, message.author.id, 5);
       }
 
       if (naughtyWordCleanup.naughtyWords.length) {
@@ -132,16 +132,16 @@ botCache.monitors.set("automod", {
       settings.linksUserIDs,
       settings.linksRoleIDs,
       settings.linksURLs,
-      botCache.vipGuildIDs.has(message.guildID) ? settings.linksRestrictedURLs : []
+      bot.vipGuildIDs.has(message.guildID) ? settings.linksRestrictedURLs : []
     );
     // If a cleaned string is returned set the content to the string
     if (linkFilterCleanup) {
       content = linkFilterCleanup.content;
 
       for (const _url of linkFilterCleanup.filteredURLs) {
-        botCache.stats.automod += 1;
+        bot.stats.automod += 1;
 
-        await botCache.helpers.removeXP(message.guildID, message.author.id, 5);
+        await bot.helpers.removeXP(message.guildID, message.author.id, 5);
       }
 
       if (linkFilterCleanup.filteredURLs.length) {
@@ -212,7 +212,7 @@ function capitalSpamFilter(text: string, capitalPercentage = 100) {
   let characterCount = 0;
 
   for (const letter of text) {
-    for (const language of [botCache.constants.alphabet.english, botCache.constants.alphabet.russian]) {
+    for (const language of [bot.constants.alphabet.english, bot.constants.alphabet.russian]) {
       if (language.lowercase.includes(letter)) lowercaseCount++;
       else if (language.uppercase.includes(letter)) uppercaseCount++;
     }

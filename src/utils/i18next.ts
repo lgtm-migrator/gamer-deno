@@ -1,4 +1,4 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 import { cache, sendMessage } from "../../deps.ts";
 import i18next from "https://deno.land/x/i18next@v19.6.3/index.js";
 import Backend from "https://deno.land/x/i18next_fs_backend/index.js";
@@ -21,7 +21,7 @@ export function translate(guildID: string, key: string, options?: Record<string,
   if (key === "") return "";
 
   const guild = cache.guilds.get(guildID);
-  let language = botCache.guildLanguages.get(guildID) || guild?.preferredLocale || "en_US";
+  let language = bot.guildLanguages.get(guildID) || guild?.preferredLocale || "en_US";
 
   // Discord names some like `ru` and so we make it `ru_RU` for our json files
   if (language.length === 2) {
@@ -37,7 +37,7 @@ export function translate(guildID: string, key: string, options?: Record<string,
 /** This function helps translate the string to the specific guilds needs. This is meant for translating a full array of strings. */
 export function translateArray(guildID: string, key: string, options?: Record<string, unknown>): string[] {
   const guild = cache.guilds.get(guildID);
-  const language = botCache.guildLanguages.get(guildID) || guild?.preferredLocale || "en_US";
+  const language = bot.guildLanguages.get(guildID) || guild?.preferredLocale || "en_US";
 
   // undefined is silly bug cause i18next dont have proper typings
   const languageMap = i18next.getFixedT(language.replace("-", "_"), undefined) || i18next.getFixedT("en_US", undefined);
@@ -86,7 +86,7 @@ export async function loadLanguages() {
         if (!channel) return;
 
         const args = key.split("_");
-        if (key.endsWith("_USAGE") && botCache.commands.has(args[0]?.toLowerCase())) {
+        if (key.endsWith("_USAGE") && bot.commands.has(args[0]?.toLowerCase())) {
           return;
         }
 

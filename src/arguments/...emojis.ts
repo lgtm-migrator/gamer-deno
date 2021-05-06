@@ -1,6 +1,6 @@
-import { botCache, cache } from "../../deps.ts";
+import { bot, cache } from "../../deps.ts";
 
-botCache.arguments.set("...emojis", {
+bot.arguments.set("...emojis", {
   name: "...emojis",
   execute: async function (_argument, parameters, message) {
     if (!parameters.length) return;
@@ -11,7 +11,7 @@ botCache.arguments.set("...emojis", {
 
     return emojis
       .map((emoji) => {
-        if (botCache.constants.emojis.defaults.has(emoji)) return emoji;
+        if (bot.constants.emojis.defaults.has(emoji)) return emoji;
 
         let guildEmoji = cache.guilds.get(message.guildID)?.emojis.find((e) => e.id === emoji);
         if (!guildEmoji) {
@@ -25,7 +25,7 @@ botCache.arguments.set("...emojis", {
         }
 
         // @ts-ignore
-        return botCache.helpers.emojiUnicode(guildEmoji);
+        return bot.helpers.emojiUnicode(guildEmoji);
       })
       .filter((e) => e);
   },

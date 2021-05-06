@@ -1,4 +1,4 @@
-import { botCache, botGatewayData, botID, cache } from "../../../deps.ts";
+import { bot, botGatewayData, botID, cache } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createCommand, humanizeMilliseconds } from "../../utils/helpers.ts";
@@ -47,25 +47,25 @@ createCommand({
     ];
 
     const messageStats = [
-      `**Processed:** ${botCache.helpers.shortNumber(BigInt(stats.messagesProcessed || "0"))}`,
-      `**Sent:** ${botCache.helpers.shortNumber(BigInt(stats.messagesSent || "0"))}`,
-      `**Deleted:** ${botCache.helpers.shortNumber(BigInt(stats.messagesDeleted || "0"))}`,
-      `**Edited:** ${botCache.helpers.shortNumber(BigInt(stats.messagesEdited || "0"))}`,
-      `**Commands:** ${botCache.helpers.shortNumber(BigInt(stats.commandsRan || "0"))}`,
+      `**Processed:** ${bot.helpers.shortNumber(BigInt(stats.messagesProcessed || "0"))}`,
+      `**Sent:** ${bot.helpers.shortNumber(BigInt(stats.messagesSent || "0"))}`,
+      `**Deleted:** ${bot.helpers.shortNumber(BigInt(stats.messagesDeleted || "0"))}`,
+      `**Edited:** ${bot.helpers.shortNumber(BigInt(stats.messagesEdited || "0"))}`,
+      `**Commands:** ${bot.helpers.shortNumber(BigInt(stats.commandsRan || "0"))}`,
     ];
 
     const reactionStats = [
-      `**Added:** ${botCache.helpers.shortNumber(BigInt(stats.reactionsAddedProcessed || "0"))}`,
-      `**Removed:** ${botCache.helpers.shortNumber(BigInt(stats.reactionsRemovedProcessed || "0"))}`,
+      `**Added:** ${bot.helpers.shortNumber(BigInt(stats.reactionsAddedProcessed || "0"))}`,
+      `**Removed:** ${bot.helpers.shortNumber(BigInt(stats.reactionsRemovedProcessed || "0"))}`,
     ];
 
     const embed = new Embed()
       .setColor("random")
-      .addField("Servers", (cache.guilds.size + botCache.dispatchedGuildIDs.size).toLocaleString("en-US"), true)
-      .addField("Dispatched", botCache.dispatchedGuildIDs.size.toLocaleString("en-US"), true)
+      .addField("Servers", (cache.guilds.size + bot.dispatchedGuildIDs.size).toLocaleString("en-US"), true)
+      .addField("Dispatched", bot.dispatchedGuildIDs.size.toLocaleString("en-US"), true)
       .addField("Members", totalMemberCount.toLocaleString("en-US"), true)
       .addField("Cached Members", cachedMemberCount.toLocaleString("en-US"), true)
-      .addField("Channels", (cache.channels.size + botCache.dispatchedChannelIDs.size).toLocaleString("en-US"), true)
+      .addField("Channels", (cache.channels.size + bot.dispatchedChannelIDs.size).toLocaleString("en-US"), true)
       .addBlankField(true)
       .addField("Session Start Limit", sessionStats.join("\n"), true)
       .addField("Messages", messageStats.join("\n"), true)

@@ -1,4 +1,4 @@
-import { botCache, botID, cache, createGuildChannel, createWebhook, OverwriteType } from "../../../deps.ts";
+import { bot, botID, cache, createGuildChannel, createWebhook, OverwriteType } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createSubcommand } from "../../utils/helpers.ts";
@@ -52,16 +52,16 @@ createSubcommand("mirrors", {
         mirrorGuildID: message.guildID,
         webhookToken: webhook.token!,
         webhookID: webhook.id,
-        deleteSourceMessages: botCache.vipGuildIDs.has(message.guildID),
-        anonymous: botCache.vipGuildIDs.has(message.guildID),
+        deleteSourceMessages: bot.vipGuildIDs.has(message.guildID),
+        anonymous: bot.vipGuildIDs.has(message.guildID),
         filterImages: false,
       });
 
       const mirrorSettings = await db.mirrors.get(message.id);
-      if (!mirrorSettings) return botCache.helpers.reactError(message);
+      if (!mirrorSettings) return bot.helpers.reactError(message);
 
-      botCache.mirrors.set(confessional.id, [mirrorSettings]);
-      return botCache.helpers.reactSuccess(message);
+      bot.mirrors.set(confessional.id, [mirrorSettings]);
+      return bot.helpers.reactSuccess(message);
     }
   },
 });

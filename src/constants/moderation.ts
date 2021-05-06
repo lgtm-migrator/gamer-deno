@@ -1,6 +1,6 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 
-botCache.constants.modlogs = {
+bot.constants.modlogs = {
   colors: {
     kick: "#ff8d00",
     ban: "#ff2300",

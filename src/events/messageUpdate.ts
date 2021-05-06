@@ -1,21 +1,21 @@
-import { botCache, cache, guildIconURL, rawAvatarURL } from "../../deps.ts";
+import { bot, cache, guildIconURL, rawAvatarURL } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { sendEmbed } from "../utils/helpers.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.eventHandlers.messageUpdate = async function (message, cachedMessage) {
+bot.eventHandlers.messageUpdate = async function (message, cachedMessage) {
   // Update stats in cache
-  botCache.stats.messagesEdited += 1;
+  bot.stats.messagesEdited += 1;
   // VIP ONLY
-  if (!botCache.vipGuildIDs.has(message.guildID)) return;
+  if (!bot.vipGuildIDs.has(message.guildID)) return;
 
   // No change in content so ignore.
   if (cachedMessage.content === message.content) return;
 
-  const logs = botCache.recentLogs.has(message.guildID)
-    ? botCache.recentLogs.get(message.guildID)
+  const logs = bot.recentLogs.has(message.guildID)
+    ? bot.recentLogs.get(message.guildID)
     : await db.serverlogs.get(message.guildID);
-  botCache.recentLogs.set(message.guildID, logs);
+  bot.recentLogs.set(message.guildID, logs);
   // DISABLED LOGS
   if (!logs?.messageEditChannelID) return;
   if (logs.messageEditIgnoredChannelIDs?.includes(message.channelID)) return;
@@ -38,7 +38,7 @@ botCache.eventHandlers.messageUpdate = async function (message, cachedMessage) {
       link: message.link,
     }),
   ];
-  const embed = botCache.helpers
+  const embed = bot.helpers
     .authorEmbed(message)
     .setDescription(texts.join("\n"))
     .setFooter(
@@ -65,7 +65,7 @@ botCache.eventHandlers.messageUpdate = async function (message, cachedMessage) {
     }
   }
 
-  if (botCache.vipGuildIDs.has(message.guildID) && logs.messageEditPublic) {
+  if (bot.vipGuildIDs.has(message.guildID) && logs.messageEditPublic) {
     await sendEmbed(logs.publicChannelID, embed);
   }
 

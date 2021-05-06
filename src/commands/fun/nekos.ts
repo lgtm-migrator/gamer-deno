@@ -1,4 +1,4 @@
-import { botCache } from "../../../deps.ts";
+import { bot } from "../../../deps.ts";
 import { createCommand } from "../../utils/helpers.ts";
 
 const nekosEndpoints = [
@@ -83,7 +83,7 @@ nekosEndpoints.forEach(async (endpoint) => {
       const url = `https://nekos.life/api/v2${endpoint.path}`;
       const result = await fetch(url).then((res) => res.json());
 
-      const embed = botCache.helpers
+      const embed = bot.helpers
         .authorEmbed(message)
         .setColor("random")
         .setImage(result?.url || "")
@@ -93,7 +93,7 @@ nekosEndpoints.forEach(async (endpoint) => {
       await message
         .send({ embed })
         // TODO: translate this?
-        .then((res) => res.delete("neko auto delete", botCache.constants.milliseconds.MINUTE));
+        .then((res) => res.delete("neko auto delete", bot.constants.milliseconds.MINUTE));
     },
   });
 });

@@ -1,6 +1,6 @@
 import {
   addRole,
-  botCache,
+  bot,
   botHasPermission,
   botID,
   cache,
@@ -19,7 +19,7 @@ import { Embed } from "../utils/Embed.ts";
 import { humanizeMilliseconds, sendEmbed } from "../utils/helpers.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.eventHandlers.guildMemberAdd = async function (guild, member) {
+bot.eventHandlers.guildMemberAdd = async function (guild, member) {
   // If VIP guild, increment analytics
   vipMemberAnalytics(guild.id, true);
   handleWelcomeMessage(guild, member);
@@ -27,7 +27,7 @@ botCache.eventHandlers.guildMemberAdd = async function (guild, member) {
   handleRoleAssignments(guild, member).catch(console.log);
 };
 
-botCache.eventHandlers.guildMemberRemove = function (guild, user, member) {
+bot.eventHandlers.guildMemberRemove = function (guild, user, member) {
   // If VIP guild, increment analytics
   vipMemberAnalytics(guild.id, false);
   handleServerLogs(
@@ -42,25 +42,25 @@ botCache.eventHandlers.guildMemberRemove = function (guild, user, member) {
 };
 
 function vipMemberAnalytics(id: string, joinEvent = true) {
-  if (!botCache.vipGuildIDs.has(id)) return;
+  if (!bot.vipGuildIDs.has(id)) return;
 
   if (joinEvent) {
-    const current = botCache.analyticsMemberJoin.get(id);
-    botCache.analyticsMemberJoin.set(id, (current || 0) + 1);
+    const current = bot.analyticsMemberJoin.get(id);
+    bot.analyticsMemberJoin.set(id, (current || 0) + 1);
   } else {
-    const current = botCache.analyticsMemberLeft.get(id);
-    botCache.analyticsMemberLeft.set(id, (current || 0) + 1);
+    const current = bot.analyticsMemberLeft.get(id);
+    bot.analyticsMemberLeft.set(id, (current || 0) + 1);
   }
 }
 
 async function handleWelcomeMessage(guild: Guild, member: Member) {
-  const welcome = botCache.recentWelcomes.get(guild.id) || (await db.welcome.get(guild.id));
+  const welcome = bot.recentWelcomes.get(guild.id) || (await db.welcome.get(guild.id));
   if (!welcome?.channelID || !welcome.text) return;
 
-  botCache.recentWelcomes.set(guild.id, welcome);
+  bot.recentWelcomes.set(guild.id, welcome);
 
   try {
-    const transformed = await botCache.helpers.variables(welcome.text, member, guild, member);
+    const transformed = await bot.helpers.variables(welcome.text, member, guild, member);
     const json = JSON.parse(transformed);
     const embed = new Embed(json);
     await sendEmbed(welcome.channelID, embed, json.plaintext);
@@ -80,10 +80,8 @@ async function handleServerLogs(
   member?: Member
 ) {
   // DISABLED LOGS
-  const logs = botCache.recentLogs.has(guild.id)
-    ? botCache.recentLogs.get(guild.id)
-    : await db.serverlogs.get(guild.id);
-  botCache.recentLogs.set(guild.id, logs);
+  const logs = bot.recentLogs.has(guild.id) ? bot.recentLogs.get(guild.id) : await db.serverlogs.get(guild.id);
+  bot.recentLogs.set(guild.id, logs);
 
   if (type === "add" && !logs?.memberAddChannelID) return;
   if (type == "remove" && !logs?.memberRemoveChannelID) return;
@@ -96,7 +94,7 @@ async function handleServerLogs(
       amount: guild.memberCount.toLocaleString("en-US"),
     }),
     translate(guild.id, "strings:ACCOUNT_AGE", {
-      age: humanizeMilliseconds(Date.now() - botCache.helpers.snowflakeToTimestamp(data.id)),
+      age: humanizeMilliseconds(Date.now() - bot.helpers.snowflakeToTimestamp(data.id)),
     }),
   ];
 
@@ -108,7 +106,7 @@ async function handleServerLogs(
     .setTimestamp();
 
   // NON-VIPS GET BASIC ONLY
-  if (!botCache.vipGuildIDs.has(guild.id)) {
+  if (!bot.vipGuildIDs.has(guild.id)) {
     return sendEmbed(type === "add" ? logs.memberAddChannelID : logs.memberRemoveChannelID, embed);
   }
 
@@ -131,7 +129,7 @@ async function handleServerLogs(
       return sendEmbed(logs.memberRemoveChannelID, embed)?.catch(console.log);
     }
     // IN CASE THIS MEMBER WAS KICKED BEFORE
-    if (Date.now() - botCache.helpers.snowflakeToTimestamp(relevant.id) > 5000) {
+    if (Date.now() - bot.helpers.snowflakeToTimestamp(relevant.id) > 5000) {
       return sendEmbed(logs.memberRemoveChannelID, embed)?.catch(console.log);
     }
 
@@ -160,7 +158,7 @@ async function handleServerLogs(
 
   // FIND THE INVITE WHOSE USES WENT UP
   const invite = invites.find((i: any) => {
-    const cachedInvite = botCache.invites.get(i.code);
+    const cachedInvite = bot.invites.get(i.code);
     if (!cachedInvite) return false;
     if (i.uses === cachedInvite.uses) return false;
     return true;
@@ -169,7 +167,7 @@ async function handleServerLogs(
   // ADD ALL INVITES TO CACHE FOR NEXT TIME
   invites.forEach(async (i: any) => {
     if (!i.inviter?.id) return;
-    botCache.invites.set(i.code, {
+    bot.invites.set(i.code, {
       code: i.code,
       guildID: i.guild.id,
       channelID: i.channel.id,

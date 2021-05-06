@@ -1,6 +1,6 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 
-botCache.constants.alphabet = {
+bot.constants.alphabet = {
   english: {
     lowercase: [
       "a",

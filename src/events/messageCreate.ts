@@ -1,5 +1,5 @@
 import {
-  botCache,
+  bot,
   botHasChannelPermissions,
   botHasPermission,
   botID,
@@ -9,13 +9,13 @@ import {
   memberIDHasPermission,
 } from "../../deps.ts";
 
-botCache.eventHandlers.messageCreate = async function (message) {
+bot.eventHandlers.messageCreate = async function (message) {
   // Update stats in cache
-  botCache.stats.messagesProcessed += 1;
-  if (message.author.id === botID) botCache.stats.messagesSent += 1;
-  if (!cache.isReady || !botCache.fullyReady) return;
+  bot.stats.messagesProcessed += 1;
+  if (message.author.id === botID) bot.stats.messagesSent += 1;
+  if (!cache.isReady || !bot.fullyReady) return;
 
-  botCache.monitors.forEach(async (monitor) => {
+  bot.monitors.forEach(async (monitor) => {
     // The !== false is important because when not provided we default to true
     if (monitor.ignoreBots !== false && message.author.bot) return;
     if (monitor.ignoreDM !== false && !message.guildID) {

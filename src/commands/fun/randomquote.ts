@@ -1,4 +1,4 @@
-import { botCache } from "../../../deps.ts";
+import { bot } from "../../../deps.ts";
 import { createCommand } from "../../utils/helpers.ts";
 import { translate, translateArray } from "../../utils/i18next.ts";
 
@@ -20,7 +20,7 @@ quoteData.forEach(async (data) => {
       }
 
       const quotes = translateArray(message.guildID, `strings:${data.name.toUpperCase()}_QUOTES`);
-      const random = botCache.helpers.chooseRandom(quotes);
+      const random = bot.helpers.chooseRandom(quotes);
       return message.reply(random);
     },
   });

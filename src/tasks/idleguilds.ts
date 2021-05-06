@@ -1,13 +1,13 @@
-import { botCache, cache } from "../../deps.ts";
+import { bot, cache } from "../../deps.ts";
 import { activeIdleGuildIDs } from "../commands/gaming/idle/upgrade.ts";
 import { db } from "../database/database.ts";
 
 // The task will runonce an hour but we want to monitor activity once a day
 let idleguildscounter = 0;
 
-botCache.tasks.set(`idleguilds`, {
+bot.tasks.set(`idleguilds`, {
   name: `idleguilds`,
-  interval: botCache.constants.milliseconds.MINUTE * 60,
+  interval: bot.constants.milliseconds.MINUTE * 60,
   execute: async function () {
     idleguildscounter++;
 
@@ -20,7 +20,7 @@ botCache.tasks.set(`idleguilds`, {
 
       for (const id of profile.guildIDs) {
         // This is no longer a valid guild
-        if (!cache.guilds.has(id) && !botCache.dispatchedGuildIDs.has(id)) continue;
+        if (!cache.guilds.has(id) && !bot.dispatchedGuildIDs.has(id)) continue;
         if (idleguildscounter >= 24 && !activeIdleGuildIDs.has(id)) continue;
 
         newIDs.push(id);

@@ -1,4 +1,4 @@
-import { botCache } from "../../../deps.ts";
+import { bot } from "../../../deps.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createCommand } from "../../utils/helpers.ts";
 
@@ -15,7 +15,7 @@ createCommand({
     switch (args.type) {
       case "reload":
         await Deno.run({ cmd: "git pull".split(" ") }).status();
-        return botCache.commands.get("reload")?.execute?.(message, {}, guild);
+        return bot.commands.get("reload")?.execute?.(message, {}, guild);
       default:
         await Deno.run({ cmd: "git pull".split(" ") }).status();
         return Deno.run({ cmd: "pm2 restart gamer".split(" ") });

@@ -1,17 +1,17 @@
-import { botCache, cache, guildIconURL, Member } from "../../deps.ts";
+import { bot, cache, guildIconURL, Member } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { Embed } from "../utils/Embed.ts";
 import { sendEmbed } from "../utils/helpers.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.eventHandlers.voiceChannelJoin = async function (member, channelID) {
+bot.eventHandlers.voiceChannelJoin = async function (member, channelID) {
   if (member.bot) return;
 
   const channel = cache.channels.get(channelID);
   if (!channel) return;
 
   // Voice XP is vip guilds only
-  if (!botCache.vipGuildIDs.has(channel.guildID)) return;
+  if (!bot.vipGuildIDs.has(channel.guildID)) return;
   handleServerLogs(channel.guildID, member, channel.id, "joined").catch(console.log);
 
   await db.xp.update(`${channel.guildID}-${member.id}`, {
@@ -19,7 +19,7 @@ botCache.eventHandlers.voiceChannelJoin = async function (member, channelID) {
   });
 };
 
-botCache.eventHandlers.voiceChannelLeave = async function (member, channelID) {
+bot.eventHandlers.voiceChannelLeave = async function (member, channelID) {
   if (!member) return;
 
   if (member.bot) return;
@@ -30,7 +30,7 @@ botCache.eventHandlers.voiceChannelLeave = async function (member, channelID) {
   const guild = cache.guilds.get(channel.guildID);
   if (!guild) return;
 
-  if (!botCache.vipGuildIDs.has(channel.guildID)) return;
+  if (!bot.vipGuildIDs.has(channel.guildID)) return;
   handleServerLogs(guild.id, member, channel.id, "left").catch(console.log);
 
   const settings = await db.xp.get(`${channel.guildID}-${member.id}`);
@@ -45,7 +45,7 @@ botCache.eventHandlers.voiceChannelLeave = async function (member, channelID) {
 
   // Calculate the amount of total minutes spent in this voice channel
   const totalMinutesInVoice = Math.round((Date.now() - settings.joinedVoiceAt) / 1000 / 60);
-  const guildXPMultiplier = botCache.guildsXPPerMinuteVoice.get(channel.guildID);
+  const guildXPMultiplier = bot.guildsXPPerMinuteVoice.get(channel.guildID);
 
   // Update voice xp to the guild
   await db.xp.update(`${channel.guildID}-${member.id}`, {
@@ -55,13 +55,13 @@ botCache.eventHandlers.voiceChannelLeave = async function (member, channelID) {
 
   // If more than 10 minutes they have fulfilled the mission
   if (totalMinutesInVoice >= 10) {
-    botCache.helpers.completeMission(channel.guildID, member.id, `voice10min`);
+    bot.helpers.completeMission(channel.guildID, member.id, `voice10min`);
   }
 };
 
-botCache.eventHandlers.voiceChannelSwitch = async function (member, channelID, oldChannelID) {
-  botCache.eventHandlers.voiceChannelLeave?.(member, oldChannelID);
-  botCache.eventHandlers.voiceChannelJoin?.(member, channelID);
+bot.eventHandlers.voiceChannelSwitch = async function (member, channelID, oldChannelID) {
+  bot.eventHandlers.voiceChannelLeave?.(member, oldChannelID);
+  bot.eventHandlers.voiceChannelJoin?.(member, channelID);
 };
 
 async function handleServerLogs(guildID: string, member: Member, channelID: string, type: "joined" | "left") {
@@ -69,8 +69,8 @@ async function handleServerLogs(guildID: string, member: Member, channelID: stri
   const channel = cache.channels.get(channelID);
   if (!channel || !guild) return;
 
-  const logs = botCache.recentLogs.has(guild.id) ? botCache.recentLogs.get(guild.id) : await db.serverlogs.get(guildID);
-  botCache.recentLogs.set(guildID, logs);
+  const logs = bot.recentLogs.has(guild.id) ? bot.recentLogs.get(guild.id) : await db.serverlogs.get(guildID);
+  bot.recentLogs.set(guildID, logs);
   // DISABELD LOGS
   if (!logs) return;
   if ((type === "joined" && !logs.voiceJoinChannelID) || logs.voiceJoinIgnoredChannelIDs?.includes(channelID)) {

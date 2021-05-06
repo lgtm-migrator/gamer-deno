@@ -1,5 +1,5 @@
 import * as deps from "../../../deps.ts";
-import { botCache, cache } from "../../../deps.ts";
+import { bot, cache } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { Embed } from "../../utils/Embed.ts";
@@ -67,9 +67,9 @@ createCommand({
             });
     }
 
-    if (!result) return botCache.helpers.reactError(message);
+    if (!result) return bot.helpers.reactError(message);
 
-    const responses = botCache.helpers.chunkStrings(result.split(" "), 1900, false);
+    const responses = bot.helpers.chunkStrings(result.split(" "), 1900, false);
 
     if (responses.length === 1 && responses[0].length < 1900) {
       return message.send(["```ts", responses[0], "```", `**Type of:** ${type}`].join("\n"));

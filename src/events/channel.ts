@@ -1,5 +1,5 @@
 import {
-  botCache,
+  bot,
   botHasChannelPermissions,
   botID,
   cache,
@@ -20,7 +20,7 @@ import { Embed } from "../utils/Embed.ts";
 import { sendEmbed } from "../utils/helpers.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.eventHandlers.channelCreate = async function (channel) {
+bot.eventHandlers.channelCreate = async function (channel) {
   handleChannelLogs(channel, "create").catch(console.log);
 
   const settings = await db.guilds.get(channel.guildID);
@@ -41,21 +41,21 @@ botCache.eventHandlers.channelCreate = async function (channel) {
   }
 };
 
-botCache.eventHandlers.channelDelete = function (channel) {
+bot.eventHandlers.channelDelete = function (channel) {
   handleChannelLogs(channel, "delete").catch(console.log);
 };
 
-botCache.eventHandlers.channelUpdate = async function (channel, cachedChannel) {
-  const logs = botCache.recentLogs.has(channel.guildID)
-    ? botCache.recentLogs.get(channel.guildID)
+bot.eventHandlers.channelUpdate = async function (channel, cachedChannel) {
+  const logs = bot.recentLogs.has(channel.guildID)
+    ? bot.recentLogs.get(channel.guildID)
     : await db.serverlogs.get(channel.guildID);
-  botCache.recentLogs.set(channel.guildID, logs);
+  bot.recentLogs.set(channel.guildID, logs);
 
   // IF LOGS ARE DISABLED
   if (!logs?.channelUpdateChannelID) return;
 
   // IF CHANNELS WERE REQUESTED TO BE IGNORED
-  if (botCache.vipGuildIDs.has(channel.guildID) && logs.channelUpdateIgnoredChannelIDs?.includes(channel.id)) {
+  if (bot.vipGuildIDs.has(channel.guildID) && logs.channelUpdateIgnoredChannelIDs?.includes(channel.id)) {
     return;
   }
 
@@ -77,7 +77,7 @@ botCache.eventHandlers.channelUpdate = async function (channel, cachedChannel) {
       type: translate(channel.guildID, `strings:CHANNEL_TYPE_${channel.type}`),
     }),
     translate(channel.guildID, "strings:LOGS_CREATED_ON", {
-      time: new Date(botCache.helpers.snowflakeToTimestamp(channel.id)).toISOString().substr(0, 10),
+      time: new Date(bot.helpers.snowflakeToTimestamp(channel.id)).toISOString().substr(0, 10),
     }),
   ];
 
@@ -92,8 +92,8 @@ botCache.eventHandlers.channelUpdate = async function (channel, cachedChannel) {
   if (channel.nsfw !== cachedChannel.nsfw) {
     texts.push(
       translate(channel.guildID, "strings:NSFW_CHANGED", {
-        old: botCache.helpers.booleanEmoji(cachedChannel.nsfw),
-        new: botCache.helpers.booleanEmoji(channel.nsfw),
+        old: bot.helpers.booleanEmoji(cachedChannel.nsfw),
+        new: bot.helpers.booleanEmoji(channel.nsfw),
       })
     );
   }
@@ -135,7 +135,7 @@ botCache.eventHandlers.channelUpdate = async function (channel, cachedChannel) {
     .setTimestamp()
     .setFooter(channel.name || channel.id, guild ? guildIconURL(guild) : undefined);
 
-  if (botCache.vipGuildIDs.has(channel.guildID) && logs.publicChannelID && logs.channelUpdatePublic) {
+  if (bot.vipGuildIDs.has(channel.guildID) && logs.publicChannelID && logs.channelUpdatePublic) {
     await sendEmbed(logs.publicChannelID, embed);
   }
 
@@ -143,10 +143,10 @@ botCache.eventHandlers.channelUpdate = async function (channel, cachedChannel) {
 };
 
 async function handleChannelLogs(channel: Channel, type: "create" | "delete") {
-  const logs = botCache.recentLogs.has(channel.guildID)
-    ? botCache.recentLogs.get(channel.guildID)
+  const logs = bot.recentLogs.has(channel.guildID)
+    ? bot.recentLogs.get(channel.guildID)
     : await db.serverlogs.get(channel.guildID);
-  botCache.recentLogs.set(channel.guildID, logs);
+  bot.recentLogs.set(channel.guildID, logs);
 
   // IF LOGS ARE DISABLED
   if (!logs) return;
@@ -181,7 +181,7 @@ async function handleChannelLogs(channel: Channel, type: "create" | "delete") {
   if (type !== "create") {
     texts.push(
       translate(channel.guildID, "strings:LOGS_CREATED_ON", {
-        time: new Date(botCache.helpers.snowflakeToTimestamp(channel.id)).toISOString().substr(0, 10),
+        time: new Date(bot.helpers.snowflakeToTimestamp(channel.id)).toISOString().substr(0, 10),
       })
     );
   }
@@ -206,7 +206,7 @@ async function handleChannelLogs(channel: Channel, type: "create" | "delete") {
     .setFooter(channel.name || channel.id, guild ? guildIconURL(guild) : undefined);
 
   // NO VIP SO ONLY BASIC LOGS ARE SENT
-  if (!botCache.vipGuildIDs.has(channel.guildID)) {
+  if (!bot.vipGuildIDs.has(channel.guildID)) {
     return sendEmbed(logChannelID, embed);
   }
 
@@ -243,15 +243,15 @@ async function handleChannelLogs(channel: Channel, type: "create" | "delete") {
     const permissions = relevant.changes.find((c: any) => c.key === "permission_overwrites");
     if (permissions) {
       for (const perm of permissions.new_value) {
-        const allow = calculatePermissions(BigInt(perm.allow)).map((p) => `${p} ${botCache.constants.emojis.success}`);
-        const deny = calculatePermissions(BigInt(perm.deny)).map((p) => `${p} ${botCache.constants.emojis.failure}`);
+        const allow = calculatePermissions(BigInt(perm.allow)).map((p) => `${p} ${bot.constants.emojis.success}`);
+        const deny = calculatePermissions(BigInt(perm.deny)).map((p) => `${p} ${bot.constants.emojis.failure}`);
 
         if (allow.length || deny.length) {
           texts.push(
             [
               perm.type === OverwriteType.ROLE ? `<@&${perm.id}>` : `<@!${perm.id}>`,
-              ...allow.map((p) => botCache.helpers.toTitleCase(p.replaceAll("_", " "))),
-              ...deny.map((p) => botCache.helpers.toTitleCase(p.replaceAll("_", " "))),
+              ...allow.map((p) => bot.helpers.toTitleCase(p.replaceAll("_", " "))),
+              ...deny.map((p) => bot.helpers.toTitleCase(p.replaceAll("_", " "))),
             ].join(" ")
           );
           embed.setDescription(texts.join("\n"));

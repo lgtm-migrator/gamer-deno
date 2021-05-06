@@ -1,4 +1,4 @@
-import { botCache } from "../../cache.ts";
+import { bot } from "../../cache.ts";
 import {
   addRole,
   bgBlue,
@@ -52,8 +52,8 @@ async function failedCount(message: Message, numberShouldBe: number, loserRoleID
     })
   );
   // Allow users to save their count
-  if (message.guildID !== botCache.constants.botSupportServerID) {
-    if (botCache.activeMembersOnSupportServer.has(message.author.id)) {
+  if (message.guildID !== bot.constants.botSupportServerID) {
+    if (bot.activeMembersOnSupportServer.has(message.author.id)) {
       await message.alertReply(translate(message.guildID, "strings:COUNTING_ALREADY_ACTIVE"));
       await message.send(
         translate(message.guildID, "strings:COUNTING_NEW_COUNT", {
@@ -65,7 +65,7 @@ async function failedCount(message: Message, numberShouldBe: number, loserRoleID
     } else {
       const saveRequest = await message.reply(
         translate(message.guildID, "strings:COUNTING_QUICK_SAVE", {
-          invite: botCache.constants.botSupportInvite,
+          invite: bot.constants.botSupportInvite,
         })
       );
       if (!saveRequest) {
@@ -76,11 +76,11 @@ async function failedCount(message: Message, numberShouldBe: number, loserRoleID
 
       if (saveRequest) {
         saveRequest
-          .delete(translate(message.guildID, "strings:CLEAR_SPAM"), botCache.constants.milliseconds.MINUTE)
+          .delete(translate(message.guildID, "strings:CLEAR_SPAM"), bot.constants.milliseconds.MINUTE)
           .catch(console.log);
 
-        const saved = await botCache.helpers.needMessage(message.author.id, "549976097996013574", {
-          duration: botCache.constants.milliseconds.MINUTE,
+        const saved = await bot.helpers.needMessage(message.author.id, "549976097996013574", {
+          duration: bot.constants.milliseconds.MINUTE,
         });
         if (saved) {
           message.alertReply(translate(message.guildID, "strings:COUNTING_SAVED")).catch(console.log);
@@ -106,7 +106,7 @@ async function failedCount(message: Message, numberShouldBe: number, loserRoleID
   return;
 }
 
-botCache.monitors.set("counting", {
+bot.monitors.set("counting", {
   name: "counting",
   botChannelPermissions: [
     "SEND_MESSAGES",
@@ -118,7 +118,7 @@ botCache.monitors.set("counting", {
   ],
   execute: async function (message) {
     // If this is not a counting channel
-    if (!botCache.countingChannelIDs.has(message.channelID)) return;
+    if (!bot.countingChannelIDs.has(message.channelID)) return;
     // If counting is disabled in this channel
     if (disabledChannelIDs.has(message.channelID)) return;
 
@@ -163,7 +163,7 @@ botCache.monitors.set("counting", {
     const member = cache.members.get(message.author.id);
 
     // Check if this channel has a cached webhook
-    const existingWebhook = botCache.webhooks.get(message.channelID);
+    const existingWebhook = bot.webhooks.get(message.channelID);
     if (existingWebhook) {
       await message.delete().catch(console.log);
       return executeWebhook(existingWebhook.webhookID, existingWebhook.token, {
@@ -180,7 +180,7 @@ botCache.monitors.set("counting", {
     if (validHook) {
       await message.delete().catch(console.log);
       // Add webhook to cache for next time
-      botCache.webhooks.set(message.channelID, {
+      bot.webhooks.set(message.channelID, {
         webhookID: validHook.id,
         token: validHook.token!,
         id: message.channelID,
@@ -198,7 +198,7 @@ botCache.monitors.set("counting", {
     if (webhook.token) {
       await message.delete().catch(console.log);
       // Add to cache,
-      botCache.webhooks.set(message.channelID, {
+      bot.webhooks.set(message.channelID, {
         webhookID: webhook.id,
         token: webhook.token,
         id: message.channelID,
@@ -211,6 +211,6 @@ botCache.monitors.set("counting", {
       });
     }
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

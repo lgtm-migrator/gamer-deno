@@ -1,9 +1,9 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 
-botCache.tasks.set("transfers", {
+bot.tasks.set("transfers", {
   name: "transfers",
-  interval: botCache.constants.milliseconds.DAY,
+  interval: bot.constants.milliseconds.DAY,
   execute: async function () {
-    botCache.transferLog.clear();
+    bot.transferLog.clear();
   },
 });

@@ -1,4 +1,4 @@
-import { ban, botCache, botID, higherRolePosition, highestRole, sendDirectMessage } from "../../../deps.ts";
+import { ban, bot, botID, higherRolePosition, highestRole, sendDirectMessage } from "../../../deps.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createCommand } from "../../utils/helpers.ts";
 import { translate } from "../../utils/i18next.ts";
@@ -27,7 +27,7 @@ createCommand({
         !membersHighestRole ||
         !(await higherRolePosition(message.guildID, botsHighestRole.id, membersHighestRole.id))
       ) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
 
       if (
@@ -35,13 +35,13 @@ createCommand({
         !membersHighestRole ||
         !(await higherRolePosition(message.guildID, modsHighestRole.id, membersHighestRole.id))
       ) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
     } else {
-      if (!args.userID) return botCache.helpers.reactError(message);
+      if (!args.userID) return bot.helpers.reactError(message);
 
       const banned = await message.guild?.bans();
-      if (banned?.has(args.userID)) return botCache.helpers.reactError(message);
+      if (banned?.has(args.userID)) return bot.helpers.reactError(message);
     }
 
     const userID = args.member?.id || args.userID!;
@@ -57,13 +57,13 @@ createCommand({
       reason: REASON,
     });
 
-    botCache.helpers.createModlog(message, {
+    bot.helpers.createModlog(message, {
       action: "ban",
       reason: REASON,
       member: args.member,
       userID: userID,
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

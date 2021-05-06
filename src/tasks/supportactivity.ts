@@ -1,9 +1,9 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 
-botCache.tasks.set(`supportactivity`, {
+bot.tasks.set(`supportactivity`, {
   name: `supportactivity`,
-  interval: botCache.constants.milliseconds.DAY,
+  interval: bot.constants.milliseconds.DAY,
   execute: async function () {
-    botCache.activeMembersOnSupportServer.clear();
+    bot.activeMembersOnSupportServer.clear();
   },
 });

@@ -1,22 +1,20 @@
-import { botCache, getAuditLogs, Guild, guildIconURL, rawAvatarURL, UserPayload } from "../../deps.ts";
+import { bot, getAuditLogs, Guild, guildIconURL, rawAvatarURL, UserPayload } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { Embed } from "../utils/Embed.ts";
 import { sendEmbed } from "../utils/helpers.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.eventHandlers.guildBanAdd = async function (guild, user) {
+bot.eventHandlers.guildBanAdd = async function (guild, user) {
   handleBanServerLogs(guild, user, "add").catch(console.log);
 };
 
-botCache.eventHandlers.guildBanRemove = async (guild, user) => {
+bot.eventHandlers.guildBanRemove = async (guild, user) => {
   handleBanServerLogs(guild, user, "remove").catch(console.log);
 };
 
 async function handleBanServerLogs(guild: Guild, user: UserPayload, type: "add" | "remove") {
-  const logs = botCache.recentLogs.has(guild.id)
-    ? botCache.recentLogs.get(guild.id)
-    : await db.serverlogs.get(guild.id);
-  botCache.recentLogs.set(guild.id, logs);
+  const logs = bot.recentLogs.has(guild.id) ? bot.recentLogs.get(guild.id) : await db.serverlogs.get(guild.id);
+  bot.recentLogs.set(guild.id, logs);
   // LOGS ARE DISABLED
   if (!logs?.banAddChannelID) return;
 
@@ -31,12 +29,12 @@ async function handleBanServerLogs(guild: Guild, user: UserPayload, type: "add" 
   const embed = new Embed()
     .setDescription(texts.join("\n"))
     .setFooter(userTag, guildIconURL(guild))
-    .setColor(type === "add" ? botCache.constants.brand.BAN_COLOR : botCache.constants.brand.UNBAN_COLOR)
+    .setColor(type === "add" ? bot.constants.brand.BAN_COLOR : bot.constants.brand.UNBAN_COLOR)
     .setThumbnail(rawAvatarURL(user.id, user.discriminator, user.avatar))
     .setTimestamp();
 
   // NO VIP GET BASIC DATA ONLY
-  if (!botCache.vipGuildIDs.has(guild.id)) {
+  if (!bot.vipGuildIDs.has(guild.id)) {
     return sendEmbed(type === "add" ? logs.banAddChannelID : logs.banRemoveChannelID, embed);
   }
 
@@ -57,7 +55,7 @@ async function handleBanServerLogs(guild: Guild, user: UserPayload, type: "add" 
   }
 
   // OLD BAN
-  if (Date.now() - botCache.helpers.snowflakeToTimestamp(relevant.id) > 3000) {
+  if (Date.now() - bot.helpers.snowflakeToTimestamp(relevant.id) > 3000) {
     return sendEmbed(type === "add" ? logs.banAddChannelID : logs.banRemoveChannelID, embed);
   }
 

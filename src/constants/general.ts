@@ -1,13 +1,13 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 
-botCache.constants.botSupportInvite = "https://discord.gg/J4NqJ72";
+bot.constants.botSupportInvite = "https://discord.gg/J4NqJ72";
 
-botCache.constants.botInviteLink =
+bot.constants.botInviteLink =
   "https://discordapp.com/oauth2/authorize?client_id=270010330782892032&scope=bot&permissions=336067670";
 
-botCache.constants.botSupportServerID = "223909216866402304";
+bot.constants.botSupportServerID = "223909216866402304";
 
-botCache.constants.botLogos = [
+bot.constants.botLogos = [
   "https://i.imgur.com/vYLUZTw.png",
   "https://i.imgur.com/5onXRvH.png",
   "https://i.imgur.com/HJk1Ebg.png",

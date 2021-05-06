@@ -1,6 +1,6 @@
-import { botCache, Collection, Image } from "../../../../deps.ts";
+import { bot, Collection, Image } from "../../../../deps.ts";
 
-botCache.constants.themes = new Collection([
+bot.constants.themes = new Collection([
   [
     "white",
     {

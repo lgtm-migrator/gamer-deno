@@ -1,8 +1,8 @@
 import { configs } from "../../configs.ts";
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 import { db } from "../database/database.ts";
 
-botCache.helpers.upsertGuild = async function (id: string) {
+bot.helpers.upsertGuild = async function (id: string) {
   const settings = await db.guilds.get(id);
   if (settings) return settings;
 

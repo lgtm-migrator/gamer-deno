@@ -1,18 +1,18 @@
-import { botCache, Collection } from "../../deps.ts";
+import { bot, Collection } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { Embed } from "../utils/Embed.ts";
 import { sendEmbed } from "../utils/helpers.ts";
 
-botCache.helpers.processPollResults = async function (poll) {
+bot.helpers.processPollResults = async function (poll) {
   const results = new Collection(poll.options.map((o, index) => [index, 0]));
   const userVoteCount = new Map<string, number>();
   let totalVotes = 0;
 
   for (const vote of poll.votes) {
-    const emoji = botCache.constants.emojis.letters[vote.option];
+    const emoji = bot.constants.emojis.letters[vote.option];
     if (!emoji) continue;
 
-    const user = await botCache.helpers.fetchMember(poll.guildID, vote.id);
+    const user = await bot.helpers.fetchMember(poll.guildID, vote.id);
     if (!user) continue;
 
     const currentVotes = userVoteCount.get(vote.id);
@@ -27,7 +27,7 @@ botCache.helpers.processPollResults = async function (poll) {
 
   // Delete the poll in the db
   await db.polls.delete(poll.id);
-  botCache.pollMessageIDs.delete(poll.id);
+  bot.pollMessageIDs.delete(poll.id);
 
   const embed = new Embed()
     .setTitle(poll.question)
@@ -35,7 +35,7 @@ botCache.helpers.processPollResults = async function (poll) {
       results
         .map(
           (result, key) =>
-            `${botCache.constants.emojis.letters[key]} ${result} | ${Math.round((result / (totalVotes || 1)) * 100)}%`
+            `${bot.constants.emojis.letters[key]} ${result} | ${Math.round((result / (totalVotes || 1)) * 100)}%`
         )
         .join("\n")
     )
@@ -43,7 +43,7 @@ botCache.helpers.processPollResults = async function (poll) {
 
   const pollEmbed = new Embed()
     .setTitle(poll.question)
-    .setDescription(poll.options.map((opt, index) => `${botCache.constants.emojis.letters[index]} ${opt}`).join("\n"));
+    .setDescription(poll.options.map((opt, index) => `${bot.constants.emojis.letters[index]} ${opt}`).join("\n"));
 
   await sendEmbed(poll.resultsChannelID, pollEmbed)?.catch(console.log);
   await sendEmbed(poll.resultsChannelID, embed)?.catch(console.log);

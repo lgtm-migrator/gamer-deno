@@ -1,5 +1,5 @@
 import {
-  botCache,
+  bot,
   botHasChannelPermissions,
   cache,
   Channel,
@@ -46,38 +46,36 @@ export function sendResponse(message: Message, content: string | MessageContent)
 
 /** This function should be used when you want to convert milliseconds to a human readable format like 1d5h. */
 export function humanizeMilliseconds(milliseconds: number) {
-  const years = Math.floor(milliseconds / botCache.constants.milliseconds.YEAR);
-  const months = Math.floor(
-    (milliseconds % botCache.constants.milliseconds.YEAR) / botCache.constants.milliseconds.MONTH
-  );
+  const years = Math.floor(milliseconds / bot.constants.milliseconds.YEAR);
+  const months = Math.floor((milliseconds % bot.constants.milliseconds.YEAR) / bot.constants.milliseconds.MONTH);
   const weeks = Math.floor(
-    ((milliseconds % botCache.constants.milliseconds.YEAR) % botCache.constants.milliseconds.MONTH) /
-      botCache.constants.milliseconds.WEEK
+    ((milliseconds % bot.constants.milliseconds.YEAR) % bot.constants.milliseconds.MONTH) /
+      bot.constants.milliseconds.WEEK
   );
   const days = Math.floor(
-    (((milliseconds % botCache.constants.milliseconds.YEAR) % botCache.constants.milliseconds.MONTH) %
-      botCache.constants.milliseconds.WEEK) /
-      botCache.constants.milliseconds.DAY
+    (((milliseconds % bot.constants.milliseconds.YEAR) % bot.constants.milliseconds.MONTH) %
+      bot.constants.milliseconds.WEEK) /
+      bot.constants.milliseconds.DAY
   );
   const hours = Math.floor(
-    ((((milliseconds % botCache.constants.milliseconds.YEAR) % botCache.constants.milliseconds.MONTH) %
-      botCache.constants.milliseconds.WEEK) %
-      botCache.constants.milliseconds.DAY) /
-      botCache.constants.milliseconds.HOUR
+    ((((milliseconds % bot.constants.milliseconds.YEAR) % bot.constants.milliseconds.MONTH) %
+      bot.constants.milliseconds.WEEK) %
+      bot.constants.milliseconds.DAY) /
+      bot.constants.milliseconds.HOUR
   );
   const minutes = Math.floor(
-    (((((milliseconds % botCache.constants.milliseconds.YEAR) % botCache.constants.milliseconds.MONTH) %
-      botCache.constants.milliseconds.WEEK) %
-      botCache.constants.milliseconds.DAY) %
-      botCache.constants.milliseconds.HOUR) /
-      botCache.constants.milliseconds.MINUTE
+    (((((milliseconds % bot.constants.milliseconds.YEAR) % bot.constants.milliseconds.MONTH) %
+      bot.constants.milliseconds.WEEK) %
+      bot.constants.milliseconds.DAY) %
+      bot.constants.milliseconds.HOUR) /
+      bot.constants.milliseconds.MINUTE
   );
   const seconds = Math.floor(
-    ((((((milliseconds % botCache.constants.milliseconds.YEAR) % botCache.constants.milliseconds.MONTH) %
-      botCache.constants.milliseconds.WEEK) %
-      botCache.constants.milliseconds.DAY) %
-      botCache.constants.milliseconds.HOUR) %
-      botCache.constants.milliseconds.MINUTE) /
+    ((((((milliseconds % bot.constants.milliseconds.YEAR) % bot.constants.milliseconds.MONTH) %
+      bot.constants.milliseconds.WEEK) %
+      bot.constants.milliseconds.DAY) %
+      bot.constants.milliseconds.HOUR) %
+      bot.constants.milliseconds.MINUTE) /
       1000
   );
 
@@ -112,19 +110,19 @@ export function stringToMilliseconds(text: string) {
     const [letter] = validMatch;
     if (!number || !letter) return;
 
-    let multiplier = botCache.constants.milliseconds.SECOND;
+    let multiplier = bot.constants.milliseconds.SECOND;
     switch (letter.toLowerCase()) {
       case `w`:
-        multiplier = botCache.constants.milliseconds.WEEK;
+        multiplier = bot.constants.milliseconds.WEEK;
         break;
       case `d`:
-        multiplier = botCache.constants.milliseconds.DAY;
+        multiplier = bot.constants.milliseconds.DAY;
         break;
       case `h`:
-        multiplier = botCache.constants.milliseconds.HOUR;
+        multiplier = bot.constants.milliseconds.HOUR;
         break;
       case `m`:
-        multiplier = botCache.constants.milliseconds.MINUTE;
+        multiplier = bot.constants.milliseconds.MINUTE;
         break;
     }
 
@@ -150,7 +148,7 @@ export function createCommand<T extends readonly ArgumentDefinition[]>(command: 
     ...custom,
   ];
 
-  botCache.commands.set(command.name, command);
+  bot.commands.set(command.name, command);
 }
 
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
@@ -440,18 +438,15 @@ export function createSubcommand<T extends readonly ArgumentDefinition[]>(
 ) {
   const names = commandName.split("-");
 
-  let command: Command<T> = botCache.commands.get(commandName)!;
+  let command: Command<T> = bot.commands.get(commandName)!;
 
   if (names.length > 1) {
     for (const name of names) {
-      const validCommand = command ? command.subcommands?.get(name) : botCache.commands.get(name);
+      const validCommand = command ? command.subcommands?.get(name) : bot.commands.get(name);
 
       if (!validCommand) {
         if (retries === 20) break;
-        setTimeout(
-          () => createSubcommand(commandName, subcommand, retries++),
-          botCache.constants.milliseconds.SECOND * 10
-        );
+        setTimeout(() => createSubcommand(commandName, subcommand, retries++), bot.constants.milliseconds.SECOND * 10);
         return;
       }
 
@@ -466,7 +461,7 @@ export function createSubcommand<T extends readonly ArgumentDefinition[]>(
     }
 
     // Try again in 10 seconds in case this command file just has not been loaded yet.
-    setTimeout(() => createSubcommand(commandName, subcommand, retries++), botCache.constants.milliseconds.SECOND * 10);
+    setTimeout(() => createSubcommand(commandName, subcommand, retries++), bot.constants.milliseconds.SECOND * 10);
     return;
   }
 
@@ -553,5 +548,5 @@ export function getTime() {
 }
 
 export function permsToString(perms: Permission[]) {
-  return botCache.helpers.toTitleCase(perms.sort().join(", ").replaceAll("_", " "));
+  return bot.helpers.toTitleCase(perms.sort().join(", ").replaceAll("_", " "));
 }

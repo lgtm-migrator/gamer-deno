@@ -1,4 +1,4 @@
-import { botCache, botHasChannelPermissions, botID, cache, createWebhook, getWebhook } from "../../../deps.ts";
+import { bot, botHasChannelPermissions, botID, cache, createWebhook, getWebhook } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { createSubcommand } from "../../utils/helpers.ts";
 import { translate } from "../../utils/i18next.ts";
@@ -15,7 +15,7 @@ createSubcommand("mirrors", {
   ] as const,
   execute: async (message, args) => {
     // Using multiple guilds require vip features
-    if (args.guild && !botCache.vipGuildIDs.has(message.guildID)) {
+    if (args.guild && !bot.vipGuildIDs.has(message.guildID)) {
       return message.reply(translate(message.guildID, "strings:NEED_VIP"));
     }
 
@@ -28,35 +28,35 @@ createSubcommand("mirrors", {
     if (args.guild) {
       // A guild was provided but a channel id was not
       if (!args.channelID) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
 
       // Reassign the guild channel
       mirrorChannel = cache.channels.get(args.channelID);
       if (!mirrorChannel) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
 
       if (!(await botHasChannelPermissions(mirrorChannel.id, ["MANAGE_WEBHOOKS", "VIEW_CHANNEL", "SEND_MESSAGES"]))) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
 
       // Extra layer of security to prevent abuse
       const targetGuildSettings = await db.guilds.get(args.guild.id);
 
-      if (!botCache.helpers.isAdmin(message, targetGuildSettings)) {
-        return botCache.helpers.reactError(message);
+      if (!bot.helpers.isAdmin(message, targetGuildSettings)) {
+        return bot.helpers.reactError(message);
       }
     }
 
     if (!mirrorChannel) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     // Is the user an admin on this server?
     const guildSettings = await db.guilds.get(message.guildID);
-    if (!botCache.helpers.isAdmin(message, guildSettings)) {
-      return botCache.helpers.reactError(message);
+    if (!bot.helpers.isAdmin(message, guildSettings)) {
+      return bot.helpers.reactError(message);
     }
 
     const webhookExists = await db.mirrors.get(mirrorChannel.id);
@@ -90,8 +90,8 @@ createSubcommand("mirrors", {
     if (!mirrorSettings) return;
 
     // Add in cache
-    botCache.mirrors.set(message.channelID, mirrorSettings);
+    bot.mirrors.set(message.channelID, mirrorSettings);
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

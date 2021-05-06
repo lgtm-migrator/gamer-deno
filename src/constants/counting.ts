@@ -1,6 +1,6 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 
-botCache.constants.counting = {
+bot.constants.counting = {
   shop: [
     { id: 1, type: "buff", name: "strings:COUNTING_DOUBLE_TIME", cost: 1000 },
     { id: 2, type: "buff", name: "strings:COUNTING_IMMUNITY", cost: 1000 },

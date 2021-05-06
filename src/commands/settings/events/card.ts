@@ -1,4 +1,4 @@
-import { botCache } from "../../../../cache.ts";
+import { bot } from "../../../../cache.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -13,6 +13,6 @@ createSubcommand("settings-events", {
     await db.guilds.update(message.guildID, {
       eventsAdvertiseChannelID: args.channel?.id,
     });
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

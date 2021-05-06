@@ -9,18 +9,18 @@
  * 8. Amount of times a custom emoji was used in a message
  */
 
-import { botCache, cache, ChannelTypes, Guild, sendMessage } from "../../deps.ts";
+import { bot, cache, ChannelTypes, Guild, sendMessage } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { AggregatedAnalyticSchema, AnalyticSchema } from "../database/schemas.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.tasks.set("analytics", {
+bot.tasks.set("analytics", {
   name: "analytics",
-  interval: botCache.constants.milliseconds.DAY,
+  interval: bot.constants.milliseconds.DAY,
   execute: async function () {
     const date = new Date();
 
-    botCache.vipGuildIDs.forEach(async (id) => {
+    bot.vipGuildIDs.forEach(async (id) => {
       const guild = cache.guilds.get(id);
       if (!guild) return;
 
@@ -106,7 +106,7 @@ botCache.tasks.set("analytics", {
       );
 
       // Everything was calculated time to send everything
-      const responses = botCache.helpers.chunkStrings(texts);
+      const responses = bot.helpers.chunkStrings(texts);
       const settings = await db.guilds.get(guild.id);
       if (!settings) return;
 
@@ -155,7 +155,7 @@ function processData(guild: Guild, data: AnalyticSchema) {
   }
 
   if (unusedText.length) {
-    const remaining = botCache.helpers.chunkStrings(unusedText, 1900, false);
+    const remaining = bot.helpers.chunkStrings(unusedText, 1900, false);
     texts.push(`**${translate(guild.id, "strings:ANALYTICS_UNUSED")}**`, ...remaining);
   }
 
@@ -178,7 +178,7 @@ function processData(guild: Guild, data: AnalyticSchema) {
   }
 
   if (unusedVoice.length) {
-    const remaining = botCache.helpers.chunkStrings(unusedVoice, 1900, false);
+    const remaining = bot.helpers.chunkStrings(unusedVoice, 1900, false);
     texts.push(`**${translate(guild.id, "strings:ANALYTICS_UNUSED")}**`, ...remaining);
   }
 
@@ -199,7 +199,7 @@ function processData(guild: Guild, data: AnalyticSchema) {
   }
 
   if (unusedEmojis.length) {
-    const remaining = botCache.helpers.chunkStrings(unusedEmojis, 1900, false);
+    const remaining = bot.helpers.chunkStrings(unusedEmojis, 1900, false);
     texts.push(`**${translate(guild.id, "strings:ANALYTICS_UNUSED")}**`, ...remaining);
   }
 
@@ -211,21 +211,21 @@ function processData(guild: Guild, data: AnalyticSchema) {
   };
 }
 
-botCache.tasks.set("analyticslocal", {
+bot.tasks.set("analyticslocal", {
   name: "analyticslocal",
-  interval: botCache.constants.milliseconds.MINUTE * 5,
+  interval: bot.constants.milliseconds.MINUTE * 5,
   execute: async function () {
     // Clone the data
-    const messageData = new Map([...botCache.analyticsMessages.entries()]);
-    const messageDetails = new Map([...botCache.analyticsDetails.entries()]);
-    const joinData = new Map([...botCache.analyticsMemberJoin.entries()]);
-    const leftData = new Map([...botCache.analyticsMemberLeft.entries()]);
+    const messageData = new Map([...bot.analyticsMessages.entries()]);
+    const messageDetails = new Map([...bot.analyticsDetails.entries()]);
+    const joinData = new Map([...bot.analyticsMemberJoin.entries()]);
+    const leftData = new Map([...bot.analyticsMemberLeft.entries()]);
 
     // Clear the map
-    botCache.analyticsMessages.clear();
-    botCache.analyticsMemberJoin.clear();
-    botCache.analyticsMemberLeft.clear();
-    botCache.analyticsDetails.clear();
+    bot.analyticsMessages.clear();
+    bot.analyticsMemberJoin.clear();
+    bot.analyticsMemberLeft.clear();
+    bot.analyticsDetails.clear();
 
     // Update db
     messageData.forEach(async (amount, id) => {

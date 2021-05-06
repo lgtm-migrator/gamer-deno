@@ -1,8 +1,8 @@
 import { configs } from "../../configs.ts";
-import { botCache, botID, sendMessage } from "../../deps.ts";
+import { bot, botID, sendMessage } from "../../deps.ts";
 import { Embed } from "../utils/Embed.ts";
 
-botCache.eventHandlers.guildCreate = async (guild) => {
+bot.eventHandlers.guildCreate = async (guild) => {
   console.info(`[EVENT=GuildCreate]: ${guild.name} with ${guild.memberCount} members.`);
 
   const embed = new Embed()
@@ -18,11 +18,11 @@ botCache.eventHandlers.guildCreate = async (guild) => {
 
   // IF A ENTERPRISE BOT CHECK IF WE NEED TO LEAVE
   if (botID !== "270010330782892032") {
-    botCache.tasks.get("enterprise")?.execute();
+    bot.tasks.get("enterprise")?.execute();
   }
 };
 
-botCache.eventHandlers.guildDelete = async (guild) => {
+bot.eventHandlers.guildDelete = async (guild) => {
   console.info(`[EVENT=GuildDelete]: ${guild.name} with ${guild.memberCount} members.`);
 
   const embed = new Embed()

@@ -1,4 +1,4 @@
-import { botCache } from "../../../deps.ts";
+import { bot } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createCommand } from "../../utils/helpers.ts";
@@ -19,7 +19,7 @@ createCommand({
       true
     );
     if (!mirrors?.length) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     return message.send(

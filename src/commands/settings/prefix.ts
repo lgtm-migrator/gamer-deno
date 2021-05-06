@@ -1,4 +1,4 @@
-import { botCache } from "../../../deps.ts";
+import { bot } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { parsePrefix } from "../../monitors/commandHandler.ts";
 import { PermissionLevels } from "../../types/commands.ts";
@@ -35,12 +35,12 @@ createSubcommand("settings", {
       return message.reply("Prefix input too long");
     }
 
-    botCache.guildPrefixes.set(message.guildID, args.prefix);
-    const settings = await botCache.helpers.upsertGuild(message.guildID);
-    if (!settings) return botCache.helpers.reactError(message);
+    bot.guildPrefixes.set(message.guildID, args.prefix);
+    const settings = await bot.helpers.upsertGuild(message.guildID);
+    if (!settings) return bot.helpers.reactError(message);
 
     await db.guilds.update(message.guildID, { prefix: args.prefix });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

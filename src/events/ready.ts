@@ -1,23 +1,23 @@
-import { bgBlue, bgYellow, black, botCache, cache } from "../../deps.ts";
+import { bgBlue, bgYellow, black, bot, cache } from "../../deps.ts";
 import { db } from "../database/database.ts";
 import { getTime } from "../utils/helpers.ts";
 import { sweepInactiveGuildsCache } from "./dispatchRequirements.ts";
 
-botCache.eventHandlers.ready = async function () {
-  console.info(`Loaded ${botCache.arguments.size} Argument(s)`);
-  console.info(`Loaded ${botCache.commands.size} Command(s)`);
-  console.info(`Loaded ${Object.keys(botCache.eventHandlers).length} Event(s)`);
-  console.info(`Loaded ${botCache.inhibitors.size} Inhibitor(s)`);
-  console.info(`Loaded ${botCache.monitors.size} Monitor(s)`);
-  console.info(`Loaded ${botCache.tasks.size} Task(s)`);
+bot.eventHandlers.ready = async function () {
+  console.info(`Loaded ${bot.arguments.size} Argument(s)`);
+  console.info(`Loaded ${bot.commands.size} Command(s)`);
+  console.info(`Loaded ${Object.keys(bot.eventHandlers).length} Event(s)`);
+  console.info(`Loaded ${bot.inhibitors.size} Inhibitor(s)`);
+  console.info(`Loaded ${bot.monitors.size} Monitor(s)`);
+  console.info(`Loaded ${bot.tasks.size} Task(s)`);
 
   // Special Task
   // After interval of the bot starting up, remove inactive guilds
   setInterval(() => {
     sweepInactiveGuildsCache();
-  }, botCache.constants.milliseconds.HOUR);
+  }, bot.constants.milliseconds.HOUR);
 
-  botCache.tasks.forEach(async (task) => {
+  bot.tasks.forEach(async (task) => {
     // THESE TASKS MUST RUN WHEN STARTING BOT
     if (["missions", "vipmembers"].includes(task.name)) await task.execute();
 
@@ -30,7 +30,7 @@ botCache.eventHandlers.ready = async function () {
       }
 
       setInterval(async () => {
-        if (!botCache.fullyReady) return;
+        if (!bot.fullyReady) return;
         console.log(`${bgBlue(`[${getTime()}]`)} => [TASK: ${bgYellow(black(task.name))}] Started.`);
         try {
           await task.execute();
@@ -41,7 +41,7 @@ botCache.eventHandlers.ready = async function () {
     }, Date.now() % task.interval);
   });
 
-  botCache.fullyReady = true;
+  bot.fullyReady = true;
 
   console.log(`[READY] Bot is online and ready in ${cache.guilds.size} guild(s)!`);
 };

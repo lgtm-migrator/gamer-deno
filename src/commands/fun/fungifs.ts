@@ -1,4 +1,4 @@
-import { botCache } from "../../../deps.ts";
+import { bot } from "../../../deps.ts";
 import { translate } from "../../utils/i18next.ts";
 
 const gifData = [
@@ -1017,7 +1017,7 @@ const gifData = [
 ];
 
 gifData.forEach(async (data) => {
-  botCache.commands.set(data.name, {
+  bot.commands.set(data.name, {
     name: data.name,
     aliases: data.aliases,
     description: "strings:FUNGIFS_DESCRIPTION",
@@ -1025,7 +1025,7 @@ gifData.forEach(async (data) => {
     guildOnly: true,
     execute: async (message) => {
       // This command may require tenor.
-      if (data.tenor && !botCache.tenorDisabledGuildIDs.has(message.guildID)) {
+      if (data.tenor && !bot.tenorDisabledGuildIDs.has(message.guildID)) {
         const tenorData: TenorGif | undefined = await fetch(
           `https://api.tenor.com/v1/search?q=${data.name}&key=LIVDSRZULELA&limit=50`
         )
@@ -1033,17 +1033,17 @@ gifData.forEach(async (data) => {
           .catch(console.log);
 
         if (!tenorData || !tenorData.results?.length) {
-          return botCache.helpers.reactError(message);
+          return bot.helpers.reactError(message);
         }
 
-        const randomResult = botCache.helpers.chooseRandom(tenorData.results);
+        const randomResult = bot.helpers.chooseRandom(tenorData.results);
         const [media] = randomResult.media;
 
         // If there is no member for whatever reason just send the gif without embed
 
         if (media) {
           // Create the embed
-          const embed = botCache.helpers
+          const embed = bot.helpers
             .authorEmbed(message)
             .setImage(media.gif.url)
             .setFooter(translate(message.guildID, `strings:TENOR`));
@@ -1053,10 +1053,10 @@ gifData.forEach(async (data) => {
         }
       }
 
-      const randomGif = botCache.helpers.chooseRandom(data.gifs);
+      const randomGif = bot.helpers.chooseRandom(data.gifs);
 
       // Create the embed
-      const embed = botCache.helpers.authorEmbed(message).setImage(randomGif);
+      const embed = bot.helpers.authorEmbed(message).setImage(randomGif);
 
       // Send the embed to the channel
       return message.send({ embed });

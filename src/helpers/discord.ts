@@ -1,6 +1,6 @@
 import {
   addReaction,
-  botCache,
+  bot,
   botHasChannelPermissions,
   cache,
   Collection,
@@ -13,20 +13,20 @@ import {
 import { sendResponse } from "../utils/helpers.ts";
 import { translate } from "../utils/i18next.ts";
 
-botCache.helpers.isModOrAdmin = async (message, settings) => {
+bot.helpers.isModOrAdmin = async (message, settings) => {
   const guild = cache.guilds.get(message.guildID);
   if (!guild) return false;
 
   const member = cache.members.get(message.author.id)?.guilds.get(message.guildID);
   if (!member) return false;
 
-  if (await botCache.helpers.isAdmin(message, settings)) return true;
+  if (await bot.helpers.isAdmin(message, settings)) return true;
   if (!settings) return false;
 
   return settings.modRoleIDs?.some((id) => member.roles.includes(id));
 };
 
-botCache.helpers.isAdmin = async (message, settings) => {
+bot.helpers.isAdmin = async (message, settings) => {
   const guild = cache.guilds.get(message.guildID);
   if (!guild) return false;
 
@@ -38,11 +38,11 @@ botCache.helpers.isAdmin = async (message, settings) => {
   return settings?.adminRoleID ? member.roles.includes(settings.adminRoleID) : false;
 };
 
-botCache.helpers.snowflakeToTimestamp = function (id) {
+bot.helpers.snowflakeToTimestamp = function (id) {
   return Math.floor(Number(id) / 4194304) + 1420070400000;
 };
 
-botCache.helpers.reactError = async function (message, vip = false, text?: string) {
+bot.helpers.reactError = async function (message, vip = false, text?: string) {
   if (vip) {
     await sendResponse(message, translate(message.guildID, "strings:NEED_VIP")).catch(console.log);
   }
@@ -53,7 +53,7 @@ botCache.helpers.reactError = async function (message, vip = false, text?: strin
 
   await addReaction(message.channelID, message.id, "❌")
     .then(async () => {
-      const reaction = await botCache.helpers.needReaction(message.author.id, message.id);
+      const reaction = await bot.helpers.needReaction(message.author.id, message.id);
       if (reaction === "❌") {
         const details = [
           "",
@@ -68,7 +68,7 @@ botCache.helpers.reactError = async function (message, vip = false, text?: strin
         await sendResponse(
           message,
           translate(message.guildID, "strings:NEED_HELP_ERROR", {
-            invite: botCache.constants.botSupportInvite,
+            invite: bot.constants.botSupportInvite,
             details: details.join("\n"),
           })
         ).catch(console.log);
@@ -77,28 +77,27 @@ botCache.helpers.reactError = async function (message, vip = false, text?: strin
     .catch(console.log);
 };
 
-botCache.helpers.reactSuccess = function (message) {
-  return addReaction(message.channelID, message.id, botCache.constants.emojis.success).catch(console.log);
+bot.helpers.reactSuccess = function (message) {
+  return addReaction(message.channelID, message.id, bot.constants.emojis.success).catch(console.log);
 };
 
-botCache.helpers.emojiReaction = function (emoji) {
+bot.helpers.emojiReaction = function (emoji) {
   const animated = emoji.startsWith("<a:");
-  return `${animated ? "a:" : ""}${emoji.substring(
-    animated ? 3 : 2,
-    emoji.lastIndexOf(":")
-  )}:${botCache.helpers.emojiID(emoji)}`;
+  return `${animated ? "a:" : ""}${emoji.substring(animated ? 3 : 2, emoji.lastIndexOf(":"))}:${bot.helpers.emojiID(
+    emoji
+  )}`;
 };
 
-botCache.helpers.emojiID = function (emoji) {
+bot.helpers.emojiID = function (emoji) {
   if (!emoji.startsWith("<")) return;
   return emoji.substring(emoji.lastIndexOf(":") + 1, emoji.length - 1);
 };
 
-botCache.helpers.emojiUnicode = function (emoji) {
+bot.helpers.emojiUnicode = function (emoji) {
   return emoji.animated || emoji.id ? `<${emoji.animated ? "a" : ""}:${emoji.name}:${emoji.id}>` : emoji.name || "";
 };
 
-botCache.helpers.moveMessageToOtherChannel = async function (message, channelID) {
+bot.helpers.moveMessageToOtherChannel = async function (message, channelID) {
   const channel = cache.channels.get(channelID);
   if (!channel) return;
 
@@ -116,7 +115,7 @@ botCache.helpers.moveMessageToOtherChannel = async function (message, channelID)
   return newMessage;
 };
 
-botCache.helpers.fetchMember = async function (guildID, id) {
+bot.helpers.fetchMember = async function (guildID, id) {
   // Dumb ts shit on array destructuring https://github.com/microsoft/TypeScript/issues/13778
   if (!id) return;
 
@@ -136,7 +135,7 @@ botCache.helpers.fetchMember = async function (guildID, id) {
   return member?.first();
 };
 
-botCache.helpers.fetchMembers = async function (guildID, ids) {
+bot.helpers.fetchMembers = async function (guildID, ids) {
   const userIDs = ids.map((id) =>
     id.startsWith("<@") ? id.substring(id.startsWith("<@!") ? 3 : 2, id.length - 1) : id
   );
@@ -168,13 +167,13 @@ botCache.helpers.fetchMembers = async function (guildID, ids) {
   return members;
 };
 
-botCache.helpers.memberTag = function (message) {
+bot.helpers.memberTag = function (message) {
   const member = cache.members.get(message.author.id);
   if (member) return member.tag;
 
   return `${message.author.username}#${message.author.discriminator}`;
 };
 
-botCache.helpers.booleanEmoji = function (bool: boolean) {
-  return bool ? botCache.constants.emojis.success : botCache.constants.emojis.failure;
+bot.helpers.booleanEmoji = function (bool: boolean) {
+  return bool ? bot.constants.emojis.success : bot.constants.emojis.failure;
 };

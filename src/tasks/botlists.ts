@@ -1,17 +1,17 @@
-import { botCache, botID, cache, sendMessage } from "../../deps.ts";
+import { bot, botID, cache, sendMessage } from "../../deps.ts";
 import { configs } from "../../configs.ts";
 import { Embed } from "../utils/Embed.ts";
 
-botCache.tasks.set(`botlists`, {
+bot.tasks.set(`botlists`, {
   name: `botlists`,
   // Runs this function once an hour
-  interval: botCache.constants.milliseconds.HOUR,
+  interval: bot.constants.milliseconds.HOUR,
   execute: async function () {
     // Only run when the bot is fully ready. In case guilds are still loading dont want to send wrong stats.
-    if (!botCache.fullyReady) return;
+    if (!bot.fullyReady) return;
 
     const totalUsers = cache.guilds.map((g) => g.memberCount).reduce((a, b) => a + b, 0);
-    const totalGuilds = cache.guilds.size + botCache.dispatchedGuildIDs.size;
+    const totalGuilds = cache.guilds.size + bot.dispatchedGuildIDs.size;
 
     // Make the variable here to get the guild count accurately
     const botLists = [

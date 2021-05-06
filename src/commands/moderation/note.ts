@@ -1,4 +1,4 @@
-import { botCache, botID, higherRolePosition, highestRole } from "../../../deps.ts";
+import { bot, botID, higherRolePosition, highestRole } from "../../../deps.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createCommand } from "../../utils/helpers.ts";
 
@@ -24,7 +24,7 @@ createCommand({
         !membersHighestRole ||
         !(await higherRolePosition(message.guildID, botsHighestRole.id, membersHighestRole.id))
       ) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
 
       if (
@@ -32,19 +32,19 @@ createCommand({
         !membersHighestRole ||
         !(await higherRolePosition(message.guildID, modsHighestRole.id, membersHighestRole.id))
       ) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
     } else {
-      if (!args.member) return botCache.helpers.reactError(message);
+      if (!args.member) return bot.helpers.reactError(message);
     }
 
-    botCache.helpers.createModlog(message, {
+    bot.helpers.createModlog(message, {
       action: "note",
       reason: args.reason,
       member: args.member,
       userID: args.member.id,
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

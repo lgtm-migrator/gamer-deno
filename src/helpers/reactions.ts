@@ -1,8 +1,8 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 import { addReactions, botHasChannelPermissions, cache, deleteMessage, memberIDHasPermission } from "../../deps.ts";
 import { db } from "../database/database.ts";
 
-botCache.helpers.todoReactionHandler = async function (message, emoji, userID) {
+bot.helpers.todoReactionHandler = async function (message, emoji, userID) {
   const settings = await db.guilds.get(message.guildID);
   if (!settings) return;
 
@@ -33,7 +33,7 @@ botCache.helpers.todoReactionHandler = async function (message, emoji, userID) {
     return;
   }
 
-  if (emoji.name === botCache.constants.emojis.todo.delete) {
+  if (emoji.name === bot.constants.emojis.todo.delete) {
     if (!(await botHasChannelPermissions(message.channelID, ["MANAGE_MESSAGES"]))) {
       return;
     }
@@ -42,24 +42,24 @@ botCache.helpers.todoReactionHandler = async function (message, emoji, userID) {
   }
 
   const channelID =
-    emoji.name === botCache.constants.emojis.todo.archived
+    emoji.name === bot.constants.emojis.todo.archived
       ? settings.todoArchivedChannelID
-      : emoji.name === botCache.constants.emojis.todo.backlog
+      : emoji.name === bot.constants.emojis.todo.backlog
       ? settings.todoBacklogChannelID
-      : emoji.name === botCache.constants.emojis.todo.completed
+      : emoji.name === bot.constants.emojis.todo.completed
       ? settings.todoCompletedChannelID
-      : emoji.name === botCache.constants.emojis.todo.current
+      : emoji.name === bot.constants.emojis.todo.current
       ? settings.todoCurrentSprintChannelID
-      : emoji.name === botCache.constants.emojis.todo.next
+      : emoji.name === bot.constants.emojis.todo.next
       ? settings.todoNextSprintChannelID
       : undefined;
 
   if (!channelID || channelID === message.channelID) return;
 
-  const movedMessage = await botCache.helpers.moveMessageToOtherChannel(message, channelID);
+  const movedMessage = await bot.helpers.moveMessageToOtherChannel(message, channelID);
   if (!movedMessage || !(await botHasChannelPermissions(channelID, ["ADD_REACTIONS", "READ_MESSAGE_HISTORY"]))) {
     return;
   }
 
-  return addReactions(channelID, movedMessage.id, Object.values(botCache.constants.emojis.todo), true);
+  return addReactions(channelID, movedMessage.id, Object.values(bot.constants.emojis.todo), true);
 };

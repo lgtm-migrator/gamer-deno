@@ -1,4 +1,4 @@
-import { botCache, cache } from "../../../../deps.ts";
+import { bot, cache } from "../../../../deps.ts";
 
 export const epicUpgradeLevels = [
   1,
@@ -28,7 +28,7 @@ export function epicUpgradeResponse(type?: string, note?: string) {
   return response.join("\n");
 }
 
-botCache.constants.idle = {
+bot.constants.idle = {
   boostEmoji: "💵",
   items: ["friends", "servers", "channels", "roles", "perms", "messages", "invites", "bots", "hypesquads", "nitro"],
   constants: {
@@ -1220,12 +1220,11 @@ botCache.constants.idle = {
     process: function (profile) {
       const now = Date.now();
       const secondsSinceLastUpdate = (now - profile.lastUpdatedAt) / 1000;
-      const secondsAllowedOffline =
-        (botCache.constants.milliseconds.HOUR * (botCache.vipUserIDs.has(profile.id) ? 8 : 2)) / 1000;
+      const secondsAllowedOffline = (bot.constants.milliseconds.HOUR * (bot.vipUserIDs.has(profile.id) ? 8 : 2)) / 1000;
       const seconds = secondsSinceLastUpdate > secondsAllowedOffline ? secondsAllowedOffline : secondsSinceLastUpdate;
 
       return {
-        currency: botCache.constants.idle.engine.calculateTotalProfit(profile) * BigInt(Math.floor(seconds)),
+        currency: bot.constants.idle.engine.calculateTotalProfit(profile) * BigInt(Math.floor(seconds)),
         lastUpdatedAt: now,
       };
     },
@@ -1237,10 +1236,10 @@ botCache.constants.idle = {
       const isekai = cache.members.get("719912970829955094");
       const sharedGuilds = member?.guilds.filter((g, key) => Boolean(isekai?.guilds.has(key)));
 
-      for (const item of botCache.constants.idle.items) {
-        subtotal += botCache.constants.idle.engine.calculateProfit(
+      for (const item of bot.constants.idle.items) {
+        subtotal += bot.constants.idle.engine.calculateProfit(
           profile[item],
-          botCache.constants.idle.constants[item].baseProfit,
+          bot.constants.idle.constants[item].baseProfit,
           (profile.guildIDs.length > 100 ? 100 : profile.guildIDs.length) + (sharedGuilds?.size || 0)
         );
       }
@@ -1248,7 +1247,7 @@ botCache.constants.idle = {
       return subtotal;
     },
     calculateProfit: function (level, baseProfit = 1, prestige = 1) {
-      const multiplier = botCache.constants.idle.engine.calculateMultiplier(level);
+      const multiplier = bot.constants.idle.engine.calculateMultiplier(level);
       return BigInt(level) * BigInt(baseProfit) * multiplier * BigInt(prestige);
     },
     calculateMultiplier: function (level) {

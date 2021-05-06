@@ -1,6 +1,6 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 
-botCache.constants.gacha = {
+bot.constants.gacha = {
   zooba: {
     characters: [
       {

@@ -1,6 +1,6 @@
-import { botCache } from "../../deps.ts";
+import { bot } from "../../deps.ts";
 
-botCache.constants.milliseconds = {
+bot.constants.milliseconds = {
   YEAR: 1000 * 60 * 60 * 24 * 30 * 12,
   MONTH: 1000 * 60 * 60 * 24 * 30,
   WEEK: 1000 * 60 * 60 * 24 * 7,
