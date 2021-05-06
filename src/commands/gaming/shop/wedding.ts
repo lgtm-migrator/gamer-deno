@@ -1,4 +1,4 @@
-import { botCache, chooseRandom } from "../../../../deps.ts";
+import { bot, chooseRandom } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
 import { translate } from "../../../utils/i18next.ts";
@@ -63,7 +63,7 @@ createSubcommand("shop", {
     if (!userSettings) {
       return message.reply(
         translate(message.guildID, `strings:SHOP_WEDDING_NEED_COINS`, {
-          emoji: botCache.constants.emojis.coin,
+          emoji: bot.constants.emojis.coin,
           cost: item.cost,
           needed: item.cost,
         })
@@ -79,7 +79,7 @@ createSubcommand("shop", {
         if (userSettings.coins + spouseSettings.coins < item.cost) {
           return message.reply(
             translate(message.guildID, `strings:SHOP_WEDDING_NEED_COINS`, {
-              emoji: botCache.constants.emojis.coin,
+              emoji: bot.constants.emojis.coin,
               cost: item.cost,
               needed: item.cost - (userSettings.coins + spouseSettings.coins),
             })
@@ -94,7 +94,7 @@ createSubcommand("shop", {
       else {
         return message.reply(
           translate(message.guildID, `strings:SHOP_WEDDING_NEED_COINS`, {
-            emoji: botCache.constants.emojis.coin,
+            emoji: bot.constants.emojis.coin,
             cost: item.cost,
             needed: item.cost - userSettings.coins,
           })
@@ -109,7 +109,7 @@ createSubcommand("shop", {
 
     const SHOPPING_LIST: string[] = translate(message.guildID, "strings:SHOP_WEDDING_SHOPPING_LIST", {
       mention: `<@!${message.author.id}>`,
-      coins: botCache.constants.emojis.coin,
+      coins: bot.constants.emojis.coin,
       returnObjects: true,
     });
 
@@ -120,7 +120,7 @@ createSubcommand("shop", {
     const shoppingList = SHOPPING_LIST.map(
       (i, index) =>
         `${index <= marriage.step ? `✅` : `📝`} ${index + 1}. ${i} ${searchCriteria[index]?.cost} ${
-          botCache.constants.emojis.coin
+          bot.constants.emojis.coin
         }`
     );
 
@@ -136,9 +136,9 @@ createSubcommand("shop", {
       shoppingList.pop();
     }
 
-    const embed = botCache.helpers.authorEmbed(message).setDescription(shoppingList.join("\n"));
+    const embed = bot.helpers.authorEmbed(message).setDescription(shoppingList.join("\n"));
 
-    if (!botCache.tenorDisabledGuildIDs.has(message.guildID)) {
+    if (!bot.tenorDisabledGuildIDs.has(message.guildID)) {
       const data: TenorGif | undefined = await fetch(
         `https://api.tenor.com/v1/search?q=${item.name}&key=LIVDSRZULELA&limit=50`
       )
@@ -176,7 +176,7 @@ createSubcommand("shop", {
     );
 
     // The shopping is complete
-    const completedEmbed = botCache.helpers.authorEmbed(message).setImage("https://i.imgur.com/Dx9Z2hq.jpg");
+    const completedEmbed = bot.helpers.authorEmbed(message).setImage("https://i.imgur.com/Dx9Z2hq.jpg");
     return message.reply({ embed: completedEmbed });
   },
 });

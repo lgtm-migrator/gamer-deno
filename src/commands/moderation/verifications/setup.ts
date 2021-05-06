@@ -1,6 +1,6 @@
 import { configs } from "../../../../configs.ts";
 import {
-  botCache,
+  bot,
   botID,
   cache,
   calculatePermissions,
@@ -25,7 +25,7 @@ createSubcommand("verify", {
   botServerPermissions: ["ADMINISTRATOR"],
   permissionLevels: [PermissionLevels.ADMIN],
   execute: async function (message, _args, guild) {
-    if (!guild) return botCache.helpers.reactError(message);
+    if (!guild) return bot.helpers.reactError(message);
 
     const REASON = translate(message.guildID, `strings:VERIFY_SETUP_REASON`);
 

@@ -1,4 +1,4 @@
-import { botCache } from "../../../../../deps.ts";
+import { bot } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
@@ -15,6 +15,6 @@ createSubcommand("settings-mails", {
       mailAutoResponse: args.content,
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

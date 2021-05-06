@@ -1,4 +1,4 @@
-import { botCache } from "../../../../../deps.ts";
+import { bot } from "../../../../../deps.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { db } from "../../../../database/database.ts";
@@ -23,7 +23,7 @@ createSubcommand("labels", {
       guildID: message.guildID,
     });
 
-    if (labelExists) return botCache.helpers.reactError(message);
+    if (labelExists) return bot.helpers.reactError(message);
 
     await db.labels.create(message.id, {
       id: message.id,
@@ -34,6 +34,6 @@ createSubcommand("labels", {
       name: args.name,
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

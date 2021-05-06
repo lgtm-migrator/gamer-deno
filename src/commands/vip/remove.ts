@@ -1,4 +1,4 @@
-import { botCache } from "../../../deps.ts";
+import { bot } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createSubcommand } from "../../utils/helpers.ts";
@@ -13,17 +13,17 @@ createSubcommand("vip", {
   permissionLevels: [PermissionLevels.SERVER_OWNER],
   execute: async function (message) {
     // The Server is not VIP
-    if (!botCache.vipGuildIDs.has(message.guildID)) return botCache.helpers.reactError(message);
+    if (!bot.vipGuildIDs.has(message.guildID)) return bot.helpers.reactError(message);
     const guildSettings = await db.vipGuilds.get(message.guildID);
-    if (!guildSettings) return botCache.helpers.reactError(message);
+    if (!guildSettings) return bot.helpers.reactError(message);
     const userSettings = await db.vipUsers.get(guildSettings.userID);
-    if (!userSettings) return botCache.helpers.reactError(message);
+    if (!userSettings) return bot.helpers.reactError(message);
     await db.vipUsers.update(guildSettings.userID, {
       guildIDs: userSettings.guildIDs.filter((id) => id !== message.guildID),
     });
     await db.vipGuilds.delete(message.guildID);
-    botCache.vipGuildIDs.delete(message.guildID);
+    bot.vipGuildIDs.delete(message.guildID);
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

@@ -1,4 +1,4 @@
-import { botCache } from "../../../deps.ts";
+import { bot } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { CommandSchema } from "../../database/schemas.ts";
 import { PermissionLevels } from "../../types/commands.ts";
@@ -12,12 +12,12 @@ createCommand({
   ] as const,
   permissionLevels: [PermissionLevels.ADMIN],
   execute: async function (message, args) {
-    if (!args.command && !args.all) return botCache.helpers.reactError(message);
+    if (!args.command && !args.all) return bot.helpers.reactError(message);
 
     const name = `${message.guildID}-${args.command?.name || "allcommands"}`;
 
     const command = await db.commands.get(name);
-    if (!command) return botCache.helpers.reactSuccess(message);
+    if (!command) return bot.helpers.reactSuccess(message);
 
     const payload: Partial<CommandSchema> = {};
 
@@ -28,8 +28,8 @@ createCommand({
         exceptionChannelIDs: [],
         exceptionRoleIDs: [],
       });
-      botCache.commandPermissions.delete(name);
-      return botCache.helpers.reactSuccess(message);
+      bot.commandPermissions.delete(name);
+      return bot.helpers.reactSuccess(message);
     }
 
     for (const channelID of message.mentionChannelIDs) {
@@ -57,7 +57,7 @@ createCommand({
     }
 
     await db.commands.update(name, payload);
-    botCache.commandPermissions.set(name, { ...command, ...payload });
-    return botCache.helpers.reactSuccess(message);
+    bot.commandPermissions.set(name, { ...command, ...payload });
+    return bot.helpers.reactSuccess(message);
   },
 });

@@ -1,4 +1,4 @@
-import { addReactions, botCache, createGuildRole } from "../../../../deps.ts";
+import { addReactions, bot, createGuildRole } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { Embed } from "../../../utils/Embed.ts";
@@ -6,101 +6,101 @@ import { createSubcommand, sendEmbed } from "../../../utils/helpers.ts";
 import { translate } from "../../../utils/i18next.ts";
 
 const reactionRoleData = [
-  { name: "red", hex: "#ff0000", emoji: botCache.constants.emojis.colors.red },
+  { name: "red", hex: "#ff0000", emoji: bot.constants.emojis.colors.red },
   {
     name: "purplered",
     hex: "#33032b",
-    emoji: botCache.constants.emojis.colors.purplered,
+    emoji: bot.constants.emojis.colors.purplered,
   },
   {
     name: "purple",
     hex: "#4b0082",
-    emoji: botCache.constants.emojis.colors.purple,
+    emoji: bot.constants.emojis.colors.purple,
   },
   {
     name: "pinkpurple",
     hex: "#c000ff",
-    emoji: botCache.constants.emojis.colors.pinkpurple,
+    emoji: bot.constants.emojis.colors.pinkpurple,
   },
   {
     name: "pink",
     hex: "#ff5f9a",
-    emoji: botCache.constants.emojis.colors.pink,
+    emoji: bot.constants.emojis.colors.pink,
   },
   {
     name: "pastelyellow",
     hex: "#fffad1",
-    emoji: botCache.constants.emojis.colors.pastelyellow,
+    emoji: bot.constants.emojis.colors.pastelyellow,
   },
   {
     name: "pastelred",
     hex: "#ff876c",
-    emoji: botCache.constants.emojis.colors.pastelred,
+    emoji: bot.constants.emojis.colors.pastelred,
   },
   {
     name: "pastelpurple",
     hex: "#dac2dc",
-    emoji: botCache.constants.emojis.colors.pastelpurple,
+    emoji: bot.constants.emojis.colors.pastelpurple,
   },
   {
     name: "pastelpink",
     hex: "#fbccd3",
-    emoji: botCache.constants.emojis.colors.pastelpink,
+    emoji: bot.constants.emojis.colors.pastelpink,
   },
   {
     name: "pastelorange",
     hex: "#f7af4b",
-    emoji: botCache.constants.emojis.colors.pastelorange,
+    emoji: bot.constants.emojis.colors.pastelorange,
   },
   {
     name: "pastelgreen",
     hex: "#bdecb6",
-    emoji: botCache.constants.emojis.colors.pastelgreen,
+    emoji: bot.constants.emojis.colors.pastelgreen,
   },
   {
     name: "pastelblue",
     hex: "#c8dcf4",
-    emoji: botCache.constants.emojis.colors.pastelblue,
+    emoji: bot.constants.emojis.colors.pastelblue,
   },
   {
     name: "orange",
     hex: "#fe6019",
-    emoji: botCache.constants.emojis.colors.orange,
+    emoji: bot.constants.emojis.colors.orange,
   },
   {
     name: "limegreen",
     hex: "#65ff00",
-    emoji: botCache.constants.emojis.colors.limegreen,
+    emoji: bot.constants.emojis.colors.limegreen,
   },
   {
     name: "lightorange",
     hex: "#ff9a00",
-    emoji: botCache.constants.emojis.colors.lightorange,
+    emoji: bot.constants.emojis.colors.lightorange,
   },
   {
     name: "lightblue",
     hex: "#4fadab",
-    emoji: botCache.constants.emojis.colors.lightblue,
+    emoji: bot.constants.emojis.colors.lightblue,
   },
   {
     name: "brown",
     hex: "#4f3205",
-    emoji: botCache.constants.emojis.colors.brown,
+    emoji: bot.constants.emojis.colors.brown,
   },
   {
     name: "brightyellow",
     hex: "#ffff00",
-    emoji: botCache.constants.emojis.colors.brightyellow,
+    emoji: bot.constants.emojis.colors.brightyellow,
   },
   {
     name: "brightpink",
     hex: "#ff0078",
-    emoji: botCache.constants.emojis.colors.brightpink,
+    emoji: bot.constants.emojis.colors.brightpink,
   },
   {
     name: "blue",
     hex: "#223480",
-    emoji: botCache.constants.emojis.colors.blue,
+    emoji: bot.constants.emojis.colors.blue,
   },
 ];
 
@@ -119,7 +119,7 @@ createSubcommand("roles-reactions", {
   ],
   execute: async function (message, _args, guild) {
     if (!guild?.roles.size || guild.roles.size + 20 > 250) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     const reactionRole = await db.reactionroles.findOne({
@@ -127,13 +127,13 @@ createSubcommand("roles-reactions", {
       guildID: message.guildID,
     });
 
-    if (reactionRole) return botCache.helpers.reactError(message);
+    if (reactionRole) return bot.helpers.reactError(message);
 
     const exists = await db.uniquerolesets.findOne({
       name: "colors",
       guildID: message.guildID,
     });
-    if (exists) return botCache.helpers.reactError(message);
+    if (exists) return bot.helpers.reactError(message);
 
     // Create all 20 roles
 
@@ -155,14 +155,14 @@ createSubcommand("roles-reactions", {
         translate(message.guildID, "strings:RR_COLORS_ONLY_ONE")
       );
     const baseMessage = await sendEmbed(message.channelID, embed);
-    if (!baseMessage) return botCache.helpers.reactError(message);
+    if (!baseMessage) return bot.helpers.reactError(message);
 
     // Create reaction role
     await db.reactionroles.create(baseMessage.id, {
       id: baseMessage.id,
       name: "colors",
       reactions: roles.map((role, index) => ({
-        reaction: botCache.helpers.emojiReaction(reactionRoleData[index]!.emoji),
+        reaction: bot.helpers.emojiReaction(reactionRoleData[index]!.emoji),
         roleIDs: [role.id],
       })),
       messageID: baseMessage.id,
@@ -171,7 +171,7 @@ createSubcommand("roles-reactions", {
       authorID: message.author.id,
     });
 
-    botCache.reactionRoleMessageIDs.add(baseMessage.id);
+    bot.reactionRoleMessageIDs.add(baseMessage.id);
 
     // Create all 20 reactions
     await addReactions(
@@ -182,8 +182,8 @@ createSubcommand("roles-reactions", {
     );
 
     // IF NOT VIP SERVER
-    if (!botCache.vipGuildIDs.has(message.guildID)) {
-      return botCache.helpers.reactSuccess(message);
+    if (!bot.vipGuildIDs.has(message.guildID)) {
+      return bot.helpers.reactSuccess(message);
     }
 
     // Create a roleset
@@ -193,6 +193,6 @@ createSubcommand("roles-reactions", {
       guildID: message.guildID,
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { db } from "../../../database/database.ts";
@@ -19,7 +19,7 @@ createSubcommand("roles-default", {
       name: args.name,
       guildID: message.guildID,
     });
-    if (exists) return botCache.helpers.reactError(message);
+    if (exists) return bot.helpers.reactError(message);
 
     // Create a roleset
     await db.defaultrolesets.create(message.id, {
@@ -31,13 +31,13 @@ createSubcommand("roles-default", {
     });
 
     // Add this role to all users without those roles
-    botCache.commands.get("roles")?.subcommands?.get("all")?.execute?.(
+    bot.commands.get("roles")?.subcommands?.get("all")?.execute?.(
       message,
       // @ts-ignore
       { type: "add", role: args.defaultRole, defaultRoles: args.roles },
       guild
     );
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

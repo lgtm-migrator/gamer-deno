@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { parsePrefix } from "../../../monitors/commandHandler.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -30,7 +30,7 @@ createSubcommand("idle", {
     });
 
     const prefix = parsePrefix(message.guildID);
-    const embed = botCache.helpers
+    const embed = bot.helpers
       .authorEmbed(message)
       .setColor("random")
       .setDescription(

@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { createCommand } from "../../../utils/helpers.ts";
 import { translate } from "../../../utils/i18next.ts";
@@ -7,7 +7,7 @@ createCommand({
   name: "divorce",
   execute: async function (message) {
     const marriage = await db.marriages.get(message.author.id);
-    if (!marriage) return botCache.helpers.reactError(message);
+    if (!marriage) return bot.helpers.reactError(message);
 
     await message.reply(translate(message.guildID, "strings:DIVORCED"));
     await db.marriages.delete(message.author.id);

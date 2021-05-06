@@ -1,4 +1,4 @@
-import { botCache } from "../../../../../deps.ts";
+import { bot } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
@@ -21,7 +21,7 @@ createSubcommand("surveys-edit", {
   guildOnly: true,
   execute: async function (message, args) {
     const survey = await db.surveys.get(`${message.guildID}-${args.name}`);
-    if (!survey) return botCache.helpers.reactError(message);
+    if (!survey) return bot.helpers.reactError(message);
 
     const newRoleIDs = new Set<string>([
       ...survey.allowedRoleIDs.filter((id) => !args.roles.find((r) => r.id === id)),
@@ -33,6 +33,6 @@ createSubcommand("surveys-edit", {
       allowedRoleIDs: [...newRoleIDs.values()],
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

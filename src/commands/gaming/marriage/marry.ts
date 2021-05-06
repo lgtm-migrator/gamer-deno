@@ -1,4 +1,4 @@
-import { botCache, chooseRandom, deleteMessageByID, rawAvatarURL } from "../../../../deps.ts";
+import { bot, chooseRandom, deleteMessageByID, rawAvatarURL } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { parsePrefix } from "../../../monitors/commandHandler.ts";
 import { Embed } from "../../../utils/Embed.ts";
@@ -13,18 +13,18 @@ createCommand({
   execute: async function (message, args) {
     if (args.member.id === message.author.id) {
       await message.reply(translate(message.guildID, "strings:MARRY_NOT_SELF"));
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     if (args.member.bot) {
       await message.reply(translate(message.guildID, "strings:MARRY_NOT_BOT"));
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     const marriage = await db.marriages.get(message.author.id);
     if (marriage) {
       await message.reply(translate(message.guildID, "strings:MARRY_YOU_ARE_MARRIED"));
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     // Marriages where someone else iniated it to this user.
@@ -33,7 +33,7 @@ createCommand({
     // If any other marriage with this user has been accepted cancel out.
     for (const relevantMarriage of relevantMarriages) {
       if (relevantMarriage.accepted) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
       // If the current user is the spouse of another user propsing. Then this user has accepted the marriage
       if (relevantMarriage.id === args.member.id) {
@@ -59,7 +59,7 @@ createCommand({
 
         await db.marriages.update(relevantMarriage.id, { accepted: true });
 
-        return botCache.helpers.reactSuccess(message);
+        return bot.helpers.reactSuccess(message);
       }
     }
 
@@ -67,12 +67,12 @@ createCommand({
     const propose = await message.reply(
       [
         translate(message.guildID, "strings:MARRY_PROPOSE_1", {
-          coins: botCache.constants.emojis.coin,
+          coins: bot.constants.emojis.coin,
         }),
         "",
         ...[2, 3, 4, 5].map((num) =>
           translate(message.guildID, `strings:MARRY_PROPOSE_${num}`, {
-            coins: botCache.constants.emojis.coin,
+            coins: bot.constants.emojis.coin,
           })
         ),
       ].join("\n")
@@ -88,10 +88,10 @@ createCommand({
 
     const emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣"];
     await propose.addReactions(emojis, true);
-    const response = await botCache.helpers.needReaction(message.author.id, propose.id).catch(console.log);
+    const response = await bot.helpers.needReaction(message.author.id, propose.id).catch(console.log);
     if (!response || !emojis.includes(response)) {
       await deleteMessageByID(message.channelID, propose.id);
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     const search =
@@ -119,7 +119,7 @@ createCommand({
       );
 
     // Get a random gif regarding the option the user chose
-    if (!botCache.tenorDisabledGuildIDs.has(message.guildID)) {
+    if (!bot.tenorDisabledGuildIDs.has(message.guildID)) {
       const data: TenorGif | undefined = await fetch(
         `https://api.tenor.com/v1/search?q=${search}&key=LIVDSRZULELA&limit=50`
       )
@@ -141,7 +141,7 @@ createCommand({
     });
 
     // Embed that tells the user they can still continue the marriage simulation
-    const thoughtOnlyEmbed = botCache.helpers
+    const thoughtOnlyEmbed = bot.helpers
       .authorEmbed(message)
       .setDescription(
         [

@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -16,6 +16,6 @@ createSubcommand("roles-levels", {
       guildID: message.guildID,
       roleIDs: args.roles.map((r) => r.id),
     });
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

@@ -1,4 +1,4 @@
-import { botCache } from "../../../../../deps.ts";
+import { bot } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
@@ -15,11 +15,11 @@ createSubcommand("settings-mails", {
 
     // Support channels are also cached
     if (args.channel) {
-      botCache.guildMailLogsChannelIDs.set(message.guildID, args.channel.id);
+      bot.guildMailLogsChannelIDs.set(message.guildID, args.channel.id);
     } else {
-      botCache.guildMailLogsChannelIDs.delete(message.guildID);
+      bot.guildMailLogsChannelIDs.delete(message.guildID);
     }
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

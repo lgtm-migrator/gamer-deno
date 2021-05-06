@@ -1,4 +1,4 @@
-import { botCache, getMessage, getMessages } from "../../../../deps.ts";
+import { bot, getMessage, getMessages } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createCommand } from "../../../utils/helpers.ts";
@@ -15,11 +15,11 @@ createCommand({
   execute: async function (message, args, guild) {
     const settings = await db.guilds.get(message.guildID);
     if (!settings || ![settings.ideaChannelID, settings.bugsChannelID].includes(args.channel.id)) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     const feedbackMessage = await getMessage(args.channel.id, args.messageID);
-    if (!feedbackMessage) return botCache.helpers.reactError(message);
+    if (!feedbackMessage) return bot.helpers.reactError(message);
 
     const messages = await getMessages(args.channel.id, {
       limit: 100,
@@ -27,7 +27,7 @@ createCommand({
     });
 
     const [embed] = feedbackMessage.embeds;
-    if (!embed || !embed.fields) return botCache.helpers.reactError(message);
+    if (!embed || !embed.fields) return bot.helpers.reactError(message);
 
     const csvArray = [
       embed.fields.map((field) => field.name).join(`;`),

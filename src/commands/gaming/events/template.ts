@@ -1,4 +1,4 @@
-import { botCache, deleteMessageByID } from "../../../../deps.ts";
+import { bot, deleteMessageByID } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -21,7 +21,7 @@ createSubcommand("events", {
       eventID: args.eventID,
       guildID: message.guildID,
     });
-    if (!event) return botCache.helpers.reactError(message);
+    if (!event) return bot.helpers.reactError(message);
 
     // All necessary checks complete
     await db.events.update(event.id, { templateName: args.name });
@@ -29,6 +29,6 @@ createSubcommand("events", {
     if (event.cardChannelID && event.cardMessageID) {
       await deleteMessageByID(event.cardMessageID, event.cardMessageID).catch(console.log);
     }
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createCommand } from "../../../utils/helpers.ts";
@@ -16,7 +16,7 @@ createCommand({
   vipServerOnly: true,
   execute: async (message) => {
     const labels = await db.labels.findMany({ guildID: message.guildID }, true);
-    if (!labels.length) return botCache.helpers.reactError(message);
+    if (!labels.length) return bot.helpers.reactError(message);
 
     return message.reply(labels.map((label) => label.name).join("\n"));
   },

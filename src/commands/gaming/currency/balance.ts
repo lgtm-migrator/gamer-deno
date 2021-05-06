@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { createCommand } from "../../../utils/helpers.ts";
 
@@ -20,6 +20,6 @@ createCommand({
       if (spouse) amount += spouse.coins;
     }
 
-    return message.reply(`${amount.toLocaleString("en-US")} ${botCache.constants.emojis.coin}`);
+    return message.reply(`${amount.toLocaleString("en-US")} ${bot.constants.emojis.coin}`);
   },
 });

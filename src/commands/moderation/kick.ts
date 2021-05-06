@@ -1,4 +1,4 @@
-import { botCache, botID, higherRolePosition, highestRole, kick, sendDirectMessage } from "../../../deps.ts";
+import { bot, botID, higherRolePosition, highestRole, kick, sendDirectMessage } from "../../../deps.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createCommand } from "../../utils/helpers.ts";
 import { translate } from "../../utils/i18next.ts";
@@ -25,7 +25,7 @@ createCommand({
       !membersHighestRole ||
       !(await higherRolePosition(message.guildID, botsHighestRole.id, membersHighestRole.id))
     ) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     if (
@@ -33,7 +33,7 @@ createCommand({
       !membersHighestRole ||
       !(await higherRolePosition(message.guildID, modsHighestRole.id, membersHighestRole.id))
     ) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     const REASON = args.reason || translate(message.guildID, "strings:NO_REASON");
@@ -44,13 +44,13 @@ createCommand({
 
     await kick(message.guildID, args.member.id);
 
-    botCache.helpers.createModlog(message, {
+    bot.helpers.createModlog(message, {
       action: "kick",
       reason: REASON,
       member: args.member,
       userID: args.member.id,
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

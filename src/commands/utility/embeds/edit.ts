@@ -1,4 +1,4 @@
-import { botCache, botID, cache, getMessage } from "../../../../deps.ts";
+import { bot, botID, cache, getMessage } from "../../../../deps.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { Embed } from "../../../utils/Embed.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -15,25 +15,25 @@ createSubcommand("embed", {
   ] as const,
   execute: async function (message, args, guild) {
     const channel =
-      botCache.vipGuildIDs.has(message.guildID) && args.channel ? args.channel : cache.channels.get(message.channelID);
-    if (!channel) return botCache.helpers.reactError(message);
+      bot.vipGuildIDs.has(message.guildID) && args.channel ? args.channel : cache.channels.get(message.channelID);
+    if (!channel) return bot.helpers.reactError(message);
 
     const messageToUse =
       cache.messages.get(args.messageID) || (await getMessage(channel.id, args.messageID).catch(console.log));
     if (!messageToUse || messageToUse.author.id !== botID) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     const member = cache.members.get(message.author.id);
-    if (!member) return botCache.helpers.reactError(message);
+    if (!member) return bot.helpers.reactError(message);
 
-    const transformed = await botCache.helpers.variables(args.text, member, guild, member);
+    const transformed = await bot.helpers.variables(args.text, member, guild, member);
 
     try {
       const embedCode = JSON.parse(transformed);
       const embed = new Embed(embedCode);
       let plaintext = "";
-      if (!botCache.vipGuildIDs.has(message.guildID)) {
+      if (!bot.vipGuildIDs.has(message.guildID)) {
         plaintext += `Sent By: ${member.tag}`;
       }
       if (embedCode.plaintext) plaintext += `\n${embedCode.plaintext}`;
@@ -42,7 +42,7 @@ createSubcommand("embed", {
       messageToUse.edit({ content: plaintext, embed });
       await message.alertReply(messageToUse.link);
 
-      if (botCache.vipGuildIDs.has(message.guildID)) {
+      if (bot.vipGuildIDs.has(message.guildID)) {
         await message.delete();
       }
     } catch (error) {

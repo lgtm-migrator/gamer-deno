@@ -1,4 +1,4 @@
-import { botCache, deleteMessages } from "../../../../../deps.ts";
+import { bot, deleteMessages } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
@@ -24,7 +24,7 @@ createSubcommand("surveys-edit-questions", {
   guildOnly: true,
   execute: async function (message, args) {
     const survey = await db.surveys.get(`${message.guildID}-${args.name}`);
-    if (!survey) return botCache.helpers.reactError(message);
+    if (!survey) return bot.helpers.reactError(message);
 
     const options: string[] = [];
 
@@ -33,8 +33,8 @@ createSubcommand("surveys-edit-questions", {
       const optionsQuestion = await message.reply(translate(message.guildID, "strings:SURVEYS_NEED_OPTIONS"));
       if (!optionsQuestion) return;
 
-      const optionsResponse = await botCache.helpers.needMessage(message.author.id, message.channelID);
-      if (!optionsResponse) return botCache.helpers.reactError(message);
+      const optionsResponse = await bot.helpers.needMessage(message.author.id, message.channelID);
+      if (!optionsResponse) return bot.helpers.reactError(message);
 
       await deleteMessages(message.channelID, [optionsResponse.id, optionsQuestion.id]).catch(console.log);
       options.push(...optionsResponse.content.split(` | `));
@@ -52,6 +52,6 @@ createSubcommand("surveys-edit-questions", {
       ],
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

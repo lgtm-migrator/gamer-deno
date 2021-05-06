@@ -1,4 +1,4 @@
-import { botCache } from "../../../../cache.ts";
+import { bot } from "../../../../cache.ts";
 import { db } from "../../../database/database.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
 
@@ -13,25 +13,25 @@ createSubcommand("gacha", {
   ] as const,
   guildOnly: true,
   execute: async function (message, args) {
-    const food = botCache.constants.gacha.foods.find((f) =>
+    const food = bot.constants.gacha.foods.find((f) =>
       args.food ? f.name.toLowerCase() === args.food : f.id === args.foodID
     );
-    if (!food) return botCache.helpers.reactError(message);
+    if (!food) return bot.helpers.reactError(message);
 
-    const character = botCache.constants.gacha.zooba.characters.find((c) =>
+    const character = bot.constants.gacha.zooba.characters.find((c) =>
       args.character ? c.name.toLowerCase().startsWith(args.character) : args.characterID === c.id
     );
-    if (!character) return botCache.helpers.reactError(message);
+    if (!character) return bot.helpers.reactError(message);
 
     const settings = await db.gachas.get(message.author.id);
-    if (!settings) return botCache.helpers.reactError(message);
+    if (!settings) return bot.helpers.reactError(message);
 
     if (!settings.foods.includes(food.id)) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     if (!settings.ownedCharacters.some((c) => c.id === character.id)) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     let counter = 0;

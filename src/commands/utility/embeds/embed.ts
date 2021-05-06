@@ -1,4 +1,4 @@
-import { botCache, cache } from "../../../../deps.ts";
+import { bot, cache } from "../../../../deps.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { Embed } from "../../../utils/Embed.ts";
 import { createCommand } from "../../../utils/helpers.ts";
@@ -14,15 +14,15 @@ createCommand({
   ] as const,
   execute: async function (message, args, guild) {
     const member = cache.members.get(message.author.id);
-    if (!member) return botCache.helpers.reactError(message);
+    if (!member) return bot.helpers.reactError(message);
 
-    const transformed = await botCache.helpers.variables(args.text, member, guild, member);
+    const transformed = await bot.helpers.variables(args.text, member, guild, member);
 
     try {
       const embedCode = JSON.parse(transformed);
       const embed = new Embed(embedCode);
       const plaintext: string[] = [];
-      if (!botCache.vipGuildIDs.has(message.guildID)) {
+      if (!bot.vipGuildIDs.has(message.guildID)) {
         plaintext.push(`Sent By: ${member.tag}`);
       }
       if (embedCode.plaintext) plaintext.push(embedCode.plaintext);
@@ -31,7 +31,7 @@ createCommand({
         embed,
         content: plaintext.join("\n"),
       });
-      if (botCache.vipGuildIDs.has(message.guildID)) {
+      if (bot.vipGuildIDs.has(message.guildID)) {
         await message.delete().catch();
       }
     } catch (error) {

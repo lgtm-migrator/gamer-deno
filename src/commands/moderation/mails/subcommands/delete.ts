@@ -1,4 +1,4 @@
-import { botCache } from "../../../../../deps.ts";
+import { bot } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
@@ -17,6 +17,6 @@ createSubcommand("labels", {
   execute: async (message, args) => {
     await db.labels.deleteOne({ name: args.name, guildID: message.guildID });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

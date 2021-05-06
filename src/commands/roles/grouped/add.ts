@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { db } from "../../../database/database.ts";
@@ -16,7 +16,7 @@ createSubcommand("roles-grouped", {
       name: args.name,
       guildID: message.guildID,
     });
-    if (!exists) return botCache.helpers.reactError(message);
+    if (!exists) return bot.helpers.reactError(message);
 
     const roleIDs = new Set([...exists.roleIDs, ...args.roles.map((role) => role.id)]);
 
@@ -26,6 +26,6 @@ createSubcommand("roles-grouped", {
       { roleIDs: [...roleIDs.values()] }
     );
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

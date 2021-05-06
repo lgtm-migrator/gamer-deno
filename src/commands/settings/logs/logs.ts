@@ -1,4 +1,4 @@
-import { botCache, cache, memberIDHasPermission } from "../../../../deps.ts";
+import { bot, cache, memberIDHasPermission } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -190,45 +190,45 @@ logData.forEach(function (data) {
     ] as const,
     execute: async function (message, args) {
       // WILL ALLOW THESE TO BE FETCHED WHEN NECESSARY
-      botCache.recentLogs.delete(message.guildID);
+      bot.recentLogs.delete(message.guildID);
 
       // ALWAYS ALLOW RESET
       if (args.reset) {
         await db.serverlogs.update(message.guildID, {
           [data.channelName]: message.mentionChannelIDs[0] || "",
         });
-        return botCache.helpers.reactSuccess(message);
+        return bot.helpers.reactSuccess(message);
       }
 
-      if (data.vip && !botCache.vipGuildIDs.has(message.guildID)) {
-        botCache.helpers.reactError(message, true);
+      if (data.vip && !bot.vipGuildIDs.has(message.guildID)) {
+        bot.helpers.reactError(message, true);
       }
 
       if (args.channelID) {
         // If a snowflake is provided make sure this is a vip server
-        if (!botCache.vipGuildIDs.has(message.guildID)) {
-          return botCache.helpers.reactError(message, true);
+        if (!bot.vipGuildIDs.has(message.guildID)) {
+          return bot.helpers.reactError(message, true);
         }
         const channel = cache.channels.get(args.channelID);
-        if (!channel?.nsfw) return botCache.helpers.reactError(message);
+        if (!channel?.nsfw) return bot.helpers.reactError(message);
 
         // VIP's can set channel ids from other server, make sure the user is an admin on other server
         if (!(await memberIDHasPermission(message.author.id, channel.guildID, ["ADMINISTRATOR"]))) {
-          return botCache.helpers.reactError(message);
+          return bot.helpers.reactError(message);
         }
 
         await db.serverlogs.update(message.guildID, {
           [data.channelName]: args.channelID,
         });
-        return botCache.helpers.reactSuccess(message);
+        return bot.helpers.reactSuccess(message);
       }
 
-      if (!args.channel?.nsfw) return botCache.helpers.reactError(message);
+      if (!args.channel?.nsfw) return bot.helpers.reactError(message);
 
       await db.serverlogs.update(message.guildID, {
         [data.channelName]: args.channel.id,
       });
-      return botCache.helpers.reactSuccess(message);
+      return bot.helpers.reactSuccess(message);
     },
   });
 
@@ -239,12 +239,12 @@ logData.forEach(function (data) {
     permissionLevels: [PermissionLevels.ADMIN],
     execute: async function (message) {
       // WILL ALLOW THESE TO BE FETCHED WHEN NECESSARY
-      botCache.recentLogs.delete(message.guildID);
+      bot.recentLogs.delete(message.guildID);
 
       await db.serverlogs.update(message.guildID, {
         [data.channelName]: message.channelID,
       });
-      return botCache.helpers.reactSuccess(message);
+      return bot.helpers.reactSuccess(message);
     },
   });
 
@@ -254,12 +254,12 @@ logData.forEach(function (data) {
     permissionLevels: [PermissionLevels.ADMIN],
     execute: async function (message) {
       // WILL ALLOW THESE TO BE FETCHED WHEN NECESSARY
-      botCache.recentLogs.delete(message.guildID);
+      bot.recentLogs.delete(message.guildID);
 
       await db.serverlogs.update(message.guildID, {
         [data.channelName]: "false",
       });
-      return botCache.helpers.reactSuccess(message);
+      return bot.helpers.reactSuccess(message);
     },
   });
 
@@ -277,12 +277,12 @@ logData.forEach(function (data) {
       permissionLevels: [PermissionLevels.ADMIN],
       execute: async function (message) {
         // WILL ALLOW THESE TO BE FETCHED WHEN NECESSARY
-        botCache.recentLogs.delete(message.guildID);
+        bot.recentLogs.delete(message.guildID);
 
         await db.serverlogs.update(message.guildID, {
           [data.publicName]: true,
         });
-        return botCache.helpers.reactSuccess(message);
+        return bot.helpers.reactSuccess(message);
       },
     });
 
@@ -292,12 +292,12 @@ logData.forEach(function (data) {
       permissionLevels: [PermissionLevels.ADMIN],
       execute: async function (message) {
         // WILL ALLOW THESE TO BE FETCHED WHEN NECESSARY
-        botCache.recentLogs.delete(message.guildID);
+        bot.recentLogs.delete(message.guildID);
 
         await db.serverlogs.update(message.guildID, {
           [data.publicName]: false,
         });
-        return botCache.helpers.reactSuccess(message);
+        return bot.helpers.reactSuccess(message);
       },
     });
   }
@@ -313,14 +313,14 @@ logData.forEach(function (data) {
       ] as const,
       execute: async function (message, args) {
         if (!args.role && !args.channel) {
-          return botCache.helpers.reactError(message);
+          return bot.helpers.reactError(message);
         }
 
         const logs = await db.serverlogs.get(message.guildID);
-        if (!logs) return botCache.helpers.reactError(message);
+        if (!logs) return bot.helpers.reactError(message);
 
         // WILL ALLOW THESE TO BE FETCHED WHEN NECESSARY
-        botCache.recentLogs.delete(message.guildID);
+        bot.recentLogs.delete(message.guildID);
 
         if (data.ignoredRoleName && args.role) {
           await db.serverlogs.update(message.guildID, {
@@ -345,14 +345,14 @@ logData.forEach(function (data) {
       ] as const,
       execute: async function (message, args) {
         if (!args.role && !args.channel) {
-          return botCache.helpers.reactError(message);
+          return bot.helpers.reactError(message);
         }
 
         const logs = await db.serverlogs.get(message.guildID);
-        if (!logs) return botCache.helpers.reactError(message);
+        if (!logs) return bot.helpers.reactError(message);
 
         // WILL ALLOW THESE TO BE FETCHED WHEN NECESSARY
-        botCache.recentLogs.delete(message.guildID);
+        bot.recentLogs.delete(message.guildID);
 
         if (data.ignoredRoleName && args.role) {
           await db.serverlogs.update(message.guildID, {

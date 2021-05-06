@@ -1,11 +1,4 @@
-import {
-  addReaction,
-  botCache,
-  botHasChannelPermissions,
-  cache,
-  getMessage,
-  ReactionPayload,
-} from "../../../../deps.ts";
+import { addReaction, bot, botHasChannelPermissions, cache, getMessage, ReactionPayload } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -30,14 +23,14 @@ createSubcommand("roles-reactions", {
       "USE_EXTERNAL_EMOJIS",
       "READ_MESSAGE_HISTORY",
     ]);
-    if (!hasPermissions) return botCache.helpers.reactError(message);
+    if (!hasPermissions) return bot.helpers.reactError(message);
 
     const channel = args.channel || cache.channels.get(message.channelID);
     if (!channel) return;
 
     const messageToUse =
       cache.messages.get(args.messageID) || (await getMessage(channel.id, args.messageID).catch(console.log));
-    if (!messageToUse) return botCache.helpers.reactError(message);
+    if (!messageToUse) return bot.helpers.reactError(message);
 
     const reactionRole =
       (await db.reactionroles.get(args.messageID)) ||
@@ -45,10 +38,10 @@ createSubcommand("roles-reactions", {
         guildID: message.guildID,
         name: args.name,
       }));
-    if (reactionRole) return botCache.helpers.reactError(message);
+    if (reactionRole) return bot.helpers.reactError(message);
 
     const reaction =
-      typeof args.emoji === "string" ? args.emoji : botCache.helpers.emojiUnicode(args.emoji as ReactionPayload);
+      typeof args.emoji === "string" ? args.emoji : bot.helpers.emojiUnicode(args.emoji as ReactionPayload);
 
     await db.reactionroles.create(messageToUse.id, {
       id: messageToUse.id,
@@ -65,8 +58,8 @@ createSubcommand("roles-reactions", {
       authorID: message.author.id,
     });
 
-    botCache.reactionRoleMessageIDs.add(messageToUse.id);
+    bot.reactionRoleMessageIDs.add(messageToUse.id);
     await addReaction(messageToUse.channelID, messageToUse.id, reaction).catch(console.log);
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

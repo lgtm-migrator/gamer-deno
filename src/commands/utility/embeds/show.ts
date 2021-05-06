@@ -1,4 +1,4 @@
-import { botCache, botID, cache, getMessage } from "../../../../deps.ts";
+import { bot, botID, cache, getMessage } from "../../../../deps.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { Embed } from "../../../utils/Embed.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -14,12 +14,12 @@ createSubcommand("embed", {
   ] as const,
   execute: async function (message, args) {
     const channel =
-      botCache.vipGuildIDs.has(message.guildID) && args.channel ? args.channel : cache.channels.get(message.channelID);
-    if (!channel) return botCache.helpers.reactError(message);
+      bot.vipGuildIDs.has(message.guildID) && args.channel ? args.channel : cache.channels.get(message.channelID);
+    if (!channel) return bot.helpers.reactError(message);
 
     const messageToUse = cache.messages.get(args.messageID) || (await getMessage(channel.id, args.messageID));
     if (!messageToUse || messageToUse.author.id !== botID) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     const [embed] = messageToUse.embeds;

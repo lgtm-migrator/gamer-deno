@@ -1,4 +1,4 @@
-import { botCache } from "../../../deps.ts";
+import { bot } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { CommandSchema } from "../../database/schemas.ts";
 import { PermissionLevels } from "../../types/commands.ts";
@@ -12,7 +12,7 @@ createCommand({
   ] as const,
   permissionLevels: [PermissionLevels.ADMIN],
   execute: async function (message, args) {
-    if (!args.command && !args.all) return botCache.helpers.reactError(message);
+    if (!args.command && !args.all) return bot.helpers.reactError(message);
 
     const name = `${message.guildID}-${args.command?.name || "allcommands"}`;
 
@@ -28,14 +28,14 @@ createCommand({
         exceptionRoleIDs: [],
         guildID: message.guildID,
       });
-      botCache.commandPermissions.set(name, {
+      bot.commandPermissions.set(name, {
         id: name,
         guildID: message.guildID,
         enabled: false,
         exceptionChannelIDs: [],
         exceptionRoleIDs: [],
       });
-      return botCache.helpers.reactSuccess(message);
+      return bot.helpers.reactSuccess(message);
     }
 
     // If there was no command before this we need to create it and disable it in the mentioned channels & roles
@@ -49,8 +49,8 @@ createCommand({
       };
 
       await db.commands.create(name, newPayload);
-      botCache.commandPermissions.set(name, { ...newPayload });
-      return botCache.helpers.reactSuccess(message);
+      bot.commandPermissions.set(name, { ...newPayload });
+      return bot.helpers.reactSuccess(message);
     }
 
     for (const channelID of message.mentionChannelIDs) {
@@ -78,7 +78,7 @@ createCommand({
     }
 
     await db.commands.update(name, payload);
-    botCache.commandPermissions.set(name, { ...command, ...payload });
-    return botCache.helpers.reactSuccess(message);
+    bot.commandPermissions.set(name, { ...command, ...payload });
+    return bot.helpers.reactSuccess(message);
   },
 });

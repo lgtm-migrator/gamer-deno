@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { epicUpgradeLevels, epicUpgradeResponse } from "../../../constants/gaming/idle/engine.ts";
 import { db } from "../../../database/database.ts";
 import { parsePrefix } from "../../../monitors/commandHandler.ts";
@@ -59,35 +59,35 @@ createSubcommand("idle", {
 
     // These checks prevent a user from upgrading things too quickly out of order
     if (args.category === "servers" && profile.friends < 25) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
     if (args.category === "channels" && profile.servers < 25) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
     if (args.category === "roles" && profile.channels < 25) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
     if (args.category === "perms" && profile.roles < 25) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
     if (args.category === "messages" && profile.perms < 25) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
     if (args.category === "invites" && profile.messages < 25) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
     if (args.category === "bots" && profile.invites < 25) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
     if (args.category === "hypesquads" && profile.bots < 25) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
     if (args.category === "nitro" && profile.hypesquads < 25) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     // First we update this users currency since the last time they were active
-    const results = botCache.constants.idle.engine.process(profile);
+    const results = bot.constants.idle.engine.process(profile);
     profile.currency = (BigInt(profile.currency) + results.currency).toString();
     profile.lastUpdatedAt = results.lastUpdatedAt;
     if (!profile.guildIDs.includes(message.guildID)) {
@@ -102,21 +102,21 @@ createSubcommand("idle", {
     let title = "";
     let finalLevel = 0;
 
-    if (args.max && (botCache.vipGuildIDs.has(message.guildID) || botCache.vipUserIDs.has(message.author.id))) {
+    if (args.max && (bot.vipGuildIDs.has(message.guildID) || bot.vipUserIDs.has(message.author.id))) {
       let count = 1;
       while (true) {
         // Check the cost of this item
         const cost = BigInt(
           Math.floor(
-            botCache.constants.idle.engine.calculateUpgradeCost(
-              botCache.constants.idle.constants[args.category].baseCost,
+            bot.constants.idle.engine.calculateUpgradeCost(
+              bot.constants.idle.constants[args.category].baseCost,
               profile[args.category] + count
             )
           )
         );
         profile[args.category] = Number(profile[args.category]) + 1;
 
-        const upgrade = botCache.constants.idle.constants[args.category].upgrades.get(profile[args.category]);
+        const upgrade = bot.constants.idle.constants[args.category].upgrades.get(profile[args.category]);
         let response = "";
 
         for (const lvl of epicUpgradeLevels) {
@@ -142,11 +142,11 @@ createSubcommand("idle", {
         // Check if the user can't afford this.
         if (cost > BigInt(profile.currency)) {
           const timeUntilCanAfford = Number(
-            botCache.constants.idle.engine
+            bot.constants.idle.engine
               .calculateMillisecondsTillBuyable(
                 BigInt(profile.currency),
                 cost,
-                botCache.constants.idle.engine.calculateTotalProfit(profile)
+                bot.constants.idle.engine.calculateTotalProfit(profile)
               )
               .toString()
           );
@@ -156,8 +156,8 @@ createSubcommand("idle", {
               .reply(
                 translate(message.guildID, "strings:IDLE_MORE_CASH", {
                   time: humanizeMilliseconds(timeUntilCanAfford),
-                  cost: botCache.helpers.shortNumber(cost),
-                  currency: botCache.helpers.shortNumber(profile.currency),
+                  cost: bot.helpers.shortNumber(cost),
+                  currency: bot.helpers.shortNumber(profile.currency),
                 })
               )
               .catch(console.log);
@@ -174,9 +174,9 @@ createSubcommand("idle", {
 
         // If this level has a story message response, we should send it now
         if (response) {
-          const embed = botCache.helpers.authorEmbed(message).setDescription(response).setImage(upgrade?.meme!);
+          const embed = bot.helpers.authorEmbed(message).setDescription(response).setImage(upgrade?.meme!);
 
-          if (botCache.constants.idle.engine.isEpicUpgrade(finalLevel) && title) {
+          if (bot.constants.idle.engine.isEpicUpgrade(finalLevel) && title) {
             embed.setFooter(title);
           }
 
@@ -194,15 +194,15 @@ createSubcommand("idle", {
 
         const cost = BigInt(
           Math.floor(
-            botCache.constants.idle.engine.calculateUpgradeCost(
-              botCache.constants.idle.constants[args.category].baseCost,
+            bot.constants.idle.engine.calculateUpgradeCost(
+              bot.constants.idle.constants[args.category].baseCost,
               profile[args.category] + i
             )
           )
         );
         profile[args.category] = Number(profile[args.category]) + 1;
 
-        const upgrade = botCache.constants.idle.constants[args.category].upgrades.get(profile[args.category]);
+        const upgrade = bot.constants.idle.constants[args.category].upgrades.get(profile[args.category]);
         let response = "";
 
         for (const lvl of epicUpgradeLevels) {
@@ -227,11 +227,11 @@ createSubcommand("idle", {
         // Check if the user can't afford this.
         if (cost > BigInt(profile.currency)) {
           const timeUntilCanAfford = Number(
-            botCache.constants.idle.engine
+            bot.constants.idle.engine
               .calculateMillisecondsTillBuyable(
                 BigInt(profile.currency),
                 cost,
-                botCache.constants.idle.engine.calculateTotalProfit(profile)
+                bot.constants.idle.engine.calculateTotalProfit(profile)
               )
               .toString()
           );
@@ -240,8 +240,8 @@ createSubcommand("idle", {
             await message
               .reply(
                 translate(message.guildID, "strings:IDLE_MORE_CASH", {
-                  cost: botCache.helpers.shortNumber(cost),
-                  currency: botCache.helpers.shortNumber(profile.currency),
+                  cost: bot.helpers.shortNumber(cost),
+                  currency: bot.helpers.shortNumber(profile.currency),
                   time: humanizeMilliseconds(timeUntilCanAfford),
                 })
               )
@@ -259,9 +259,9 @@ createSubcommand("idle", {
 
         // If this level has a story message response, we should send it now
         if (response) {
-          const embed = botCache.helpers.authorEmbed(message).setDescription(response).setImage(upgrade?.meme!);
+          const embed = bot.helpers.authorEmbed(message).setDescription(response).setImage(upgrade?.meme!);
 
-          if (botCache.constants.idle.engine.isEpicUpgrade(finalLevel) && title) {
+          if (bot.constants.idle.engine.isEpicUpgrade(finalLevel) && title) {
             embed.setFooter(title);
           }
 
@@ -277,13 +277,12 @@ createSubcommand("idle", {
     if (!finalLevel) return;
 
     // .idle max shows 1 less
-    if (args.max && (botCache.vipGuildIDs.has(message.guildID) || botCache.vipUserIDs.has(message.author.id)))
-      finalLevel++;
+    if (args.max && (bot.vipGuildIDs.has(message.guildID) || bot.vipUserIDs.has(message.author.id))) finalLevel++;
 
     // Now that all upgrades have completed, we can save the profile
     await db.idle.update(message.author.id, profile);
 
-    const embed = botCache.helpers
+    const embed = bot.helpers
       .authorEmbed(message)
       .setTitle(translate(message.guildID, "strings:IDLE_NITRO"), "https://gamer.mod.land/docs/idle.html")
       .setDescription(
@@ -291,14 +290,14 @@ createSubcommand("idle", {
           translate(message.guildID, "strings:IDLE_UPGRADED_1", {
             category: args.category,
             level: finalLevel,
-            cost: botCache.helpers.shortNumber(totalCost.toLocaleString("en-US")),
+            cost: bot.helpers.shortNumber(totalCost.toLocaleString("en-US")),
           }),
           translate(message.guildID, "strings:IDLE_UPGRADED_2", {
-            amount: botCache.helpers.shortNumber(BigInt(profile.currency).toLocaleString("en-US")),
+            amount: bot.helpers.shortNumber(BigInt(profile.currency).toLocaleString("en-US")),
           }),
           translate(message.guildID, "strings:IDLE_UPGRADED_3", {
-            profit: botCache.helpers.shortNumber(
-              botCache.constants.idle.engine.calculateTotalProfit(profile).toLocaleString("en-US")
+            profit: bot.helpers.shortNumber(
+              bot.constants.idle.engine.calculateTotalProfit(profile).toLocaleString("en-US")
             ),
           }),
         ].join("\n")

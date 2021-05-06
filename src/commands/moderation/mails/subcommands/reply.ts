@@ -1,4 +1,4 @@
-import { botCache, cache, sendDirectMessage, sendMessage } from "../../../../../deps.ts";
+import { bot, cache, sendDirectMessage, sendMessage } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { Embed } from "../../../../utils/Embed.ts";
@@ -24,17 +24,17 @@ createSubcommand("mail", {
   guildOnly: true,
   permissionLevels: [PermissionLevels.MODERATOR, PermissionLevels.ADMIN],
   execute: async (message, args, guild) => {
-    if (!guild) return botCache.helpers.reactError(message);
+    if (!guild) return bot.helpers.reactError(message);
 
     const member = cache.members.get(message.author.id);
-    if (!member) return botCache.helpers.reactError(message);
+    if (!member) return bot.helpers.reactError(message);
 
     const mail = await db.mails.get(message.channelID);
-    if (!mail) return botCache.helpers.reactError(message);
+    if (!mail) return bot.helpers.reactError(message);
 
     if (!args.content) args.content = "";
 
-    const logChannelID = botCache.guildMailLogsChannelIDs.get(message.guildID);
+    const logChannelID = bot.guildMailLogsChannelIDs.get(message.guildID);
 
     // If the moderator is trying to send a tag
     if (args.content.split(" ").length === 1) {
@@ -46,7 +46,7 @@ createSubcommand("mail", {
 
       if (tag) {
         // Transform the tag string
-        const transformed = await botCache.helpers.variables(tag.embedCode, member, guild, member);
+        const transformed = await bot.helpers.variables(tag.embedCode, member, guild, member);
 
         let success = false;
         try {
@@ -65,7 +65,7 @@ createSubcommand("mail", {
             })
           );
           // Tell the mod the message was sent
-          await botCache.helpers.reactSuccess(message);
+          await bot.helpers.reactSuccess(message);
           // Show the tag sent to the mods
           await sendMessage(message.channelID, {
             content: embed.plaintext,
@@ -81,7 +81,7 @@ createSubcommand("mail", {
           }
         } catch (error) {
           // Something went wrong somewhere so show it failed
-          return botCache.helpers.reactError(message);
+          return bot.helpers.reactError(message);
         }
 
         // Some error happened so cancel out
@@ -94,8 +94,8 @@ createSubcommand("mail", {
 
     const embed = new Embed()
       .setAuthor(
-        args.anonymous && botCache.vipGuildIDs.has(mainGuild.id) ? mainGuild.name : member.tag,
-        args.anonymous && botCache.vipGuildIDs.has(mainGuild.id) ? mainGuild.iconURL() : member.avatarURL
+        args.anonymous && bot.vipGuildIDs.has(mainGuild.id) ? mainGuild.name : member.tag,
+        args.anonymous && bot.vipGuildIDs.has(mainGuild.id) ? mainGuild.iconURL() : member.avatarURL
       )
       .setDescription(args.content)
       .setTimestamp();
@@ -106,6 +106,6 @@ createSubcommand("mail", {
 
     if (logChannelID) await sendEmbed(logChannelID, embed);
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

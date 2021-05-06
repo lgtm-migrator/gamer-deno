@@ -1,4 +1,4 @@
-import { botCache } from "../../../../../deps.ts";
+import { bot } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
 
@@ -11,7 +11,7 @@ createSubcommand("leaderboard", {
       .sort((a, b) => b.xp - a.xp)
       .slice(args.starting);
 
-    const responses = botCache.helpers.chunkStrings(
+    const responses = bot.helpers.chunkStrings(
       results.map(
         (result, index) =>
           `${index + 1 + args.starting}. <@!${result.id.substring(result.id.indexOf("-") + 1)}> Total XP: ${result.xp}`

@@ -1,4 +1,4 @@
-import { addReactions, botCache, cache, deleteMessageByID, getMessage, Image, sendMessage } from "../../../../deps.ts";
+import { addReactions, bot, cache, deleteMessageByID, getMessage, Image, sendMessage } from "../../../../deps.ts";
 import fonts from "../../../../fonts.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
@@ -76,9 +76,9 @@ createSubcommand("events", {
       guildID: message.guildID,
       eventID: args.eventID,
     });
-    if (!event) return botCache.helpers.reactError(message);
+    if (!event) return bot.helpers.reactError(message);
 
-    const eventAuthor = await botCache.helpers.fetchMember(message.guildID, event.userID);
+    const eventAuthor = await bot.helpers.fetchMember(message.guildID, event.userID);
 
     const customBackgroundBuffer = event.backgroundURL
       ? await fetch(event.backgroundURL)
@@ -91,7 +91,7 @@ createSubcommand("events", {
 
     if (guild) {
       for (const user of event.acceptedUsers) {
-        const member = await botCache.helpers.fetchMember(guild.id, user.id);
+        const member = await bot.helpers.fetchMember(guild.id, user.id);
         if (!member) continue;
 
         attendees.push(member.tag);
@@ -172,7 +172,7 @@ createSubcommand("events", {
       const card = await sendMessage(args.channel?.id || message.channelID, {
         embed,
       });
-      await card.addReactions([botCache.constants.emojis.success, botCache.constants.emojis.failure], true);
+      await card.addReactions([bot.constants.emojis.success, bot.constants.emojis.failure], true);
 
       await db.events.update(event.id, { cardMessageID: card.id });
     } else if (args.channel) {
@@ -183,12 +183,12 @@ createSubcommand("events", {
       }).catch(console.log);
       if (card) {
         await deleteMessageByID(event.cardChannelID, event.cardMessageID).catch(console.log);
-        botCache.eventMessageIDs.add(card.id);
+        bot.eventMessageIDs.add(card.id);
 
         await addReactions(
           args.channel.id,
           card.id,
-          [botCache.constants.emojis.success, botCache.constants.emojis.failure],
+          [bot.constants.emojis.success, bot.constants.emojis.failure],
           true
         );
         return db.events
@@ -198,13 +198,13 @@ createSubcommand("events", {
           })
           .catch(console.log);
       } else {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
     } else if (event.cardChannelID && event.cardMessageID) {
       const msg =
         cache.messages.get(event.cardMessageID) ||
         (await getMessage(event.cardChannelID, event.cardMessageID).catch(() => undefined));
-      if (!msg) return botCache.helpers.reactError(message);
+      if (!msg) return bot.helpers.reactError(message);
 
       const embed = new Embed().setImage(imageURL).setColor("RANDOM").setDescription(event.description);
 
@@ -224,7 +224,7 @@ createSubcommand("events", {
       await addReactions(
         message.channelID,
         card.id,
-        [botCache.constants.emojis.success, botCache.constants.emojis.failure],
+        [bot.constants.emojis.success, bot.constants.emojis.failure],
         true
       );
 
@@ -233,10 +233,10 @@ createSubcommand("events", {
         cardMessageID: card.id,
       });
 
-      botCache.eventMessageIDs.add(card.id);
+      bot.eventMessageIDs.add(card.id);
       recentlyCreatedEventIDs.add(event.eventID);
     }
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

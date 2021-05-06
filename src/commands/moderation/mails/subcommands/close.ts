@@ -1,4 +1,4 @@
-import { botCache, cache, deleteChannel, sendDirectMessage, sendMessage } from "../../../../../deps.ts";
+import { bot, cache, deleteChannel, sendDirectMessage, sendMessage } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { Embed } from "../../../../utils/Embed.ts";
@@ -23,7 +23,7 @@ createSubcommand("mail", {
 
     const mail = await db.mails.get(message.channelID);
     // If the mail could not be found.
-    if (!mail) return botCache.helpers.reactError(message);
+    if (!mail) return bot.helpers.reactError(message);
 
     // Delete the mail from the database
     await db.mails.delete(message.channelID);
@@ -32,12 +32,12 @@ createSubcommand("mail", {
 
     await deleteChannel(message.guildID, message.channelID, args.content).catch(console.log);
 
-    const logChannelID = botCache.guildMailLogsChannelIDs.get(message.guildID);
+    const logChannelID = bot.guildMailLogsChannelIDs.get(message.guildID);
     if (logChannelID) await sendEmbed(logChannelID, embed);
 
     try {
       await sendDirectMessage(mail.userID, `**${member.tag}:** ${args.content}`);
-      const ratingsChannel = cache.channels.get(botCache.guildMailRatingsChannelIDs.get(message.guildID)!);
+      const ratingsChannel = cache.channels.get(bot.guildMailRatingsChannelIDs.get(message.guildID)!);
       if (!ratingsChannel) return;
 
       const feedbackEmbed = new Embed()
@@ -53,23 +53,23 @@ createSubcommand("mail", {
       });
 
       const reactions = [
-        botCache.constants.emojis.gamer.hug,
-        botCache.constants.emojis.gamer.star,
-        botCache.constants.emojis.gamer.warn,
-        botCache.constants.emojis.gamer.ban,
+        bot.constants.emojis.gamer.hug,
+        bot.constants.emojis.gamer.star,
+        bot.constants.emojis.gamer.warn,
+        bot.constants.emojis.gamer.ban,
       ];
       await feedback.addReactions(reactions, true);
-      const reaction = await botCache.helpers.needReaction(mail.userID, feedback.id);
+      const reaction = await bot.helpers.needReaction(mail.userID, feedback.id);
 
       const emoji = reactions.find((r) => r.endsWith(`${reaction}>`));
 
       const rating = translate(
         message.guildID,
-        emoji === botCache.constants.emojis.gamer.hug
+        emoji === bot.constants.emojis.gamer.hug
           ? "strings:MAIL_GREAT"
-          : emoji === botCache.constants.emojis.gamer.star
+          : emoji === bot.constants.emojis.gamer.star
           ? "strings:MAIL_OK"
-          : emoji === botCache.constants.emojis.gamer.warn
+          : emoji === bot.constants.emojis.gamer.warn
           ? "strings:MAIL_NOT_GOOD"
           : "strings:MAIL_BAD",
         { mention: `<@!${member.id}>`, username: channelName, emoji }

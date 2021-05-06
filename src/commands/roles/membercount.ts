@@ -1,4 +1,4 @@
-import { botCache, fetchMembers } from "../../../deps.ts";
+import { bot, fetchMembers } from "../../../deps.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { Embed } from "../../utils/Embed.ts";
 import { createSubcommand } from "../../utils/helpers.ts";
@@ -30,7 +30,7 @@ createSubcommand("roles", {
       .addField(translate(message.guildID, "strings:ROLE_USERCOUNT"), memberCount.toLocaleString("en-US"), false)
       .addField(translate(message.guildID, "strings:ROLE_BOTCOUNT"), botCount.toLocaleString("en-US"), false)
       .setFooter(translate(message.guildID, "strings:CREATED_AT"))
-      .setTimestamp(botCache.helpers.snowflakeToTimestamp(args.role.id));
+      .setTimestamp(bot.helpers.snowflakeToTimestamp(args.role.id));
 
     return message.send({ embed });
   },

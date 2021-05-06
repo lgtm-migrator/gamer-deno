@@ -1,4 +1,4 @@
-import { botCache, cache } from "../../../../deps.ts";
+import { bot, cache } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { Embed } from "../../../utils/Embed.ts";
@@ -20,10 +20,10 @@ createCommand({
     if (!guild) return;
 
     const memberID = args.member?.id || args.userID;
-    if (!memberID) return botCache.helpers.reactError(message);
+    if (!memberID) return bot.helpers.reactError(message);
 
     const logs = await db.modlogs.findMany({ userID: memberID, guildID: message.guildID }, true);
-    if (!logs.length) return botCache.helpers.reactError(message);
+    if (!logs.length) return bot.helpers.reactError(message);
 
     // Sort modlogs by oldest modlog as first in the array
     const sortedModLogs = logs.sort((a, b) => a.modlogID - b.modlogID);
@@ -89,7 +89,7 @@ createCommand({
         translate(message.guildID, "strings:MODLOG_MODERATOR", {
           name:
             cache.members.get(log.modID)?.tag ||
-            (await botCache.helpers.fetchMember(message.guildID, log.modID).catch(console.log)) ||
+            (await bot.helpers.fetchMember(message.guildID, log.modID).catch(console.log)) ||
             log.modID,
         }),
         translate(message.guildID, "strings:MODLOG_TIME", {
@@ -108,7 +108,7 @@ createCommand({
 
       embed.addField(
         translate(message.guildID, "strings:MODLOG_CASE_INFO", {
-          type: botCache.helpers.toTitleCase(log.action),
+          type: bot.helpers.toTitleCase(log.action),
           id: log.modlogID,
         }),
         details.join("\n")

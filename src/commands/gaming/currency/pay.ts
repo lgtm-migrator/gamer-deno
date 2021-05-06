@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { createCommand } from "../../../utils/helpers.ts";
 
@@ -14,16 +14,16 @@ createCommand({
   },
   execute: async function (message, args) {
     if (args.amount < 1 || args.member.id === message.author.id || args.member.bot) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
-    const amountReceivedToday = botCache.transferLog.get(message.author.id);
+    const amountReceivedToday = bot.transferLog.get(message.author.id);
     // Only VIP guilds can receive more than 1000 per day.
     if (
       amountReceivedToday &&
       amountReceivedToday > 1000 &&
-      !botCache.vipUserIDs.has(args.member.id) &&
-      !botCache.vipGuildIDs.has(message.guildID)
+      !bot.vipUserIDs.has(args.member.id) &&
+      !bot.vipGuildIDs.has(message.guildID)
     ) {
       args.amount = 1000;
     }
@@ -34,7 +34,7 @@ createCommand({
 
     // Make sure the user has enough to do the transfer
     if (!settings || settings.coins < args.amount) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     // Transfer the coins
@@ -45,6 +45,6 @@ createCommand({
       coins: (targetSettings?.coins || 0) + args.amount,
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

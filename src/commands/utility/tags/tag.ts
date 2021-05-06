@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createCommand } from "../../../utils/helpers.ts";
@@ -13,9 +13,9 @@ createCommand({
   execute: async function (message) {
     // Fetch all tags for this guild
     const tags = await db.tags.findMany({ guildID: message.guildID }, true);
-    if (!tags.length) return botCache.helpers.reactError(message);
+    if (!tags.length) return bot.helpers.reactError(message);
 
-    const responses = botCache.helpers.chunkStrings(tags.map((tag) => `**${tag.name}** ${tag.type}`));
+    const responses = bot.helpers.chunkStrings(tags.map((tag) => `**${tag.name}** ${tag.type}`));
 
     for (const response of responses) {
       await message.send({ content: response, mentions: { parse: [] } });

@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
 
@@ -14,6 +14,6 @@ createSubcommand("surveys", {
   vipServerOnly: true,
   execute: async function (message, args) {
     await db.surveys.delete(`${message.guildID}-${args.name}`);
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

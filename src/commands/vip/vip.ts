@@ -1,5 +1,5 @@
 import { configs } from "../../../configs.ts";
-import { botCache } from "../../../deps.ts";
+import { bot } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { createCommand } from "../../utils/helpers.ts";
 
@@ -13,12 +13,12 @@ createCommand({
   arguments: [{ name: "subcommand", type: "subcommand", required: false }],
   execute: async function (message) {
     // ALREADY VIP
-    if (botCache.vipGuildIDs.has(message.guildID)) {
-      return botCache.helpers.reactSuccess(message);
+    if (bot.vipGuildIDs.has(message.guildID)) {
+      return bot.helpers.reactSuccess(message);
     }
 
     const member = message.member?.guilds.get(configs.supportServerID);
-    if (!member) return botCache.helpers.reactError(message);
+    if (!member) return bot.helpers.reactError(message);
 
     const allowedVIPServers = configs.userIDs.botOwners.includes(message.author.id)
       ? Infinity
@@ -29,12 +29,12 @@ createCommand({
       : member.roles.includes(configs.roleIDs.patreonRoleIDs.firstTier)
       ? 1
       : 0;
-    if (!allowedVIPServers) return botCache.helpers.reactError(message, true);
+    if (!allowedVIPServers) return bot.helpers.reactError(message, true);
 
     // Check if they have used all the vips.
     const settings = await db.vipUsers.get(message.author.id);
     if (settings?.guildIDs && settings.guildIDs.length >= allowedVIPServers) {
-      return botCache.helpers.reactError(message, true);
+      return bot.helpers.reactError(message, true);
     }
 
     await db.vipUsers.update(message.author.id, {
@@ -42,9 +42,9 @@ createCommand({
       isVIP: true,
     });
     await db.vipGuilds.update(message.guildID, { id: message.guildID, userID: message.author.id, isVIP: true });
-    botCache.vipGuildIDs.add(message.guildID);
-    botCache.vipUserIDs.add(message.author.id);
+    bot.vipGuildIDs.add(message.guildID);
+    bot.vipUserIDs.add(message.author.id);
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

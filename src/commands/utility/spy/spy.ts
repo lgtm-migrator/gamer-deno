@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { createCommand, sendEmbed } from "../../../utils/helpers.ts";
 
@@ -11,13 +11,13 @@ createCommand({
   },
   execute: async function (message) {
     const spyRecords = await db.spy.get(message.author.id);
-    if (!spyRecords) return botCache.helpers.reactError(message);
+    if (!spyRecords) return bot.helpers.reactError(message);
 
-    const embed = botCache.helpers.authorEmbed(message).setDescription(spyRecords.words.join(", ")).setTimestamp();
+    const embed = bot.helpers.authorEmbed(message).setDescription(spyRecords.words.join(", ")).setTimestamp();
 
     const words = await sendEmbed(message.channelID, embed);
     if (words) {
-      await words.delete(undefined, botCache.constants.milliseconds.MINUTE);
+      await words.delete(undefined, bot.constants.milliseconds.MINUTE);
     }
   },
 });

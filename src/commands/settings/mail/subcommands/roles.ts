@@ -1,4 +1,4 @@
-import { botCache } from "../../../../../deps.ts";
+import { bot } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
@@ -17,7 +17,7 @@ createSubcommand("settings-mails", {
     { name: "roles", type: "...roles" },
   ] as const,
   execute: async (message, args) => {
-    const settings = await botCache.helpers.upsertGuild(message.guildID);
+    const settings = await bot.helpers.upsertGuild(message.guildID);
 
     const roleIDs = new Set<string>(
       args.type === "add"
@@ -29,6 +29,6 @@ createSubcommand("settings-mails", {
       mailsRoleIDs: [...roleIDs.values()],
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

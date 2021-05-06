@@ -1,4 +1,4 @@
-import { botCache, rawAvatarURL } from "../../../../../deps.ts";
+import { bot, rawAvatarURL } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { Embed } from "../../../../utils/Embed.ts";
@@ -14,10 +14,10 @@ createSubcommand("surveys-edit", {
   vipServerOnly: true,
   guildOnly: true,
   execute: async function (message, args) {
-    if (!args.name) return botCache.helpers.reactError(message);
+    if (!args.name) return bot.helpers.reactError(message);
 
     const survey = await db.surveys.get(`${message.guildID}-${args.name}`);
-    if (!survey) return botCache.helpers.reactError(message);
+    if (!survey) return bot.helpers.reactError(message);
 
     const embed = new Embed().setAuthor(
       message.author.username,

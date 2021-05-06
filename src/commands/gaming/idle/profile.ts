@@ -1,4 +1,4 @@
-import { botCache, cache } from "../../../../deps.ts";
+import { bot, cache } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { createSubcommand, sendEmbed } from "../../../utils/helpers.ts";
 import { translate } from "../../../utils/i18next.ts";
@@ -12,14 +12,14 @@ createSubcommand("idle", {
   },
   execute: async function (message) {
     const profile = await db.idle.get(message.author.id);
-    if (!profile) return botCache.helpers.reactError(message);
+    if (!profile) return bot.helpers.reactError(message);
 
-    const embed = botCache.helpers
+    const embed = bot.helpers
       .authorEmbed(message)
       .setDescription(
         [
           `**${BigInt(profile.currency).toLocaleString("en-US")}** 💵`,
-          botCache.helpers.shortNumber(BigInt(profile.currency).toLocaleString("en-US")),
+          bot.helpers.shortNumber(BigInt(profile.currency).toLocaleString("en-US")),
         ].join("\n")
       )
       .addField(
@@ -29,7 +29,7 @@ createSubcommand("idle", {
             amount: profile.friends.toLocaleString("en-US"),
           }),
           translate(message.guildID, "strings:CURRENT_MULTIPLIER", {
-            amount: botCache.constants.idle.engine.calculateMultiplier(profile.friends),
+            amount: bot.constants.idle.engine.calculateMultiplier(profile.friends),
           }),
         ].join("\n"),
         true
@@ -56,7 +56,7 @@ createSubcommand("idle", {
           })}`,
           item.item >= 25
             ? `${translate(message.guildID, "strings:CURRENT_MULTIPLIER", {
-                amount: botCache.constants.idle.engine.calculateMultiplier(item.upcoming),
+                amount: bot.constants.idle.engine.calculateMultiplier(item.upcoming),
               })}`
             : "",
         ]

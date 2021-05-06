@@ -1,4 +1,4 @@
-import { botCache } from "../../../deps.ts";
+import { bot } from "../../../deps.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createSubcommand } from "../../utils/helpers.ts";
 
@@ -13,7 +13,7 @@ createSubcommand("roles", {
     const listroles = [...guild.roles.values()];
     const allRoles = listroles.sort((a, b) => b.position - a.position);
 
-    const responses = botCache.helpers.chunkStrings(allRoles.map((role) => `${role.mention}  **${role.id}**`));
+    const responses = bot.helpers.chunkStrings(allRoles.map((role) => `${role.mention}  **${role.id}**`));
 
     for (const response of responses) {
       await message.send({ content: response, mentions: { parse: [] } }).catch(console.log);

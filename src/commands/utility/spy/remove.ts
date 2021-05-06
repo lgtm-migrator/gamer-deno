@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
 
@@ -8,7 +8,7 @@ createSubcommand("spy", {
   vipServerOnly: true,
   arguments: [{ name: "word", type: "string", lowercase: true }] as const,
   execute: async function (message, args) {
-    const records = botCache.spyRecords.get(args.word);
+    const records = bot.spyRecords.get(args.word);
     const details = await db.spy.get(message.author.id);
 
     // Just incase it was in the db remove it
@@ -20,15 +20,15 @@ createSubcommand("spy", {
 
     // This word wasnt being followed
     if (!records?.includes(message.author.id)) {
-      return botCache.helpers.reactSuccess(message);
+      return bot.helpers.reactSuccess(message);
     }
 
     // Removing the word
-    botCache.spyRecords.set(
+    bot.spyRecords.set(
       args.word,
       records.filter((id) => id !== message.author.id)
     );
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

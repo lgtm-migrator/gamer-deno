@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { createCommand, humanizeMilliseconds } from "../../../utils/helpers.ts";
 
@@ -11,9 +11,9 @@ createCommand({
   arguments: [{ name: "subcommand", type: "subcommand", required: false }],
   execute: async function (message) {
     const events = (await db.events.findMany({ guildID: message.guildID }, true)).sort((a, b) => a.eventID - b.eventID);
-    const embed = botCache.helpers.authorEmbed(message);
+    const embed = bot.helpers.authorEmbed(message);
 
-    const responses = botCache.helpers.chunkStrings(
+    const responses = bot.helpers.chunkStrings(
       events.map((event) => {
         let textString = `**[${event.eventID}] `;
 

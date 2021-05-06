@@ -1,4 +1,4 @@
-import { addReactions, botCache, deleteMessages } from "../../../../../../deps.ts";
+import { addReactions, bot, deleteMessages } from "../../../../../../deps.ts";
 import { db } from "../../../../../database/database.ts";
 import { PermissionLevels } from "../../../../../types/commands.ts";
 import { createSubcommand, sendResponse } from "../../../../../utils/helpers.ts";
@@ -16,34 +16,34 @@ createSubcommand("settings-feedback-bugs-questions", {
     );
     if (!responseQuestion) return;
 
-    await addReactions(message.channelID, responseQuestion.id, botCache.constants.emojis.numbers.slice(0, 2), true);
-    const typeResponse = await botCache.helpers.needReaction(message.author.id, responseQuestion.id);
+    await addReactions(message.channelID, responseQuestion.id, bot.constants.emojis.numbers.slice(0, 2), true);
+    const typeResponse = await bot.helpers.needReaction(message.author.id, responseQuestion.id);
     const messageIDs = [responseQuestion.id];
     if (!typeResponse) {
       await deleteMessages(message.channelID, messageIDs);
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     await message.reply(
       "Please type the exact question you would like to ask the users now. For example: `What is your in game name?`"
     );
-    const textResponse = await botCache.helpers.needMessage(message.author.id, message.channelID);
+    const textResponse = await bot.helpers.needMessage(message.author.id, message.channelID);
     if (!textResponse) {
       await deleteMessages(message.channelID, messageIDs);
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     await message.reply(
       "Please type the label name you would like to use for this question. For example: `In-Game Name:`"
     );
-    const nameResponse = await botCache.helpers.needMessage(message.author.id, message.channelID);
+    const nameResponse = await bot.helpers.needMessage(message.author.id, message.channelID);
     if (!nameResponse) {
       await deleteMessages(message.channelID, messageIDs);
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     // The user wanted to choose message type
-    if (typeResponse === botCache.constants.emojis.numbers[0]) {
+    if (typeResponse === bot.constants.emojis.numbers[0]) {
       const subtypeQuestion = await sendResponse(
         message,
         [
@@ -56,16 +56,16 @@ createSubcommand("settings-feedback-bugs-questions", {
       );
       if (!subtypeQuestion) return;
 
-      await addReactions(message.channelID, subtypeQuestion.id, botCache.constants.emojis.numbers.slice(0, 3), true);
-      const subtypeResponse = await botCache.helpers.needReaction(message.author.id, subtypeQuestion.id);
+      await addReactions(message.channelID, subtypeQuestion.id, bot.constants.emojis.numbers.slice(0, 3), true);
+      const subtypeResponse = await bot.helpers.needReaction(message.author.id, subtypeQuestion.id);
       if (!subtypeResponse) {
         await deleteMessages(message.channelID, messageIDs);
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
       const subtype =
-        subtypeResponse === botCache.constants.emojis.numbers[0]
+        subtypeResponse === bot.constants.emojis.numbers[0]
           ? "string"
-          : subtypeResponse === botCache.constants.emojis.numbers[1]
+          : subtypeResponse === bot.constants.emojis.numbers[1]
           ? "...string"
           : "number";
 
@@ -73,7 +73,7 @@ createSubcommand("settings-feedback-bugs-questions", {
       const settings = await db.guilds.get(message.guildID);
       if (!settings) {
         await deleteMessages(message.channelID, messageIDs);
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
 
       await db.guilds.update(message.guildID, {
@@ -89,7 +89,7 @@ createSubcommand("settings-feedback-bugs-questions", {
       });
       await deleteMessages(message.channelID, messageIDs).catch(console.log);
 
-      return botCache.helpers.reactSuccess(message);
+      return bot.helpers.reactSuccess(message);
     }
 
     // Reaction based
@@ -97,17 +97,17 @@ createSubcommand("settings-feedback-bugs-questions", {
       "Please type the separate options the user can select from. Separate each option using `|`. For example: `NA | SA | EU | SA | EA | CN | SEA`"
     );
 
-    const optionsResponse = await botCache.helpers.needMessage(message.author.id, message.channelID);
+    const optionsResponse = await bot.helpers.needMessage(message.author.id, message.channelID);
     if (!optionsResponse) {
       await deleteMessages(message.channelID, messageIDs);
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     // Update the database
     const settings = await db.guilds.get(message.guildID);
     if (!settings) {
       await deleteMessages(message.channelID, messageIDs);
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     await db.guilds.update(message.guildID, {
@@ -123,6 +123,6 @@ createSubcommand("settings-feedback-bugs-questions", {
     });
 
     await deleteMessages(message.channelID, messageIDs).catch(console.log);
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

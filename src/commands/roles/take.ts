@@ -1,4 +1,4 @@
-import { botCache, botID, higherRolePosition, highestRole, removeRole } from "../../../deps.ts";
+import { bot, botID, higherRolePosition, highestRole, removeRole } from "../../../deps.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createSubcommand } from "../../utils/helpers.ts";
 
@@ -14,26 +14,26 @@ createSubcommand("roles", {
   ] as const,
   execute: async function (message, args) {
     if (!args.member.guilds.get(message.guildID)?.roles.includes(args.role.id)) {
-      return botCache.helpers.reactSuccess(message);
+      return bot.helpers.reactSuccess(message);
     }
 
     // Check if the bots role is high enough to manage the role
     const botsHighestRole = await highestRole(message.guildID, botID);
-    if (!botsHighestRole) return botCache.helpers.reactError(message);
+    if (!botsHighestRole) return bot.helpers.reactError(message);
 
     if (!(await higherRolePosition(message.guildID, botsHighestRole.id, args.role.id))) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     const memberHighestRole = await highestRole(message.guildID, message.author.id);
-    if (!memberHighestRole) return botCache.helpers.reactError(message);
+    if (!memberHighestRole) return bot.helpers.reactError(message);
 
     if (!(await higherRolePosition(message.guildID, memberHighestRole.id, args.role.id))) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     // Give the role to the user as all checks have passed
     await removeRole(message.guildID, args.member.id, args.role.id).catch(console.log);
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

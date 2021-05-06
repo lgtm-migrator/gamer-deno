@@ -1,5 +1,5 @@
 import { createSubcommand } from "../../../utils/helpers.ts";
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 
 createSubcommand("remind", {
@@ -13,10 +13,10 @@ createSubcommand("remind", {
   execute: async (message, args) => {
     const reminder = await db.reminders.get(args.id);
     if (reminder?.memberID !== message.author.id) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     await db.reminders.delete(args.id);
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

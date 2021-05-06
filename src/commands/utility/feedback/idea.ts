@@ -1,4 +1,4 @@
-import { botCache, botHasChannelPermissions, cache, ChannelTypes } from "../../../../deps.ts";
+import { bot, botHasChannelPermissions, cache, ChannelTypes } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { Embed } from "../../../utils/Embed.ts";
 import { createCommand } from "../../../utils/helpers.ts";
@@ -12,11 +12,11 @@ createCommand({
     if (!guild) return;
 
     const settings = await db.guilds.get(message.guildID);
-    if (!settings?.ideaChannelID) return botCache.helpers.reactError(message);
+    if (!settings?.ideaChannelID) return bot.helpers.reactError(message);
 
     const channel = cache.channels.get(settings.ideaChannelID);
     if (!channel || ![ChannelTypes.GUILD_NEWS, ChannelTypes.GUILD_TEXT].includes(channel.type)) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     if (
@@ -28,11 +28,11 @@ createCommand({
         "MANAGE_EMOJIS",
       ]))
     ) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     if (!settings.ideaQuestions.length) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     const member = cache.members.get(message.author.id)!;
@@ -67,7 +67,7 @@ createCommand({
       }
 
       await message.reply(question.text);
-      const response = await botCache.helpers.needMessage(message.author.id, message.channelID);
+      const response = await bot.helpers.needMessage(message.author.id, message.channelID);
       const CANCEL_OPTIONS = translate(message.guildID, `strings:CANCEL_OPTIONS`, { returnObjects: true });
       if (CANCEL_OPTIONS.includes(response.content.toLowerCase())) return;
 
@@ -86,6 +86,6 @@ createCommand({
       else if (!response.attachments.length) return;
     }
 
-    return botCache.helpers.sendFeedback(message, channel, embed, settings);
+    return bot.helpers.sendFeedback(message, channel, embed, settings);
   },
 });

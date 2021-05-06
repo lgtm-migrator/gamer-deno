@@ -9,7 +9,7 @@ import {
 } from "../../../../deps.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 
 createSubcommand("todo", {
@@ -32,18 +32,18 @@ createSubcommand("todo", {
 
     if (args.guild) {
       // Cross server features need vip
-      if (!botCache.vipGuildIDs.has(message.guildID)) {
-        return botCache.helpers.reactError(message, true);
+      if (!bot.vipGuildIDs.has(message.guildID)) {
+        return bot.helpers.reactError(message, true);
       }
 
       // Make sure this member is the admin on the other server
       if (!(await memberIDHasPermission(message.author.id, args.guild.id, ["ADMINISTRATOR"]))) {
-        return botCache.helpers.reactError(message, true);
+        return bot.helpers.reactError(message, true);
       }
 
       // Since it's another guild make sure bot has perms over there
       if (!(await botHasPermission(args.guild.id, ["ADMINISTRATOR"]))) {
-        return botCache.helpers.reactError(message, true);
+        return bot.helpers.reactError(message, true);
       }
     }
 
@@ -67,7 +67,7 @@ createSubcommand("todo", {
 
     const guildToUse = args.guild || guild;
 
-    const settings = await botCache.helpers.upsertGuild(guildToUse.id);
+    const settings = await bot.helpers.upsertGuild(guildToUse.id);
     if (settings) {
       // Allow mods/admins to view this category
       for (const id of [...settings.modRoleIDs, settings.adminRoleID]) {
@@ -132,6 +132,6 @@ createSubcommand("todo", {
       todoCompletedChannelID: completedChannel.id,
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

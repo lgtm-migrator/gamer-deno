@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -17,11 +17,11 @@ createSubcommand("settings", {
       guildID: message.guildID,
       loserRoleID: args.role.id,
       localOnly: true,
-      deleteInvalid: botCache.vipGuildIDs.has(message.guildID),
+      deleteInvalid: bot.vipGuildIDs.has(message.guildID),
       count: 0,
       buffs: [],
       debuffs: [],
     });
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

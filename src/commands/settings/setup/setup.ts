@@ -1,5 +1,5 @@
 import {
-  botCache,
+  bot,
   createGuildChannel,
   delay,
   deleteMessage,
@@ -21,7 +21,7 @@ function createProgressBar(progress: number, total: number, updating = true) {
   if (!updating) emojis.shift();
 
   for (let i = 0; i < progress; i++) {
-    emojis.push(botCache.constants.emojis.colors.limegreen);
+    emojis.push(bot.constants.emojis.colors.limegreen);
   }
   for (let i = 0; i < total - progress; i++) {
     emojis.push(`${setupEmojis.loading} `);
@@ -50,12 +50,12 @@ createCommand({
     await delay(2000);
 
     // Step 2: TODO Feature
-    await botCache.commands.get("todo")?.subcommands?.get("setup")?.execute?.(message, {}, guild);
+    await bot.commands.get("todo")?.subcommands?.get("setup")?.execute?.(message, {}, guild);
     await loading.edit(createProgressBar(3, 15));
     await delay(2000);
 
     // Step 3: Counting Game
-    await botCache.commands.get("counting")?.subcommands?.get("setup")?.execute?.(message, {}, guild);
+    await bot.commands.get("counting")?.subcommands?.get("setup")?.execute?.(message, {}, guild);
     await loading.edit(createProgressBar(4, 15));
     await delay(2000);
 
@@ -68,13 +68,13 @@ createCommand({
     await delay(2000);
 
     // Step 5: Confessionals
-    await botCache.commands.get("mirrors")?.subcommands?.get("setup")?.execute?.(message, {}, guild);
+    await bot.commands.get("mirrors")?.subcommands?.get("setup")?.execute?.(message, {}, guild);
     await loading.edit(createProgressBar(6, 15));
     await delay(2000);
 
     // Step 6: Mails
     const mail = await message.send(`Setting up the mod mails ${setupEmojis.loading} `);
-    await botCache.commands
+    await bot.commands
       .get("settings")
       ?.subcommands?.get("mails")
       ?.subcommands?.get("setup")
@@ -84,12 +84,12 @@ createCommand({
     mail.delete().catch(console.log);
 
     // Step 7: Verification
-    await botCache.commands.get("verify")?.subcommands?.get("setup")?.execute?.(message, {}, guild);
+    await bot.commands.get("verify")?.subcommands?.get("setup")?.execute?.(message, {}, guild);
     await loading.edit(createProgressBar(8, 15));
     await delay(2000);
 
     // Step 8: URL Filter
-    await botCache.commands
+    await bot.commands
       .get("settings")
       ?.subcommands?.get("automod")
       ?.subcommands?.get("links")
@@ -99,7 +99,7 @@ createCommand({
     await delay(2000);
 
     // Step 9: Profanity Filter
-    await botCache.commands
+    await bot.commands
       .get("settings")
       ?.subcommands?.get("automod")
       ?.subcommands?.get("profanity")
@@ -109,7 +109,7 @@ createCommand({
     await delay(2000);
 
     // Step 10: Capital Filter
-    await botCache.commands
+    await bot.commands
       .get("settings")
       ?.subcommands?.get("automod")
       ?.subcommands?.get("capitals")
@@ -124,7 +124,7 @@ createCommand({
     await delay(2000);
 
     // Step 11: Feedback
-    await botCache.commands
+    await bot.commands
       .get("settings")
       ?.subcommands?.get("feedback")
       ?.subcommands?.get("setup")
@@ -137,14 +137,14 @@ createCommand({
     // Step 13: Server Logs
 
     // Step 14: Mute
-    await botCache.commands.get("settings")?.subcommands?.get("mute")?.execute?.(loading, {}, guild);
+    await bot.commands.get("settings")?.subcommands?.get("mute")?.execute?.(loading, {}, guild);
     await loading.edit(createProgressBar(15, 16, false));
     await delay(2000);
 
     // Step 15: Reaction Roles Colors
     const rrChannel = await createGuildChannel(guild, "reaction-roles");
     const hold = await sendMessage(rrChannel.id, setupEmojis.loading);
-    await botCache.commands
+    await bot.commands
       .get("roles")
       ?.subcommands?.get("reactions")
       ?.subcommands?.get("setup")

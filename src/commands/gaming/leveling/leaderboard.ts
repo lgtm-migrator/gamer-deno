@@ -1,5 +1,5 @@
 import { createCommand } from "../../../utils/helpers.ts";
-// import { botCache, cache } from "../../../../deps.ts";
+// import { bot, cache } from "../../../../deps.ts";
 
 createCommand({
   name: "leaderboard",
@@ -15,15 +15,15 @@ createCommand({
     return message.reply("This command is currently disabled due to a database problem.");
 
     //  if (!args.member) args.member = cache.members.get(message.author.id)!;
-    //  if (!args.member) return botCache.helpers.reactError(message);
+    //  if (!args.member) return bot.helpers.reactError(message);
     //
-    //  const buffer = await botCache.helpers.makeLocalCanvas(
+    //  const buffer = await bot.helpers.makeLocalCanvas(
     //    message,
     //    args.member,
     //  );
-    //  if (!buffer) return botCache.helpers.reactError(message);
+    //  if (!buffer) return bot.helpers.reactError(message);
 
-    //const embed = botCache.helpers.authorEmbed(message).attachFile(
+    //const embed = bot.helpers.authorEmbed(message).attachFile(
     // buffer,
     // "profile.jpg",
     //);

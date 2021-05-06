@@ -1,33 +1,33 @@
-import { botCache, chooseRandom } from "../../../../deps.ts";
+import { bot, chooseRandom } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { createCommand } from "../../../utils/helpers.ts";
 import { translate } from "../../../utils/i18next.ts";
 
 const allEmojis = [
-  botCache.constants.emojis.snap,
-  botCache.constants.emojis.slam,
-  botCache.constants.emojis.dab,
-  botCache.constants.emojis.success,
-  botCache.constants.emojis.gamerHeart,
-  botCache.constants.emojis.gamerHug,
-  botCache.constants.emojis.gamerOnFire,
-  botCache.constants.emojis.gamerCry,
-  botCache.constants.emojis.bite,
-  botCache.constants.emojis.pat,
-  botCache.constants.emojis.poke,
-  botCache.constants.emojis.lmao,
-  botCache.constants.emojis.tantrum,
-  botCache.constants.emojis.furious,
-  botCache.constants.emojis.hurray,
-  botCache.constants.emojis.starry,
-  botCache.constants.emojis.heartthrob,
-  botCache.constants.emojis.huh,
-  botCache.constants.emojis.toastspinning,
-  botCache.constants.emojis.twohundretIQ,
-  botCache.constants.emojis.RemDance,
-  botCache.constants.emojis.Aquaaah,
-  botCache.constants.emojis.NezukoDance,
-  botCache.constants.emojis.dancemonkey,
+  bot.constants.emojis.snap,
+  bot.constants.emojis.slam,
+  bot.constants.emojis.dab,
+  bot.constants.emojis.success,
+  bot.constants.emojis.gamerHeart,
+  bot.constants.emojis.gamerHug,
+  bot.constants.emojis.gamerOnFire,
+  bot.constants.emojis.gamerCry,
+  bot.constants.emojis.bite,
+  bot.constants.emojis.pat,
+  bot.constants.emojis.poke,
+  bot.constants.emojis.lmao,
+  bot.constants.emojis.tantrum,
+  bot.constants.emojis.furious,
+  bot.constants.emojis.hurray,
+  bot.constants.emojis.starry,
+  bot.constants.emojis.heartthrob,
+  bot.constants.emojis.huh,
+  bot.constants.emojis.toastspinning,
+  bot.constants.emojis.twohundretIQ,
+  bot.constants.emojis.RemDance,
+  bot.constants.emojis.Aquaaah,
+  bot.constants.emojis.NezukoDance,
+  bot.constants.emojis.dancemonkey,
 ];
 
 createCommand({
@@ -63,10 +63,10 @@ createCommand({
     let response = "strings:SLOTS_LOSER";
     let finalAmount = 1;
 
-    const isSupporter = botCache.activeMembersOnSupportServer.has(message.author.id);
+    const isSupporter = bot.activeMembersOnSupportServer.has(message.author.id);
 
     const userSettings = await db.users.get(message.author.id);
-    if (!userSettings) return botCache.helpers.reactError(message);
+    if (!userSettings) return bot.helpers.reactError(message);
 
     // If they lost all three are unique emojis
     if (winningSet.size === 3) {
@@ -119,7 +119,7 @@ createCommand({
     const details = [
       translate(message.guildID, response, {
         amount: finalAmount,
-        emoji: botCache.constants.emojis.coin,
+        emoji: bot.constants.emojis.coin,
       }),
     ];
     if (isSupporter && winningSet.size < 3) {

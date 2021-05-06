@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -20,7 +20,7 @@ createSubcommand("shortcut", {
   ] as const,
   execute: async function (message, args) {
     const shortcut = await db.shortcuts.get(`${message.guildID}-${args.name}`);
-    if (shortcut) return botCache.helpers.reactError(message);
+    if (shortcut) return bot.helpers.reactError(message);
 
     // This split with | allows users to make multiple commands run back to back
     const splitOptions = args.text.split("|");
@@ -29,7 +29,7 @@ createSubcommand("shortcut", {
       .map((action) => {
         // The first will always need to be a command name and the rest are the args
         const [commandName, ...scargs] = action.trim().split(` `);
-        if (!commandName || !botCache.commands.get(commandName.toLowerCase())) {
+        if (!commandName || !bot.commands.get(commandName.toLowerCase())) {
           return;
         }
 
@@ -50,6 +50,6 @@ createSubcommand("shortcut", {
       name: args.name,
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

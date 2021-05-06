@@ -1,4 +1,4 @@
-import { botCache, Collection } from "../../../../deps.ts";
+import { bot, Collection } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
 import { translate } from "../../../utils/i18next.ts";
@@ -12,8 +12,8 @@ createSubcommand("gacha", {
   },
   execute: async function (message, args) {
     // Only vip users can summon more than 1 at a time
-    if (args.amount > 1 && !botCache.vipUserIDs.has(message.author.id)) {
-      return botCache.helpers.reactError(message, true);
+    if (args.amount > 1 && !bot.vipUserIDs.has(message.author.id)) {
+      return bot.helpers.reactError(message, true);
     }
 
     const profile = await db.gachas.get(message.author.id);
@@ -43,20 +43,20 @@ createSubcommand("gacha", {
           translate(message.guildID, "strings:GACHA_FIRST_2"),
           translate(message.guildID, "strings:GACHA_FIRST_3"),
           translate(message.guildID, "strings:GACHA_FIRST_4", {
-            invite: botCache.constants.botSupportInvite,
+            invite: bot.constants.botSupportInvite,
           }),
         ].join("\n")
       );
     }
 
     const settings = await db.users.get(message.author.id);
-    if (!settings) return botCache.helpers.reactError(message);
+    if (!settings) return bot.helpers.reactError(message);
 
     // Pick a random character/item/skin/food
-    const abilities = [...botCache.constants.gacha.zooba.abilities];
-    const characters = [...botCache.constants.gacha.zooba.characters];
-    const items = [...botCache.constants.gacha.zooba.items];
-    const foods = [...botCache.constants.gacha.foods];
+    const abilities = [...bot.constants.gacha.zooba.abilities];
+    const characters = [...bot.constants.gacha.zooba.characters];
+    const items = [...bot.constants.gacha.zooba.items];
+    const foods = [...bot.constants.gacha.foods];
 
     const all = [...abilities, ...characters, ...items, ...foods];
     const everything = all.map((x) => [x.id, x.rarity]);
@@ -110,10 +110,10 @@ createSubcommand("gacha", {
       const prize = all.find((i) => i.id === id);
       if (!prize) return "";
 
-      return `${prize.emoji} **${prize.name}** ${botCache.constants.gacha.rarities[prize.rarity]}`;
+      return `${prize.emoji} **${prize.name}** ${bot.constants.gacha.rarities[prize.rarity]}`;
     });
 
-    const responses = botCache.helpers.chunkStrings(texts);
+    const responses = bot.helpers.chunkStrings(texts);
 
     for (const response of responses) {
       await message.reply(response).catch(console.log);

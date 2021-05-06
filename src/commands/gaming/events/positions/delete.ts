@@ -1,4 +1,4 @@
-import { botCache } from "../../../../../deps.ts";
+import { bot } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
@@ -16,7 +16,7 @@ createSubcommand("events-positions", {
       guildID: message.guildID,
       eventID: args.eventID,
     });
-    if (!event) return botCache.helpers.reactError(message);
+    if (!event) return bot.helpers.reactError(message);
 
     // Delete the position so no one else can join it
     event.positions = event.positions.filter((p) => p.name !== args.name);
@@ -33,6 +33,6 @@ createSubcommand("events-positions", {
       acceptedUsers: event.acceptedUsers,
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

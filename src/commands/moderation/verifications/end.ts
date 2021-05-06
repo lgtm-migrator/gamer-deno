@@ -1,4 +1,4 @@
-import { addRole, botCache, deleteChannel, Image, removeRole } from "../../../../deps.ts";
+import { addRole, bot, deleteChannel, Image, removeRole } from "../../../../deps.ts";
 import fonts from "../../../../fonts.ts";
 import { db } from "../../../database/database.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -9,15 +9,15 @@ createSubcommand("verify", {
   guildOnly: true,
   execute: async function (message, args, guild) {
     const settings = await db.guilds.get(message.guildID);
-    if (!settings) return botCache.helpers.reactError(message);
+    if (!settings) return bot.helpers.reactError(message);
 
     if (!settings.verifyChannelIDs?.includes(message.channelID)) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     // Make sure the role exists
     const role = guild?.roles.get(settings.verifyRoleID);
-    if (!role) return botCache.helpers.reactError(message);
+    if (!role) return bot.helpers.reactError(message);
 
     // Generate and ask the user for the captcha code
     const captchaCode = await createCaptcha();
@@ -29,12 +29,12 @@ createSubcommand("verify", {
       },
     });
 
-    const response = await botCache.helpers.needMessage(message.author.id, message.channelID);
+    const response = await bot.helpers.needMessage(message.author.id, message.channelID);
 
     // FAILED CAPTCHA
     if (response.content !== captchaCode.text) {
       await message.send({
-        embed: botCache.helpers.authorEmbed(message).setDescription(
+        embed: bot.helpers.authorEmbed(message).setDescription(
           translate(message.guildID, "strings:INVALID_CAPTCHA_CODE", {
             code: captchaCode.text,
           })
@@ -42,7 +42,7 @@ createSubcommand("verify", {
       });
 
       // RERUN THE COMMAND
-      return botCache.commands.get("verify")?.subcommands?.get("end")?.execute?.(message, {}, guild);
+      return bot.commands.get("verify")?.subcommands?.get("end")?.execute?.(message, {}, guild);
     }
 
     // PASSED CAPTCHA

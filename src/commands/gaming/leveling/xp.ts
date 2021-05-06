@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createCommand } from "../../../utils/helpers.ts";
 
@@ -13,11 +13,11 @@ createCommand({
   ] as const,
   execute: async function (message, args) {
     if (args.type === "add") {
-      botCache.helpers.addLocalXP(message.guildID, args.member.id, args.amount, true);
+      bot.helpers.addLocalXP(message.guildID, args.member.id, args.amount, true);
     } else {
-      botCache.helpers.removeXP(message.guildID, args.member.id, args.amount);
+      bot.helpers.removeXP(message.guildID, args.member.id, args.amount);
     }
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

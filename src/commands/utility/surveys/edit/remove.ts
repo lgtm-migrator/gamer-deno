@@ -1,4 +1,4 @@
-import { botCache } from "../../../../../deps.ts";
+import { bot } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
@@ -21,13 +21,13 @@ createSubcommand("surveys-edit-questions", {
   guildOnly: true,
   execute: async function (message, args) {
     const survey = await db.surveys.get(`${message.guildID}-${args.name}`);
-    if (!survey) return botCache.helpers.reactError(message);
+    if (!survey) return bot.helpers.reactError(message);
 
     // Survey found, edit now
     await db.surveys.update(`${message.guildID}-${args.name}`, {
       questions: survey.questions.filter((value, index) => index + 1 !== args.index),
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

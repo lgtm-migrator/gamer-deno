@@ -1,4 +1,4 @@
-import { botCache } from "../../../../../deps.ts";
+import { bot } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
@@ -18,9 +18,9 @@ createSubcommand("settings-automod", {
       ...(settings?.profanityWords || []),
     ];
 
-    if (!texts.length) return botCache.helpers.reactError(message);
+    if (!texts.length) return bot.helpers.reactError(message);
 
-    const responses = botCache.helpers.chunkStrings(texts, 1800);
+    const responses = bot.helpers.chunkStrings(texts, 1800);
     for (const response of responses) {
       await message
         .alertReply(

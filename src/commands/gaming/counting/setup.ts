@@ -1,5 +1,5 @@
 import {
-  botCache,
+  bot,
   botID,
   ChannelTypes,
   createGuildChannel,
@@ -145,7 +145,7 @@ createSubcommand("counting", {
     );
 
     await howToPlayChannel.send(
-      [translate(message.guildID, "strings:NEED_SUPPORT"), botCache.constants.botSupportInvite].join("\n")
+      [translate(message.guildID, "strings:NEED_SUPPORT"), bot.constants.botSupportInvite].join("\n")
     );
 
     // Send the select team instructions
@@ -181,7 +181,7 @@ createSubcommand("counting", {
       guildID: guild.id,
       loserRoleID: losersRole.id,
       localOnly: true,
-      deleteInvalid: botCache.vipGuildIDs.has(guild.id),
+      deleteInvalid: bot.vipGuildIDs.has(guild.id),
       count: 0,
       buffs: [],
       debuffs: [],
@@ -191,7 +191,7 @@ createSubcommand("counting", {
       guildID: guild.id,
       loserRoleID: losersRole.id,
       localOnly: true,
-      deleteInvalid: botCache.vipGuildIDs.has(guild.id),
+      deleteInvalid: bot.vipGuildIDs.has(guild.id),
       count: 0,
       buffs: [],
       debuffs: [],
@@ -201,18 +201,18 @@ createSubcommand("counting", {
       guildID: guild.id,
       loserRoleID: losersRole.id,
       localOnly: false,
-      deleteInvalid: botCache.vipGuildIDs.has(guild.id),
+      deleteInvalid: bot.vipGuildIDs.has(guild.id),
       count: 0,
       buffs: [],
       debuffs: [],
     });
 
-    await botCache.helpers.reactSuccess(message);
-    botCache.countingChannelIDs.add(teamChannelOne.id);
-    botCache.countingChannelIDs.add(teamChannelTwo.id);
-    botCache.countingChannelIDs.add(everyoneChannel.id);
-    botCache.reactionRoleMessageIDs.add(pickTeamMessage.id);
+    await bot.helpers.reactSuccess(message);
+    bot.countingChannelIDs.add(teamChannelOne.id);
+    bot.countingChannelIDs.add(teamChannelTwo.id);
+    bot.countingChannelIDs.add(everyoneChannel.id);
+    bot.reactionRoleMessageIDs.add(pickTeamMessage.id);
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

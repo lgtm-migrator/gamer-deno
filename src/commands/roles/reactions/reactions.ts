@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -15,7 +15,7 @@ createSubcommand("roles", {
   guildOnly: true,
   execute: async function (message) {
     const reactionroles = await db.reactionroles.findMany({ guildID: message.guildID }, true);
-    if (!reactionroles.length) return botCache.helpers.reactError(message);
+    if (!reactionroles.length) return bot.helpers.reactError(message);
 
     const details = reactionroles.map(
       (rr, index) =>
@@ -24,7 +24,7 @@ createSubcommand("roles", {
         )}`
     );
 
-    const responses = botCache.helpers.chunkStrings(details);
+    const responses = bot.helpers.chunkStrings(details);
     for (const response of responses) {
       await message.send({ content: response, mentions: { parse: [] } }).catch(console.log);
     }

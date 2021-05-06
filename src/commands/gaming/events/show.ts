@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { createSubcommand, humanizeMilliseconds } from "../../../utils/helpers.ts";
 import { translate } from "../../../utils/i18next.ts";
@@ -16,7 +16,7 @@ createSubcommand("events", {
       guildID: message.guildID,
       eventID: args.eventID,
     });
-    if (!event) return botCache.helpers.reactError(message);
+    if (!event) return bot.helpers.reactError(message);
 
     const attendees = event.acceptedUsers.map((user) => `<@!${user.id}> ${user.position}`).join(" ");
     const waitingList = event.waitingUsers.map((user) => `<@!${user.id}> ${user.position}`).join(" ");
@@ -33,12 +33,12 @@ createSubcommand("events", {
         value: event.reminders.map((r) => humanizeMilliseconds(r)).join(" "),
       }),
       translate(message.guildID, "strings:EVENTS_SHOW_TIME_5", {
-        value: event.showUTCTime ? botCache.constants.emojis.success : botCache.constants.emojis.failure,
+        value: event.showUTCTime ? bot.constants.emojis.success : bot.constants.emojis.failure,
       }),
       translate(message.guildID, "strings:EVENTS_SHOW_TIME_3", {
         value: event.isRecurring
-          ? `${botCache.constants.emojis.success} ${humanizeMilliseconds(event.frequency)}`
-          : botCache.constants.emojis.failure,
+          ? `${bot.constants.emojis.success} ${humanizeMilliseconds(event.frequency)}`
+          : bot.constants.emojis.failure,
       }),
     ];
 
@@ -46,12 +46,12 @@ createSubcommand("events", {
     if (event.isRecurring) {
       TIME_INFO.push(
         translate(message.guildID, "strings:EVENTS_SHOW_TIME_4", {
-          value: event.removeRecurringAttendees ? botCache.constants.emojis.success : botCache.constants.emojis.failure,
+          value: event.removeRecurringAttendees ? bot.constants.emojis.success : bot.constants.emojis.failure,
         })
       );
     }
 
-    const embed = botCache.helpers
+    const embed = bot.helpers
       .authorEmbed(message)
       .setTitle(
         `${event.title}`,
@@ -65,7 +65,7 @@ createSubcommand("events", {
         translate(message.guildID, `strings:EVENTS_SHOW_RSVP_EMOJI`),
         [
           translate(message.guildID, "strings:EVENTS_SHOW_RSVP_1", {
-            value: event.showAttendees ? botCache.constants.emojis.success : botCache.constants.emojis.failure,
+            value: event.showAttendees ? bot.constants.emojis.success : bot.constants.emojis.failure,
           }),
           translate(message.guildID, "strings:EVENTS_SHOW_RSVP_2", {
             value: event.joinRoleID ? `<@&${event.joinRoleID}>` : NONE,
@@ -108,8 +108,8 @@ createSubcommand("events", {
         translate(message.guildID, `strings:EVENTS_SHOW_BASIC_EMOJI`),
         [
           translate(message.guildID, "strings:EVENTS_SHOW_BASIC_1", {
-            value: event.dmReminders ? botCache.constants.emojis.success : botCache.constants.emojis.failure,
-            value2: event.channelReminders ? botCache.constants.emojis.success : botCache.constants.emojis.failure,
+            value: event.dmReminders ? bot.constants.emojis.success : bot.constants.emojis.failure,
+            value2: event.channelReminders ? bot.constants.emojis.success : bot.constants.emojis.failure,
           }),
           translate(message.guildID, "strings:EVENTS_SHOW_BASIC_2", {
             value: event.allowedRoleIDs.length ? event.allowedRoleIDs.map((id) => `<@&${id}>`).join(" ") : NONE,

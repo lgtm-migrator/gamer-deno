@@ -1,4 +1,4 @@
-import { botCache, botID, editMember, higherRolePosition, highestRole, sendDirectMessage } from "../../../deps.ts";
+import { bot, botID, editMember, higherRolePosition, highestRole, sendDirectMessage } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { Embed } from "../../utils/Embed.ts";
@@ -19,10 +19,10 @@ createCommand({
     if (!guild) return;
 
     const settings = await db.guilds.get(message.guildID);
-    if (!settings?.muteRoleID) return botCache.helpers.reactError(message);
+    if (!settings?.muteRoleID) return bot.helpers.reactError(message);
 
     const muteRole = guild.roles.get(settings.muteRoleID);
-    if (!muteRole) return botCache.helpers.reactError(message);
+    if (!muteRole) return bot.helpers.reactError(message);
 
     const botsHighestRole = await highestRole(message.guildID, botID);
     const membersHighestRole = await highestRole(message.guildID, args.member.id);
@@ -33,7 +33,7 @@ createCommand({
       !membersHighestRole ||
       !(await higherRolePosition(message.guildID, botsHighestRole.id, membersHighestRole.id))
     ) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     if (
@@ -41,7 +41,7 @@ createCommand({
       !membersHighestRole ||
       !(await higherRolePosition(message.guildID, modsHighestRole.id, membersHighestRole.id))
     ) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     // In 1 call remove all the roles, and add mute role
@@ -70,7 +70,7 @@ createCommand({
       roleIDs: args.member.guilds.get(message.guildID)?.roles || [],
     });
 
-    botCache.helpers.createModlog(message, {
+    bot.helpers.createModlog(message, {
       action: "mute",
       reason: args.reason,
       member: args.member,
@@ -79,7 +79,7 @@ createCommand({
     });
 
     // Response that will get sent in the channel
-    const response = botCache.helpers
+    const response = bot.helpers
       .authorEmbed(message)
       .setDescription(
         [

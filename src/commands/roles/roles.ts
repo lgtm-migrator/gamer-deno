@@ -1,4 +1,4 @@
-import { addRole, botCache, botID, cache, higherRolePosition, highestRole, removeRole } from "../../../deps.ts";
+import { addRole, bot, botID, cache, higherRolePosition, highestRole, removeRole } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { createCommand } from "../../utils/helpers.ts";
 import { translate } from "../../utils/i18next.ts";
@@ -17,7 +17,7 @@ createCommand({
     const member = cache.members.get(message.author.id);
     // If there are no settings then there are no public roles
     if (!settings?.publicRoleIDs.length || !member) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     // No args were provided so we just list the public roles
@@ -29,15 +29,15 @@ createCommand({
     }
 
     if (!settings.publicRoleIDs.includes(args.role.id)) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     // Check if the bots role is high enough to manage the role
     const botsHighestRole = await highestRole(message.guildID, botID);
-    if (!botsHighestRole) return botCache.helpers.reactError(message);
+    if (!botsHighestRole) return bot.helpers.reactError(message);
 
     if (!(await higherRolePosition(message.guildID, botsHighestRole.id, args.role.id))) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     // Check if the authors role is high enough to grant this role
@@ -59,6 +59,6 @@ createCommand({
       );
     }
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

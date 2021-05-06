@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { Embed } from "../../../utils/Embed.ts";
@@ -11,7 +11,7 @@ createSubcommand("settings", {
   arguments: [{ name: "subcommand", type: "subcommand", required: false }],
   execute: async function (message) {
     const settings = await db.guilds.get(message.guildID);
-    if (!settings) return botCache.helpers.reactError(message);
+    if (!settings) return bot.helpers.reactError(message);
 
     const embed = new Embed().setDescription(
       [

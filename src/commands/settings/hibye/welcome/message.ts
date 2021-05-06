@@ -1,4 +1,4 @@
-import { botCache } from "../../../../../deps.ts";
+import { bot } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
@@ -13,9 +13,9 @@ createSubcommand("settings-welcome", {
       // Validate the json
       JSON.parse(args.text);
       await db.welcome.update(message.guildID, { text: args.text });
-      return botCache.helpers.reactSuccess(message);
+      return bot.helpers.reactSuccess(message);
     } catch {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
   },
 });

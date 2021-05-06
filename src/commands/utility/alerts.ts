@@ -1,4 +1,4 @@
-import { botCache, createWebhook } from "../../../deps.ts";
+import { bot, createWebhook } from "../../../deps.ts";
 import { db } from "../../database/database.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createCommand, createSubcommand } from "../../utils/helpers.ts";
@@ -37,9 +37,9 @@ alertCommands.forEach(async (command) => {
       const subs = allSubs.filter((sub) => sub.subscriptions.some((s) => s.guildID === message.guildID));
 
       // If no subs were found error out.
-      if (!subs.length) return botCache.helpers.reactError(message);
+      if (!subs.length) return bot.helpers.reactError(message);
       // Map all the subs on this guild into chunks of 2000 character strings responses
-      const responses = botCache.helpers.chunkStrings(
+      const responses = bot.helpers.chunkStrings(
         subs.map(
           (sub) =>
             `${sub.id} ${sub.subscriptions
@@ -78,9 +78,9 @@ alertCommands.forEach(async (command) => {
       // Ask the user to provide the custom alert message
       await message.reply("Please type the message you would like to send now.");
 
-      const alertMessage = await botCache.helpers.needMessage(message.author.id, message.channelID);
+      const alertMessage = await bot.helpers.needMessage(message.author.id, message.channelID);
       if (!alertMessage?.content.length) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
 
       // Create a webhook for this channel
@@ -104,12 +104,12 @@ alertCommands.forEach(async (command) => {
             },
           ],
         });
-        return botCache.helpers.reactSuccess(message);
+        return bot.helpers.reactSuccess(message);
       }
 
       // The user already has a subscription created for reddit we only need to add a sub to it
       const subscription = sub.subscriptions.find((subscription) => subscription.channelID === message.channelID);
-      if (subscription) return botCache.helpers.reactError(message);
+      if (subscription) return bot.helpers.reactError(message);
 
       // Add new subscription to the existing ones
       command.db.update(args.username, {
@@ -125,7 +125,7 @@ alertCommands.forEach(async (command) => {
           },
         ],
       });
-      return botCache.helpers.reactSuccess(message);
+      return bot.helpers.reactSuccess(message);
     },
   });
 
@@ -143,7 +143,7 @@ alertCommands.forEach(async (command) => {
       // Fetch this username from subscriptions specifically for reddit
       const sub = await command.db.get(args.username);
       // No sub was found for this username, can't unsub if it never existed
-      if (!sub) return botCache.helpers.reactError(message);
+      if (!sub) return bot.helpers.reactError(message);
 
       const leftoverSubs = sub.subscriptions.filter((subscription) => subscription.channelID !== message.channelID);
 

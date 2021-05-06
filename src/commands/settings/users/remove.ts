@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
 
@@ -12,6 +12,6 @@ createSubcommand("settings-users-badges", {
     await db.users.update(message.author.id, {
       badges: (settings?.badges || []).filter((url) => url !== args.url),
     });
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

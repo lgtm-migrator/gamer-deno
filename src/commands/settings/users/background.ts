@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
 
@@ -9,6 +9,6 @@ createSubcommand("settings-users", {
   arguments: [{ name: "text", type: "string" }] as const,
   execute: async function (message, args) {
     await db.users.update(message.author.id, { backgroundURL: args.text });
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

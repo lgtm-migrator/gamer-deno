@@ -1,4 +1,4 @@
-import { botCache } from "../../../../../deps.ts";
+import { bot } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
@@ -17,15 +17,15 @@ createSubcommand("settings-mails", {
   ] as const,
   execute: async function (message, args) {
     const settings = await db.guilds.get(message.guildID);
-    if (!settings || !settings.mailsEnabled) return botCache.helpers.reactError(message);
+    if (!settings || !settings.mailsEnabled) return bot.helpers.reactError(message);
 
     db.guilds.update(message.guildID, {
       mailsSupportChannelID: args.enable ? args.channel?.id ?? message.channelID : "",
     });
 
-    botCache.guildSupportChannelIDs.delete(settings.mailsSupportChannelID);
-    if (args.enable) botCache.guildSupportChannelIDs.add(args.channel?.id ?? message.channelID);
+    bot.guildSupportChannelIDs.delete(settings.mailsSupportChannelID);
+    if (args.enable) bot.guildSupportChannelIDs.add(args.channel?.id ?? message.channelID);
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

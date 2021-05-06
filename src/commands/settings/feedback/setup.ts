@@ -1,4 +1,4 @@
-import { botCache, botID, ChannelTypes, createGuildChannel, OverwriteType, sendMessage } from "../../../../deps.ts";
+import { bot, botID, ChannelTypes, createGuildChannel, OverwriteType, sendMessage } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { parsePrefix } from "../../../monitors/commandHandler.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
@@ -146,6 +146,6 @@ createSubcommand("settings-feedback", {
     await sendMessage(ideaChannel.id, `**${parsePrefix(message.guildID)}idea**`).catch(console.log);
     await sendMessage(bugsChannel.id, `**${parsePrefix(message.guildID)}bugs**`).catch(console.log);
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

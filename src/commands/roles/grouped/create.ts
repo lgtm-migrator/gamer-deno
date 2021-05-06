@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -18,7 +18,7 @@ createSubcommand("roles-grouped", {
       name: args.name,
       guildID: message.guildID,
     });
-    if (exists) return botCache.helpers.reactError(message);
+    if (exists) return bot.helpers.reactError(message);
 
     // Create a roleset
     await db.groupedrolesets.create(message.id, {
@@ -29,6 +29,6 @@ createSubcommand("roles-grouped", {
       mainRoleID: args.mainRole.id,
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

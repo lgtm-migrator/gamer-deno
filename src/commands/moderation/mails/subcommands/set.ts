@@ -1,4 +1,4 @@
-import { botCache, editChannel } from "../../../../../deps.ts";
+import { bot, editChannel } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
@@ -19,10 +19,10 @@ createSubcommand("labels", {
       name: args.name,
       guildID: message.guildID,
     });
-    if (!labelToSet) return botCache.helpers.reactError(message);
+    if (!labelToSet) return bot.helpers.reactError(message);
 
     const mail = await db.mails.get(message.channelID);
-    if (!mail) return botCache.helpers.reactError(message);
+    if (!mail) return bot.helpers.reactError(message);
 
     // TODO: test if a catch is needed here
     return editChannel(message.channelID, { parentID: labelToSet.categoryID });

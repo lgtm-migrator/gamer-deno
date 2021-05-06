@@ -1,6 +1,6 @@
 import {
   addReactions,
-  botCache,
+  bot,
   botID,
   createGuildChannel,
   deleteChannel,
@@ -33,13 +33,9 @@ function cancelSetup(message: Message, responseMessage: Message) {
   return true;
 }
 
-const yesEmojiID = botCache.helpers.emojiID(botCache.constants.emojis.success);
-const quitEmojiID = botCache.helpers.emojiID(botCache.constants.emojis.quit);
-const reactions = [
-  botCache.constants.emojis.success,
-  botCache.constants.emojis.failure,
-  botCache.constants.emojis.quit,
-];
+const yesEmojiID = bot.helpers.emojiID(bot.constants.emojis.success);
+const quitEmojiID = bot.helpers.emojiID(bot.constants.emojis.quit);
+const reactions = [bot.constants.emojis.success, bot.constants.emojis.failure, bot.constants.emojis.quit];
 
 const setupEmojis = {
   updating: "<a:updating:786791988061143060>",
@@ -51,7 +47,7 @@ function createProgressBar(progress: number, total: number, updating = true) {
   if (!updating) emojis.shift();
 
   for (let i = 0; i < progress; i++) {
-    emojis.push(botCache.constants.emojis.colors.limegreen);
+    emojis.push(bot.constants.emojis.colors.limegreen);
   }
   for (let i = 0; i < total - progress; i++) {
     emojis.push(`${setupEmojis.loading} `);
@@ -126,7 +122,7 @@ createSubcommand("setup", {
       })
     );
     await addReactions(beginMessage.channelID, beginMessage.id, reactions, true);
-    const subscribe = await botCache.helpers.needReaction(message.author.id, beginMessage.id);
+    const subscribe = await bot.helpers.needReaction(message.author.id, beginMessage.id);
     if (subscribe === quitEmojiID) {
       return confirmedCancel(message, setupChannel.id);
     }
@@ -134,7 +130,7 @@ createSubcommand("setup", {
     // The user wants to subscribe
     if (subscribe === yesEmojiID) {
       await sendMessage(setupChannel.id, translate(message.guildID, "strings:SETUP_NEED_CHANNEL", { mention }));
-      const response = await botCache.helpers.needMessage(message.author.id, setupChannel.id);
+      const response = await bot.helpers.needMessage(message.author.id, setupChannel.id);
       if (cancelSetup(message, response)) return;
 
       const [targetChannel] = response.mentionChannelIDs;
@@ -150,27 +146,27 @@ createSubcommand("setup", {
       {
         question: "strings:SETUP_TODO_SETUP",
         progress: 3,
-        setup: botCache.commands.get("todo")?.subcommands?.get("setup"),
+        setup: bot.commands.get("todo")?.subcommands?.get("setup"),
       },
       {
         question: "strings:SETUP_COUNTING_SETUP",
         progress: 4,
-        setup: botCache.commands.get("counting")?.subcommands?.get("setup"),
+        setup: bot.commands.get("counting")?.subcommands?.get("setup"),
       },
       {
         question: "strings:SETUP_CONFESSIONALS_SETUP",
         progress: 5,
-        setup: botCache.commands.get("mirrors")?.subcommands?.get("setup"),
+        setup: bot.commands.get("mirrors")?.subcommands?.get("setup"),
       },
       {
         question: "strings:SETUP_VERIFICATION_SETUP",
         progress: 6,
-        setup: botCache.commands.get("verify")?.subcommands?.get("setup"),
+        setup: bot.commands.get("verify")?.subcommands?.get("setup"),
       },
       {
         question: "strings:SETUP_URLFILTER_SETUP",
         progress: 7,
-        setup: botCache.commands
+        setup: bot.commands
           .get("settings")
           ?.subcommands?.get("automod")
           ?.subcommands?.get("links")
@@ -179,7 +175,7 @@ createSubcommand("setup", {
       {
         question: "strings:SETUP_PROFANITY_SETUP",
         progress: 8,
-        setup: botCache.commands
+        setup: bot.commands
           .get("settings")
           ?.subcommands?.get("automod")
           ?.subcommands?.get("profanity")
@@ -188,24 +184,24 @@ createSubcommand("setup", {
       {
         question: "strings:SETUP_CAPITALS_SETUP",
         progress: 9,
-        setup: botCache.commands.get("settings")?.subcommands?.get("automod")?.subcommands?.get("capitals"),
+        setup: bot.commands.get("settings")?.subcommands?.get("automod")?.subcommands?.get("capitals"),
       },
       {
         question: "strings:SETUP_FEEDBACK_SETUP",
         progress: 10,
-        setup: botCache.commands.get("settings")?.subcommands?.get("feedback")?.subcommands?.get("setup"),
+        setup: bot.commands.get("settings")?.subcommands?.get("feedback")?.subcommands?.get("setup"),
       },
       {
         question: "strings:SETUP_MUTE_SETUP",
         progress: 11,
-        setup: botCache.commands.get("settings")?.subcommands?.get("mute"),
+        setup: bot.commands.get("settings")?.subcommands?.get("mute"),
       },
     ];
 
     for (const step of simpleSteps) {
       const question = await setupChannel.send(translate(message.guildID, step.question, { mention }));
       await question.addReactions(reactions, true);
-      const response = await botCache.helpers.needReaction(message.author.id, question.id);
+      const response = await bot.helpers.needReaction(message.author.id, question.id);
       if (response === quitEmojiID) {
         return confirmedCancel(message, setupChannel.id);
       }
@@ -227,7 +223,7 @@ createSubcommand("setup", {
 
     // Step 6: Mails
     const mail = await message.send(`Setting up the mod mails ${setupEmojis.loading} `);
-    await botCache.commands
+    await bot.commands
       .get("settings")
       ?.subcommands?.get("mails")
       ?.subcommands?.get("setup")
@@ -241,7 +237,7 @@ createSubcommand("setup", {
     // Step 15: Reaction Roles Colors
     const rrChannel = await createGuildChannel(guild, "reaction-roles");
     const hold = await rrChannel.send(setupEmojis.loading);
-    await botCache.commands
+    await bot.commands
       .get("roles")
       ?.subcommands?.get("reactions")
       ?.subcommands?.get("setup")

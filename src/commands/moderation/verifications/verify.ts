@@ -1,5 +1,5 @@
 import {
-  botCache,
+  bot,
   cache,
   calculatePermissions,
   createGuildChannel,
@@ -24,7 +24,7 @@ createCommand({
 
     const settings = await db.guilds.get(message.guildID);
     if (!settings?.firstMessageJSON) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     // Make a channels name from the users name and removes any invalid characters since discord doesnt support all characters in channel names.
@@ -42,7 +42,7 @@ createCommand({
     if (channelExists) {
       // If the channel exists send error
       if (channelExists.id === message.channelID) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
 
       // Send a message in the existing channel to let user know
@@ -54,10 +54,10 @@ createCommand({
     }
 
     const category = cache.channels.get(settings.verifyCategoryID);
-    if (!category) return botCache.helpers.reactError(message);
+    if (!category) return bot.helpers.reactError(message);
 
     if (cache.channels.filter((c) => c.parentID === category.id).size === 50) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     const newChannel = await createGuildChannel(guild, channelName, {
@@ -90,7 +90,7 @@ createCommand({
     if (!member) return;
 
     // Convert all the %variables%
-    const transformed = await botCache.helpers.variables(settings.firstMessageJSON, member, guild, member);
+    const transformed = await bot.helpers.variables(settings.firstMessageJSON, member, guild, member);
 
     const embedCode = JSON.parse(transformed);
     // send a message to the new channel
@@ -99,7 +99,7 @@ createCommand({
 
     // Purge all messages in this channel
     const messages = await getMessages(message.channelID);
-    if (!messages) return botCache.helpers.reactError(message);
+    if (!messages) return bot.helpers.reactError(message);
 
     const sortedMessages = messages?.sort((a, b) => b.timestamp - a.timestamp).map((m) => m.id);
     // This would remove the oldest message(probably the first message in the channel)

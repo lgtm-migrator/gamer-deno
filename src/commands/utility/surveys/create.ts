@@ -1,4 +1,4 @@
-import { botCache, cache, memberIDHasPermission } from "../../../../deps.ts";
+import { bot, cache, memberIDHasPermission } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -18,25 +18,25 @@ createSubcommand("surveys", {
   ] as const,
   execute: async function (message, args, guild) {
     if (!args.channel && !args.channelID) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     let channelToUse = args.channel;
     if (!channelToUse && args.channelID) {
       const channel = cache.channels.get(args.channelID);
-      if (!channel) return botCache.helpers.reactError(message);
+      if (!channel) return bot.helpers.reactError(message);
 
       if (!(await memberIDHasPermission(message.author.id, message.guildID, ["ADMINISTRATOR"]))) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
 
       channelToUse = channel;
     }
 
-    if (!channelToUse) return botCache.helpers.reactError(message);
+    if (!channelToUse) return bot.helpers.reactError(message);
 
     const exists = await db.surveys.get(`${message.guildID}-${args.name}`);
-    if (exists) return botCache.helpers.reactError(message);
+    if (exists) return bot.helpers.reactError(message);
 
     await db.surveys.create(`${message.guildID}-${args.name}`, {
       name: args.name,

@@ -1,5 +1,5 @@
 import {
-  botCache,
+  bot,
   cache,
   calculatePermissions,
   createGuildRole,
@@ -25,14 +25,14 @@ createSubcommand("settings", {
 
     if (args.type === "disable") {
       await db.guilds.update(message.guildID, { muteRoleID: "" });
-      return botCache.helpers.reactSuccess(message);
+      return bot.helpers.reactSuccess(message);
     }
 
     // Run the setup
 
     const settings = await db.guilds.get(message.guildID);
     if (settings?.muteRoleID && guild.roles.has(settings.muteRoleID)) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     const role = await createGuildRole(message.guildID, { name: "Muted" });
@@ -76,6 +76,6 @@ createSubcommand("settings", {
       );
     }
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

@@ -1,4 +1,4 @@
-import { botCache, ChannelTypes, createGuildChannel, createGuildRole } from "../../../../../deps.ts";
+import { bot, ChannelTypes, createGuildChannel, createGuildRole } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
@@ -14,8 +14,8 @@ createSubcommand("settings-mails", {
     if (!guild) return;
 
     // Need VIP for other guilds support.
-    const isVIP = botCache.vipGuildIDs.has(message.guildID);
-    if (args.guild && !isVIP) return botCache.helpers.reactError(message, true);
+    const isVIP = bot.vipGuildIDs.has(message.guildID);
+    if (args.guild && !isVIP) return bot.helpers.reactError(message, true);
 
     const guildToUse = args.guild || guild;
 
@@ -83,7 +83,7 @@ createSubcommand("settings-mails", {
     });
 
     // Create a sample mail for the user
-    // await botCache.commands.get("mail")?.execute?.(
+    // await bot.commands.get("mail")?.execute?.(
     //   message,
     //   // @ts-ignore
     //   { content: translate(message.guildID, "strings:MAIL_EXAMPLE_MAIL") },
@@ -92,7 +92,7 @@ createSubcommand("settings-mails", {
 
     // During Full Setup command the message can be deleted.
     if (!message.content.startsWith("Setting up the mod mails")) {
-      return botCache.helpers.reactSuccess(message);
+      return bot.helpers.reactSuccess(message);
     }
   },
 });

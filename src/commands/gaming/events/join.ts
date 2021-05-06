@@ -1,4 +1,4 @@
-import { botCache, cache } from "../../../../deps.ts";
+import { bot, cache } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
 
@@ -17,7 +17,7 @@ createSubcommand("events", {
       guildID: message.guildID,
       eventID: args.eventID,
     });
-    if (!event) return botCache.helpers.reactError(message);
+    if (!event) return bot.helpers.reactError(message);
 
     // If a position was provided, validate the position
     if (args.position) {
@@ -26,22 +26,22 @@ createSubcommand("events", {
       // Find the appropriate position
       const position = event.positions.find((p) => p.name === args.position);
       // If the position can not be found, error out
-      if (!position) return botCache.helpers.reactError(message);
+      if (!position) return bot.helpers.reactError(message);
     }
 
     // They are already joined
     if (event.acceptedUsers.some((user) => user.id === message.author.id)) {
-      return botCache.helpers.reactSuccess(message);
+      return bot.helpers.reactSuccess(message);
     }
 
     // Check if the user has permission to join this event
     const member = cache.members.get(message.author.id)?.guilds.get(message.guildID);
-    if (!member) return botCache.helpers.reactError(message);
+    if (!member) return bot.helpers.reactError(message);
 
     const hasPermission = event.allowedRoleIDs.length
       ? member.roles.some((roleID) => event.allowedRoleIDs.includes(roleID))
       : true;
-    if (!hasPermission) return botCache.helpers.reactError(message);
+    if (!hasPermission) return bot.helpers.reactError(message);
 
     // If there is space to join
     if (event.maxAttendees > event.acceptedUsers.length) {
@@ -51,7 +51,7 @@ createSubcommand("events", {
       const maybeUserIDs = event.maybeUserIDs.filter((id) => id !== message.author.id);
       const deniedUserIDs = event.deniedUserIDs.filter((id) => id !== message.author.id);
 
-      await botCache.helpers.reactSuccess(message);
+      await bot.helpers.reactSuccess(message);
 
       // Remove them from the event
       await db.events.update(event.id, {
@@ -63,7 +63,7 @@ createSubcommand("events", {
 
       // Trigger card again
       return (
-        botCache.commands
+        bot.commands
           .get("events")
           ?.subcommands?.get("card")
           // @ts-ignore
@@ -73,14 +73,14 @@ createSubcommand("events", {
 
     // There is no space and user is already waiting
     if (event.waitingUsers.some((user) => user.id === message.author.id)) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     // Add user to waiting list
     const waitingUsers = [...event.waitingUsers, { id: message.author.id, position: args.position }];
     const deniedUserIDs = event.deniedUserIDs.filter((id) => id !== message.author.id);
 
-    await botCache.helpers.reactSuccess(message);
+    await bot.helpers.reactSuccess(message);
 
     await db.events.update(event.id, {
       waitingUsers,
@@ -88,7 +88,7 @@ createSubcommand("events", {
     });
 
     // Trigger card again
-    return botCache.commands.get("events")?.subcommands?.get("card")?.execute?.(
+    return bot.commands.get("events")?.subcommands?.get("card")?.execute?.(
       message,
       // @ts-ignore
       { eventID: args.eventID },

@@ -1,4 +1,4 @@
-import { botCache, botHasChannelPermissions, editMember, hasChannelPermissions } from "../../../deps.ts";
+import { bot, botHasChannelPermissions, editMember, hasChannelPermissions } from "../../../deps.ts";
 import { PermissionLevels } from "../../types/commands.ts";
 import { createCommand } from "../../utils/helpers.ts";
 
@@ -16,12 +16,12 @@ createCommand({
       !(await botHasChannelPermissions(args.channel.id, ["MOVE_MEMBERS"])) ||
       !(await hasChannelPermissions(args.channel.id, message.author.id, ["MOVE_MEMBERS"]))
     ) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
     // If a valid new channel was provided we simply move all the users in the channel over
     if (args.new) {
       if (!(await botHasChannelPermissions(args.new.id, ["MOVE_MEMBERS"]))) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
 
       guild?.voiceStates.forEach(async (vs) => {
@@ -31,13 +31,13 @@ createCommand({
         });
       });
     } else {
-      if (!message.mentions.length) return botCache.helpers.reactError(message);
+      if (!message.mentions.length) return bot.helpers.reactError(message);
       message.mentions.forEach(async (id) => {
         if (!guild?.voiceStates.has(id)) return;
         await editMember(message.guildID, id, { channel_id: args.channel.id });
       });
     }
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

@@ -1,4 +1,4 @@
-import { botCache, cache } from "../../../../deps.ts";
+import { bot, cache } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { Embed } from "../../../utils/Embed.ts";
@@ -16,18 +16,18 @@ createSubcommand("tag", {
   ] as const,
   execute: async function (message, args, guild) {
     const tagExists = await db.tags.get(`${message.guildID}-${args.name}`);
-    if (tagExists) return botCache.helpers.reactError(message);
+    if (tagExists) return bot.helpers.reactError(message);
 
     // Random tags are vip only feature
-    if (args.type === "random" && !botCache.vipGuildIDs.has(message.guildID)) {
-      return botCache.helpers.reactError(message, true);
+    if (args.type === "random" && !bot.vipGuildIDs.has(message.guildID)) {
+      return bot.helpers.reactError(message, true);
     }
 
     const member = cache.members.get(message.author.id);
-    if (!member) return botCache.helpers.reactError(message);
+    if (!member) return bot.helpers.reactError(message);
 
     try {
-      const transformed = await botCache.helpers.variables(args.text, member, guild, member);
+      const transformed = await bot.helpers.variables(args.text, member, guild, member);
       const embedCode = JSON.parse(transformed);
       const embed = new Embed(embedCode);
       // Send the tag so the user can see what it looks like.
@@ -43,8 +43,8 @@ createSubcommand("tag", {
         type: args.type,
       });
 
-      botCache.tagNames.add(`${message.guildID}-${args.name}`);
-      return botCache.helpers.reactSuccess(message);
+      bot.tagNames.add(`${message.guildID}-${args.name}`);
+      return bot.helpers.reactSuccess(message);
     } catch (error) {
       return message.send(["```js", error, "```"].join("\n"));
     }

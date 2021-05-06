@@ -1,5 +1,5 @@
 import { createSubcommand } from "../../../utils/helpers.ts";
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 
 createSubcommand("emojis", {
@@ -19,14 +19,14 @@ createSubcommand("emojis", {
   vipServerOnly: true,
   execute: async function (message, args) {
     if (typeof args.emoji === "string") {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     const emojiID = args.emoji.id;
 
     const emojiExists = db.emojis.findOne((value) => value.emojiID === emojiID || value.name === args.name);
     if (!emojiID || emojiExists) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     await db.emojis.create(emojiID, {
@@ -38,6 +38,6 @@ createSubcommand("emojis", {
       name: args.name,
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

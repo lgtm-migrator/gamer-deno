@@ -1,4 +1,4 @@
-import { botCache } from "../../../../../../deps.ts";
+import { bot } from "../../../../../../deps.ts";
 import { db } from "../../../../../database/database.ts";
 import { PermissionLevels } from "../../../../../types/commands.ts";
 import { createSubcommand } from "../../../../../utils/helpers.ts";
@@ -12,16 +12,16 @@ createSubcommand("settings-mails-questions", {
   arguments: [{ name: "label", type: "...string", lowercase: true }] as const,
   execute: async function (message, args) {
     const settings = await db.guilds.get(message.guildID);
-    if (!settings) return botCache.helpers.reactError(message);
+    if (!settings) return bot.helpers.reactError(message);
 
     if (!settings.mailQuestions.some((q) => q.name.toLowerCase() === args.label)) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     await db.guilds.update(message.guildID, {
       mailQuestions: settings.mailQuestions.filter((q) => q.name.toLowerCase() !== args.label),
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

@@ -1,5 +1,5 @@
 import { configs } from "../../../../configs.ts";
-import { botCache, cache, deleteMessages } from "../../../../deps.ts";
+import { bot, cache, deleteMessages } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { EventsSchema } from "../../../database/schemas.ts";
 import { createSubcommand, stringToMilliseconds } from "../../../utils/helpers.ts";
@@ -20,7 +20,7 @@ createSubcommand("events", {
     const member = cache.members.get(message.author.id)?.guilds.get(message.guildID);
 
     if (
-      !botCache.helpers.isModOrAdmin(message, settings) &&
+      !bot.helpers.isModOrAdmin(message, settings) &&
       (!settings?.createEventsRoleID ||
         (settings.createEventsRoleID !== message.guildID && !member?.roles.includes(settings.createEventsRoleID)))
     ) {
@@ -85,9 +85,9 @@ createSubcommand("events", {
     await db.events.create(message.id, event);
 
     // Let the user know it succeeded
-    await botCache.helpers.reactSuccess(message);
+    await bot.helpers.reactSuccess(message);
 
-    const embed = botCache.helpers.authorEmbed(message).setDescription(
+    const embed = bot.helpers.authorEmbed(message).setDescription(
       [...Array(19).keys()]
         .slice(1)
         .map((number) => translate(message.guildID, `strings:EVENTS_HELPER_${number}`))
@@ -95,7 +95,7 @@ createSubcommand("events", {
     );
     const helperMessage = await message.send({ embed }).catch(console.log);
 
-    botCache.commands.get("events")?.subcommands?.get("card")?.execute?.(
+    bot.commands.get("events")?.subcommands?.get("card")?.execute?.(
       message,
       // @ts-ignore
       { eventID: event.eventID },
@@ -106,9 +106,9 @@ createSubcommand("events", {
     const CANCEL_OPTIONS = translate(message.guildID, `strings:CANCEL_OPTIONS`, { returnObjects: true });
 
     while (!cancel) {
-      const response = await botCache.helpers.needMessage(message.author.id, message.channelID);
+      const response = await bot.helpers.needMessage(message.author.id, message.channelID);
       if ([`q`, `quit`, ...CANCEL_OPTIONS].includes(response.content.toLowerCase())) {
-        await botCache.helpers.reactSuccess(response);
+        await bot.helpers.reactSuccess(response);
         const ids = [response.id];
 
         if (helperMessage) {
@@ -144,13 +144,13 @@ createSubcommand("events", {
       ];
 
       const bulks = response.content.split("%%");
-      const prefix = botCache.guildPrefixes.get(message.guildID) || configs.prefix;
+      const prefix = bot.guildPrefixes.get(message.guildID) || configs.prefix;
 
       for (const args of bulks) {
         const [type, ...fullValue] = args.split(" ");
         const [value] = fullValue;
         if (!type || !options.some((option) => [option, `${prefix}${option}`].includes(type.toLowerCase()))) {
-          await botCache.helpers.reactError(message).catch(console.log);
+          await bot.helpers.reactError(message).catch(console.log);
           continue;
         }
 
@@ -176,8 +176,8 @@ createSubcommand("events", {
             event.activity = text;
             break;
           case `background`:
-            if (!botCache.vipGuildIDs.has(message.guildID)) {
-              await botCache.helpers.reactError(message, true);
+            if (!bot.vipGuildIDs.has(message.guildID)) {
+              await bot.helpers.reactError(message, true);
               continue;
             }
 
@@ -213,7 +213,7 @@ createSubcommand("events", {
           case `reminder`:
             const reminder = value ? stringToMilliseconds(value) : undefined;
             if (!reminder) {
-              await botCache.helpers.reactError(message);
+              await bot.helpers.reactError(message);
               continue;
             }
 
@@ -225,7 +225,7 @@ createSubcommand("events", {
           case `frequency`:
             const frequency = value ? stringToMilliseconds(value) : undefined;
             if (!frequency) {
-              await botCache.helpers.reactError(message);
+              await bot.helpers.reactError(message);
               continue;
             }
 
@@ -235,7 +235,7 @@ createSubcommand("events", {
           case `duration`:
             const duration = value ? stringToMilliseconds(value) : undefined;
             if (!duration) {
-              await botCache.helpers.reactError(message);
+              await bot.helpers.reactError(message);
               continue;
             }
 
@@ -248,7 +248,7 @@ createSubcommand("events", {
             const startTime = new Date(text).getTime();
 
             if (!start && !startTime) {
-              await botCache.helpers.reactError(message);
+              await bot.helpers.reactError(message);
               continue;
             }
 
@@ -257,7 +257,7 @@ createSubcommand("events", {
             break;
           case `allowedrole`:
             if (!role) {
-              await botCache.helpers.reactError(message);
+              await bot.helpers.reactError(message);
               continue;
             }
 
@@ -267,7 +267,7 @@ createSubcommand("events", {
             break;
           case `alertrole`:
             if (!role) {
-              await botCache.helpers.reactError(message);
+              await bot.helpers.reactError(message);
               continue;
             }
 
@@ -277,7 +277,7 @@ createSubcommand("events", {
             break;
           case `joinrole`:
             if (!role) {
-              await botCache.helpers.reactError(message);
+              await bot.helpers.reactError(message);
               continue;
             }
 
@@ -288,7 +288,7 @@ createSubcommand("events", {
             break;
           default:
             // If they used the command wrong show them the help
-            await botCache.helpers.reactError(message);
+            await bot.helpers.reactError(message);
             continue;
         }
 
@@ -297,7 +297,7 @@ createSubcommand("events", {
         // Save the event
         await db.events.update(message.id, tempPayload);
 
-        await botCache.commands.get("events")?.subcommands?.get("card")?.execute?.(
+        await bot.commands.get("events")?.subcommands?.get("card")?.execute?.(
           message,
           // @ts-ignore
           { eventID: event.eventID },
@@ -313,7 +313,7 @@ createSubcommand("events", {
     await db.events.update(message.id, payload);
 
     // Trigger card again
-    await botCache.commands
+    await bot.commands
       .get("events")
       ?.subcommands?.get("card")
       ?.execute?.(

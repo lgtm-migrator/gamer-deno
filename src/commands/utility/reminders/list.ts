@@ -1,4 +1,4 @@
-import { botCache, cache } from "../../../../deps.ts";
+import { bot, cache } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { Embed } from "../../../utils/Embed.ts";
 import { createSubcommand, humanizeMilliseconds } from "../../../utils/helpers.ts";
@@ -12,10 +12,10 @@ createSubcommand("remind", {
   guildOnly: true,
   execute: async (message) => {
     const reminders = await db.reminders.findMany({ memberID: message.author.id }, true);
-    if (!reminders.length) return botCache.helpers.reactError(message);
+    if (!reminders.length) return bot.helpers.reactError(message);
 
     const member = cache.members.get(message.author.id);
-    if (!member) return botCache.helpers.reactError(message);
+    if (!member) return bot.helpers.reactError(message);
 
     const embed = new Embed().setAuthor(member.tag, member.avatarURL);
 

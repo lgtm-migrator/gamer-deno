@@ -1,4 +1,4 @@
-import { botCache, cache, fetchMembers } from "../../../../deps.ts";
+import { bot, cache, fetchMembers } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
 
@@ -20,12 +20,12 @@ createSubcommand("events", {
       guildID: message.guildID,
       eventID: args.eventID,
     });
-    if (!event) return botCache.helpers.reactError(message);
+    if (!event) return bot.helpers.reactError(message);
 
     // Add all user mentions
     const userIDs = new Set([...message.mentions]);
 
-    if (botCache.vipGuildIDs.has(message.guildID)) {
+    if (bot.vipGuildIDs.has(message.guildID)) {
       // Fetch members if necessary
       if (guild.memberCount !== cache.members.filter((m) => m.guilds.has(message.guildID)).size) {
         await fetchMembers(guild);
@@ -63,11 +63,11 @@ createSubcommand("events", {
       event.deniedUserIDs = event.deniedUserIDs.filter((id) => id !== message.author.id);
     }
 
-    await botCache.helpers.reactSuccess(message);
+    await bot.helpers.reactSuccess(message);
     await db.events.update(event.id, event);
 
     // Trigger card again
-    botCache.commands.get("events")?.subcommands?.get("card")?.execute?.(
+    bot.commands.get("events")?.subcommands?.get("card")?.execute?.(
       message,
       // @ts-ignore
       { eventID: args.eventID },

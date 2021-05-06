@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -17,9 +17,9 @@ createSubcommand("roles", {
   vipServerOnly: true,
   execute: async (message) => {
     const sets = await db.groupedrolesets.findMany({ guildID: message.guildID }, true);
-    if (!sets?.length) return botCache.helpers.reactError(message);
+    if (!sets?.length) return bot.helpers.reactError(message);
 
-    const responses = botCache.helpers.chunkStrings(
+    const responses = bot.helpers.chunkStrings(
       sets.map((set) => `**${set.name}**: ${set.roleIDs.map((id) => `<@&${id}>`).join(" ")}`)
     );
 

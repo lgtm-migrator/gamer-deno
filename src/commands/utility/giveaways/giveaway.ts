@@ -1,4 +1,4 @@
-import { addRole, botCache, editMember } from "../../../../deps.ts";
+import { addRole, bot, editMember } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { UserSchema } from "../../../database/schemas.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
@@ -29,7 +29,7 @@ createCommand({
       },
       true
     );
-    if (!giveaways.length) return botCache.helpers.reactError(message);
+    if (!giveaways.length) return bot.helpers.reactError(message);
 
     let giveawayID = "";
 
@@ -38,7 +38,7 @@ createCommand({
       await message.reply(
         "There was more than 1 giveaway found on this server at this time. Please provide the giveaway ID number now."
       );
-      const choiceMessage = await botCache.helpers.needMessage(message.author.id, message.channelID);
+      const choiceMessage = await bot.helpers.needMessage(message.author.id, message.channelID);
       const isValidGiveaway = giveaways.find((giveaway) => giveaway.id === choiceMessage.content);
 
       if (!isValidGiveaway) {
@@ -52,7 +52,7 @@ createCommand({
     }
 
     const giveaway = giveawayID ? giveaways.find((g) => g.id === giveawayID) : giveaways[0];
-    if (!giveaway) return botCache.helpers.reactError(message);
+    if (!giveaway) return bot.helpers.reactError(message);
 
     if (giveaway.blockedUserIDs.includes(message.author.id)) {
       return message.alertReply("You are blocked from this giveaway");
@@ -156,6 +156,6 @@ createCommand({
       participants: [...giveaway.participants, { memberID: message.author.id, joinedAt: message.timestamp }],
     });
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

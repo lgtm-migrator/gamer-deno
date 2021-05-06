@@ -1,4 +1,4 @@
-import { botCache, cache, deleteChannel } from "../../../../../deps.ts";
+import { bot, cache, deleteChannel } from "../../../../../deps.ts";
 import { db } from "../../../../database/database.ts";
 import { PermissionLevels } from "../../../../types/commands.ts";
 import { Embed } from "../../../../utils/Embed.ts";
@@ -22,7 +22,7 @@ createSubcommand("mail", {
 
     const mail = await db.mails.get(message.channelID);
     // If the mail could not be found.
-    if (!mail) return botCache.helpers.reactError(message);
+    if (!mail) return bot.helpers.reactError(message);
 
     // Delete the mail from the database
     await db.mails.delete(message.channelID);
@@ -35,7 +35,7 @@ createSubcommand("mail", {
 
     await deleteChannel(message.guildID, message.channelID, translate(message.guildID, "strings:MAIL_SILENT_CLOSE"));
 
-    const logChannelID = botCache.guildMailLogsChannelIDs.get(message.guildID);
+    const logChannelID = bot.guildMailLogsChannelIDs.get(message.guildID);
     if (logChannelID) return sendEmbed(logChannelID, embed);
   },
 });

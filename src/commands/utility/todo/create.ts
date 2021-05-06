@@ -1,4 +1,4 @@
-import { addReactions, botCache, cache } from "../../../../deps.ts";
+import { addReactions, bot, cache } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { Embed } from "../../../utils/Embed.ts";
@@ -33,14 +33,14 @@ createSubcommand("todo", {
     if (!guild) return;
 
     const creator = cache.members.get(message.author.id);
-    if (!creator) return botCache.helpers.reactError(message);
+    if (!creator) return bot.helpers.reactError(message);
 
     const member = args.member || creator;
-    if (!member) return botCache.helpers.reactError(message);
+    if (!member) return bot.helpers.reactError(message);
 
     const settings = await db.guilds.get(message.guildID);
     if (!settings?.todoBacklogChannelID) {
-      return botCache.helpers.reactError(message);
+      return bot.helpers.reactError(message);
     }
 
     const embed = new Embed()
@@ -54,7 +54,7 @@ createSubcommand("todo", {
       .setFooter(creator.tag)
       .setTimestamp();
 
-    if (botCache.vipGuildIDs.has(message.guildID)) {
+    if (bot.vipGuildIDs.has(message.guildID)) {
       // Incase there was an image used
       const [attachment] = message.attachments;
       if (attachment) {
@@ -66,10 +66,10 @@ createSubcommand("todo", {
     }
 
     const card = await sendEmbed(settings.todoBacklogChannelID, embed);
-    if (!card) return botCache.helpers.reactError(message);
+    if (!card) return bot.helpers.reactError(message);
 
-    await addReactions(card.channelID, card.id, Object.values(botCache.constants.emojis.todo), true);
+    await addReactions(card.channelID, card.id, Object.values(bot.constants.emojis.todo), true);
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

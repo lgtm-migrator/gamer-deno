@@ -1,4 +1,4 @@
-import { botCache, cache } from "../../../../deps.ts";
+import { bot, cache } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { CountingSchema } from "../../../database/schemas.ts";
 import { Embed } from "../../../utils/Embed.ts";
@@ -12,7 +12,7 @@ function generateLeaderboard(current: CountingSchema, data: CountingSchema[]) {
     .map((data) => {
       const server = cache.guilds.get(data.guildID);
 
-      return `${botCache.constants.emojis.numbers[number++]} ${server?.name ?? data.guildID}: **${data.count}**${
+      return `${bot.constants.emojis.numbers[number++]} ${server?.name ?? data.guildID}: **${data.count}**${
         (tempCount = Math.abs(data.count - current.count)) > 0 ? ` (${tempCount} behind)` : ""
       }`;
     })
@@ -32,7 +32,7 @@ createSubcommand("counting", {
     const leaderboards = (await db.counting.findMany({ localOnly: false }, true)).sort((a, b) => b.count - a.count);
     const index = leaderboards.findIndex((lb) => lb.guildID === message.guildID);
     // Count not find this server
-    if (index < 0) return botCache.helpers.reactError(message);
+    if (index < 0) return bot.helpers.reactError(message);
 
     const current = leaderboards[index];
     const top = leaderboards.slice(0, 9);

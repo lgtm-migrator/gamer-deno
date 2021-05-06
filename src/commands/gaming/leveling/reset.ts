@@ -1,4 +1,4 @@
-import { botCache, cache } from "../../../../deps.ts";
+import { bot, cache } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -16,22 +16,22 @@ createSubcommand("xp", {
     // If a member was passed we want to reset this members XP only
     if (args.member) {
       const settings = await db.xp.get(`${message.guildID}-${args.member.id}`);
-      if (!settings) return botCache.helpers.reactSuccess(message);
+      if (!settings) return bot.helpers.reactSuccess(message);
 
       if (args.voice) {
         await db.xp.update(`${message.guildID}-${args.member.id}`, {
           voiceXP: 0,
         });
       } else {
-        botCache.helpers.removeXP(message.guildID, args.member.id, settings.xp);
+        bot.helpers.removeXP(message.guildID, args.member.id, settings.xp);
       }
 
-      return botCache.helpers.reactSuccess(message);
+      return bot.helpers.reactSuccess(message);
     }
 
     // Only vips can return with a role
-    if (!args.role || !botCache.vipGuildIDs.has(message.guildID)) {
-      return botCache.helpers.reactError(message, true);
+    if (!args.role || !bot.vipGuildIDs.has(message.guildID)) {
+      return bot.helpers.reactError(message, true);
     }
 
     for (const member of cache.members.values()) {
@@ -44,9 +44,9 @@ createSubcommand("xp", {
 
       if (args.voice) {
         await db.xp.update(`${message.guildID}-${member.id}`, { voiceXP: 0 });
-      } else botCache.helpers.removeXP(message.guildID, member.id, settings.xp);
+      } else bot.helpers.removeXP(message.guildID, member.id, settings.xp);
     }
 
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });

@@ -1,4 +1,4 @@
-import { botCache } from "../../../deps.ts";
+import { bot } from "../../../deps.ts";
 import { Embed } from "../../utils/Embed.ts";
 import { createSubcommand } from "../../utils/helpers.ts";
 import { translate } from "../../utils/i18next.ts";
@@ -16,17 +16,17 @@ createSubcommand("roles", {
       .addField(translate(message.guildID, "strings:ROLE_COLOR"), color, true)
       .addField(
         translate(message.guildID, "strings:SHOW_SEPARATELY"),
-        args.role.hoist ? botCache.constants.emojis.success : botCache.constants.emojis.failure,
+        args.role.hoist ? bot.constants.emojis.success : bot.constants.emojis.failure,
         true
       )
       .addField(
         translate(message.guildID, "strings:MENTIONABLE"),
-        args.role.mentionable ? botCache.constants.emojis.success : botCache.constants.emojis.failure,
+        args.role.mentionable ? bot.constants.emojis.success : bot.constants.emojis.failure,
         true
       )
       .addField(translate(message.guildID, "strings:POSITION"), args.role.position.toString(), true)
       .setFooter(translate(message.guildID, "strings:CREATED_AT"))
-      .setTimestamp(botCache.helpers.snowflakeToTimestamp(args.role.id));
+      .setTimestamp(bot.helpers.snowflakeToTimestamp(args.role.id));
 
     return message.send({ embed });
   },

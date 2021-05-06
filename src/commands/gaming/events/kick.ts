@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -20,14 +20,14 @@ createSubcommand("events", {
       guildID: message.guildID,
       eventID: args.eventID,
     });
-    if (!event) return botCache.helpers.reactError(message);
+    if (!event) return bot.helpers.reactError(message);
 
     const userID = args.member?.id || args.memberID;
-    if (!userID) return botCache.helpers.reactError(message);
+    if (!userID) return bot.helpers.reactError(message);
 
     // They are not in it so just tell them they are out
     if (![...event.acceptedUsers, ...event.waitingUsers, ...event.maybeUserIDs].includes(userID)) {
-      return botCache.helpers.reactSuccess(message);
+      return bot.helpers.reactSuccess(message);
     }
 
     // Remove this id from the event
@@ -41,7 +41,7 @@ createSubcommand("events", {
       if (id) acceptedUsers.push(id);
     }
 
-    await botCache.helpers.reactSuccess(message);
+    await bot.helpers.reactSuccess(message);
 
     // Remove them from the event
     await db.events.update(event.id, {
@@ -51,7 +51,7 @@ createSubcommand("events", {
     });
 
     // Trigger card again
-    botCache.commands.get("events")?.subcommands?.get("card")?.execute?.(
+    bot.commands.get("events")?.subcommands?.get("card")?.execute?.(
       message,
       // @ts-ignore
       { eventID: args.eventID },

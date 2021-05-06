@@ -1,4 +1,4 @@
-import { botCache } from "../../../../../deps.ts";
+import { bot } from "../../../../../deps.ts";
 import { createSubcommand } from "../../../../utils/helpers.ts";
 
 // const answerTypes = [
@@ -18,6 +18,6 @@ createSubcommand("surveys", {
   name: "edit",
   arguments: [{ name: "subcommand", type: "subcommand" }],
   execute: async function (message) {
-    return botCache.helpers.reactError(message);
+    return bot.helpers.reactError(message);
   },
 });

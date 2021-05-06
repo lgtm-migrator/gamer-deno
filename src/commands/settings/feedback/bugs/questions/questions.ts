@@ -1,4 +1,4 @@
-import { botCache } from "../../../../../../cache.ts";
+import { bot } from "../../../../../../cache.ts";
 import { db } from "../../../../../database/database.ts";
 import { PermissionLevels } from "../../../../../types/commands.ts";
 import { createSubcommand } from "../../../../../utils/helpers.ts";
@@ -10,9 +10,9 @@ createSubcommand("settings-feedback-bugs", {
   arguments: [{ name: "subcommand", type: "subcommand", required: false }],
   execute: async (message) => {
     const settings = await db.guilds.get(message.guildID);
-    if (!settings) return botCache.helpers.reactError(message);
+    if (!settings) return bot.helpers.reactError(message);
 
-    const embed = botCache.helpers.authorEmbed(message);
+    const embed = bot.helpers.authorEmbed(message);
 
     for (const data of settings.bugsQuestions) {
       embed.addField(data.name, data.text);

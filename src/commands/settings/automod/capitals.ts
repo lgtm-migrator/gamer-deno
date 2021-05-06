@@ -1,4 +1,4 @@
-import { botCache } from "../../../../deps.ts";
+import { bot } from "../../../../deps.ts";
 import { db } from "../../../database/database.ts";
 import { PermissionLevels } from "../../../types/commands.ts";
 import { createSubcommand } from "../../../utils/helpers.ts";
@@ -15,19 +15,19 @@ createSubcommand("settings-automod", {
   execute: async function (message, args) {
     if (args.percentage) {
       if (args.percentage > 100 || args.percentage < 40) {
-        return botCache.helpers.reactError(message);
+        return bot.helpers.reactError(message);
       }
 
       await db.guilds.update(message.guildID, {
         capitalPercentage: args.percentage,
       });
-      return botCache.helpers.reactSuccess(message);
+      return bot.helpers.reactSuccess(message);
     }
 
     // Enabled we set default to 50 and disabled we set to 100 to disable it
     await db.guilds.update(message.guildID, {
       capitalPercentage: args.enabled ? 50 : 100,
     });
-    return botCache.helpers.reactSuccess(message);
+    return bot.helpers.reactSuccess(message);
   },
 });
