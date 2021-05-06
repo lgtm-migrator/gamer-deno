@@ -1,4 +1,5 @@
-import { bot, botID, cache, sendMessage } from "../../deps.ts";
+import { botID, cache, sendMessage } from "../../deps.ts";
+import { bot } from "../../cache.ts";
 import { configs } from "../../configs.ts";
 import { Embed } from "../utils/Embed.ts";
 

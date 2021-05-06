@@ -1,5 +1,4 @@
 import {
-  bot,
   cache,
   deleteMessage,
   deleteMessageByID,
@@ -8,6 +7,7 @@ import {
   sendDirectMessage,
   sendMessage,
 } from "../../deps.ts";
+import { bot } from "../../cache.ts";
 import { db } from "../database/database.ts";
 import { EventsSchema } from "../database/schemas.ts";
 import { Embed } from "../utils/Embed.ts";

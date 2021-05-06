@@ -1,4 +1,4 @@
-import { bot } from "../../deps.ts";
+import { bot } from "../../cache.ts";
 
 const SNOWFLAKE_REGEX = /[0-9]{17,19}/;
 

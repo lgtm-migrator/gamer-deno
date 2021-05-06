@@ -1,4 +1,5 @@
-import { bot, cache } from "../../deps.ts";
+import { bot } from "../../cache.ts";
+import { cache } from "../../deps.ts";
 import { translate } from "../utils/i18next.ts";
 
 bot.arguments.set("role", {

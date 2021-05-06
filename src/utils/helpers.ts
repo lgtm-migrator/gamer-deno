@@ -1,5 +1,4 @@
 import {
-  bot,
   botHasChannelPermissions,
   cache,
   Channel,
@@ -14,6 +13,7 @@ import {
   Role,
   sendMessage,
 } from "../../deps.ts";
+import { bot } from "../../cache.ts";
 import { PermissionLevels } from "../types/commands.ts";
 import { Embed } from "./Embed.ts";
 

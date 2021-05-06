@@ -1,4 +1,5 @@
-import { bot, chooseRandom, editBotProfile } from "../../deps.ts";
+import { chooseRandom, editBotProfile } from "../../deps.ts";
+import { bot } from "../../cache.ts";
 
 bot.tasks.set(`botlogo`, {
   name: `botlogo`,

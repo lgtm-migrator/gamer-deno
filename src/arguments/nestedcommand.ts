@@ -1,4 +1,4 @@
-import { bot } from "../../deps.ts";
+import { bot } from "../../cache.ts";
 import { Command } from "../utils/helpers.ts";
 
 bot.arguments.set("nestedcommand", {

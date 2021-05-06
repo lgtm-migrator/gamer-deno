@@ -1,5 +1,6 @@
-import { bot, botID, cache, leaveGuild } from "../../deps.ts";
+import { botID, cache, leaveGuild } from "../../deps.ts";
 import { db } from "../database/database.ts";
+import { bot } from "../../cache.ts";
 
 bot.tasks.set("enterprise", {
   name: "enterprise",

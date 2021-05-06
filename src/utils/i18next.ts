@@ -1,27 +1,27 @@
-import { bot } from "../../deps.ts";
-import { cache, sendMessage } from "../../deps.ts";
+import { bot } from "../../cache.ts";
+import { cache, sendMessage, sendWebhook, snowflakeToBigint } from "../../deps.ts";
 import i18next from "https://deno.land/x/i18next@v19.6.3/index.js";
 import Backend from "https://deno.land/x/i18next_fs_backend/index.js";
 import { configs } from "../../configs.ts";
 
 /** This function helps translate the string to the specific guilds needs. */
 export function translate(
-  guildID: string,
+  guildId: string,
   key: string,
   options: { returnObjects: true; [key: string]: unknown }
 ): string[];
 export function translate(
-  guildID: string,
+  guildId: string,
   key: string,
   options?: { returnObjects: false; [key: string]: unknown }
 ): string;
-export function translate(guildID: string, key: string, options?: Record<string, unknown>): string;
-export function translate(guildID: string, key: string, options?: Record<string, unknown>) {
+export function translate(guildId: string, key: string, options?: Record<string, unknown>): string;
+export function translate(guildId: string, key: string, options?: Record<string, unknown>) {
   // SUPPORT LEGACY STRINGS
   if (key === "") return "";
 
-  const guild = cache.guilds.get(guildID);
-  let language = bot.guildLanguages.get(guildID) || guild?.preferredLocale || "en_US";
+  const guild = cache.guilds.get(snowflakeToBigint(guildId));
+  let language = bot.guildLanguages.get(guildId) || guild?.preferredLocale || "en_US";
 
   // Discord names some like `ru` and so we make it `ru_RU` for our json files
   if (language.length === 2) {
@@ -35,9 +35,9 @@ export function translate(guildID: string, key: string, options?: Record<string,
 }
 
 /** This function helps translate the string to the specific guilds needs. This is meant for translating a full array of strings. */
-export function translateArray(guildID: string, key: string, options?: Record<string, unknown>): string[] {
-  const guild = cache.guilds.get(guildID);
-  const language = bot.guildLanguages.get(guildID) || guild?.preferredLocale || "en_US";
+export function translateArray(guildId: string, key: string, options?: Record<string, unknown>): string[] {
+  const guild = cache.guilds.get(snowflakeToBigint(guildId));
+  const language = bot.guildLanguages.get(guildId) || guild?.preferredLocale || "en_US";
 
   // undefined is silly bug cause i18next dont have proper typings
   const languageMap = i18next.getFixedT(language.replace("-", "_"), undefined) || i18next.getFixedT("en_US", undefined);
@@ -80,10 +80,7 @@ export async function loadLanguages() {
           .join(" ")} Missing translation key: ${ns}:${key} for ${lng} language. Instead using: ${fallbackValue}`;
         console.warn(response);
 
-        if (!configs.channelIDs.missingTranslation) return;
-
-        const channel = cache.channels.get(configs.channelIDs.missingTranslation);
-        if (!channel) return;
+        if (!configs.webhooks.missingTranslation.id) return;
 
         const args = key.split("_");
         if (key.endsWith("_USAGE") && bot.commands.has(args[0]?.toLowerCase())) {
@@ -107,7 +104,11 @@ export async function loadLanguages() {
           return;
         }
 
-        await sendMessage(channel.id, response).catch(console.log);
+        await sendWebhook(
+          snowflakeToBigint(configs.webhooks.missingTranslation.id),
+          configs.webhooks.missingTranslation.token,
+          { content: response }
+        );
       },
       preload: languageFolder
         .map((file) => (file.isDirectory ? file.name : undefined))

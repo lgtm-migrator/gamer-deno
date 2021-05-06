@@ -9,7 +9,8 @@
  * 8. Amount of times a custom emoji was used in a message
  */
 
-import { bot, cache, ChannelTypes, Guild, sendMessage } from "../../deps.ts";
+import { cache, ChannelTypes, Guild, sendMessage } from "../../deps.ts";
+import { bot } from "../../cache.ts";
 import { db } from "../database/database.ts";
 import { AggregatedAnalyticSchema, AnalyticSchema } from "../database/schemas.ts";
 import { translate } from "../utils/i18next.ts";

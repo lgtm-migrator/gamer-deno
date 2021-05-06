@@ -1,5 +1,5 @@
 // This task will update the database once a minute with all the latest product analytics
-import { bot } from "../../deps.ts";
+import { bot } from "../../cache.ts";
 import { botID } from "../../deps.ts";
 import { db } from "../database/database.ts";
 

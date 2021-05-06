@@ -1,4 +1,5 @@
-import { bot, cache, fetchMembers } from "../../deps.ts";
+import { cache, fetchMembers } from "../../deps.ts";
+import { bot } from "../../cache.ts";
 
 bot.arguments.set("member", {
   name: "member",

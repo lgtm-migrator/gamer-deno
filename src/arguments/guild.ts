@@ -1,4 +1,4 @@
-import { bot } from "../../deps.ts";
+import { bot } from "../../cache.ts";
 import { cache } from "../../deps.ts";
 
 bot.arguments.set("guild", {
