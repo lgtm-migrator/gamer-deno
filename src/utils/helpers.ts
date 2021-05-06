@@ -3,12 +3,10 @@ import {
   cache,
   Channel,
   Collection,
-  deleteMessage,
+  DiscordenoMember,
   editMessage,
   Guild,
-  Member,
   Message,
-  MessageContent,
   Permission,
   Role,
   sendMessage,
@@ -16,33 +14,6 @@ import {
 import { bot } from "../../cache.ts";
 import { PermissionLevels } from "../types/commands.ts";
 import { Embed } from "./Embed.ts";
-
-/** This function is used to send an alert and delete without a forced mention or reply */
-export async function sendAlertMessage(channelID: string, content: string | MessageContent, timeout = 10, reason = "") {
-  const response = await sendMessage(channelID, content);
-  await deleteMessage(response, reason, timeout * 1000).catch(console.log);
-}
-
-/** This function should be used when you want to send a response that will @mention the user and delete it after a certain amount of seconds. By default, it will be deleted after 10 seconds. */
-export async function sendAlertResponse(message: Message, content: string | MessageContent, timeout = 10, reason = "") {
-  const response = await sendResponse(message, content);
-  if (!response) return;
-  await deleteMessage(response, reason, timeout * 1000).catch(console.log);
-}
-
-/** This function should be used when you want to send a response that will send a reply message. */
-export function sendResponse(message: Message, content: string | MessageContent) {
-  const contentWithMention =
-    typeof content === "string"
-      ? { content, mentions: { repliedUser: true }, replyMessageID: message.id }
-      : {
-          ...content,
-          mentions: { ...(content.mentions || {}), repliedUser: true },
-          replyMessageID: message.id,
-        };
-
-  return sendMessage(message.channelID, contentWithMention).catch(console.log);
-}
 
 /** This function should be used when you want to convert milliseconds to a human readable format like 1d5h. */
 export function humanizeMilliseconds(milliseconds: number) {
@@ -323,9 +294,9 @@ export type ConvertArgumentDefinitionsToArgs<T extends readonly ArgumentDefiniti
         : T[P] extends MultiEmojiArgumentDefinition<infer N>
         ? { [_ in N]: string[] }
         : T[P] extends MemberOptionalArgumentDefinition<infer N>
-        ? { [_ in N]?: Member }
+        ? { [_ in N]?: DiscordenoMember }
         : T[P] extends MemberArgumentDefinition<infer N>
-        ? { [_ in N]: Member }
+        ? { [_ in N]: DiscordenoMember }
         : T[P] extends RoleOptionalArgumentDefinition<infer N>
         ? { [_ in N]?: Role }
         : T[P] extends RoleArgumentDefinition<infer N>
@@ -474,8 +445,8 @@ export function createSubcommand<T extends readonly ArgumentDefinition[]>(
 }
 
 /** Use this function to send an embed with ease. */
-export async function sendEmbed(channelID: string, embed: Embed, content?: string) {
-  const channel = cache.channels.get(channelID);
+export async function sendEmbed(channelId: bigint, embed: Embed, content?: string) {
+  const channel = cache.channels.get(channelId);
   if (!channel) return;
 
   if (!(await botHasChannelPermissions(channel.id, ["VIEW_CHANNEL", "SEND_MESSAGES", "EMBED_LINKS", "ATTACH_FILES"]))) {
@@ -487,11 +458,6 @@ export async function sendEmbed(channelID: string, embed: Embed, content?: strin
     embed,
     file: embed.embedFile,
   }).catch(console.log);
-}
-
-/** Use this function to edit an embed with ease. */
-export function editEmbed(message: Message, embed: Embed, content?: string) {
-  return editMessage(message, { content, embed });
 }
 
 // Very important to make sure files are reloaded properly
