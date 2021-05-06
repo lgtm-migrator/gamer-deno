@@ -17,7 +17,7 @@ export class Embed {
   /** Whether the limits should be enforced or not. */
   enforceLimits = true;
   /** If a file is attached to the message it will be added here. */
-  embedFile?: EmbedFile;
+  embedFile: EmbedFile[] = [];
 
   color = 0x41ebf4;
   fields: EmbedField[] = [];
@@ -30,18 +30,18 @@ export class Embed {
   thumbnail?: EmbedImage;
   url?: string;
 
-  constructor(data?: EmbedData, enforceLimits = true) {
+  constructor(data?: Omit<EmbedData, "color"> & { color: number | string }, enforceLimits = true) {
     // By default we will always want to enforce discord limits but this option allows us to bypass for whatever reason.
     if (!enforceLimits) this.enforceLimits = false;
 
     // Prefills the embed based on an embed object like message.embeds[0]
     if (data) {
       if (typeof data.color === "string") {
-        if (data.color === "RANDOM") {
+        if (data.color.toLowerCase() === "random") {
           data.color = Math.floor(Math.random() * (0xffffff + 1));
         } else if ((data.color as string).startsWith("#")) {
           data.color = parseInt((data.color as string).replace("#", ""), 16);
-        }
+        } else data.color = 0;
       }
 
       if (data.timestamp) data.timestamp = new Date().toISOString();
@@ -67,6 +67,7 @@ export class Embed {
     return this;
   }
 
+  /** Make the data complient to discords embed limit. Warning: this can remove data */
   fitData(data: string, max: number) {
     // If the string is bigger then the allowed max shorten it.
     if (data.length > max) data = data.substring(0, max);
@@ -82,14 +83,15 @@ export class Embed {
     return data;
   }
 
+  /** Set the author */
   setAuthor(name: string, icon?: string, url?: string) {
     const finalName = this.enforceLimits ? this.fitData(name, embedLimits.authorName) : name;
-    // eslint-disable-next-line @typescript-eslint/camelcase
-    this.author = { name: finalName, icon_url: icon, url };
+    this.author = { name: finalName, iconUrl: icon, url };
 
     return this;
   }
 
+  /** Set the color  */
   setColor(color: string) {
     this.color =
       color.toLowerCase() === `random`
@@ -101,6 +103,7 @@ export class Embed {
     return this;
   }
 
+  /** Set the description */
   setDescription(description: string | string[]) {
     if (typeof description !== "string") description = description.join("\n");
 
@@ -109,6 +112,7 @@ export class Embed {
     return this;
   }
 
+  /** Add a field */
   addField(name: string, value: string, inline = false) {
     if (this.fields.length >= 25) return this;
 
@@ -121,42 +125,52 @@ export class Embed {
     return this;
   }
 
+  /** Add a blank field */
   addBlankField(inline = false) {
     return this.addField("\u200B", "\u200B", inline);
   }
 
-  attachFile(file: unknown, name: string) {
-    this.embedFile = {
-      blob: file,
-      name,
-    };
-    this.setImage(`attachment://${name}`);
+  /** Attach a file. Also sets the embeds image by default */
+  attachFile(file: Blob, name: string, setImage = true) {
+    this.embedFile.push({ blob: file, name });
+    if (setImage) this.setImage(`attachment://${name}`);
 
     return this;
   }
 
+  // TODO: proper check, requires title.url to be set
+  /** Attach multiple files */
+  attachFiles(files: EmbedFile[]) {
+    this.embedFile.push(...files);
+
+    return this;
+  }
+
+  /** Set the footer */
   setFooter(text: string, icon?: string) {
-    // eslint-disable-next-line @typescript-eslint/camelcase
     this.footer = {
       text: this.fitData(text, embedLimits.footerText),
-      icon_url: icon,
+      iconUrl: icon,
     };
 
     return this;
   }
 
+  /** Set the image */
   setImage(url: string) {
     this.image = { url };
 
     return this;
   }
 
+  /** Set the timestamp, defaults to now */
   setTimestamp(time = Date.now()) {
     this.timestamp = new Date(time).toISOString();
 
     return this;
   }
 
+  /** Set the title */
   setTitle(title: string, url?: string) {
     this.title = this.fitData(title, embedLimits.title);
     if (url) this.url = url;
@@ -164,6 +178,7 @@ export class Embed {
     return this;
   }
 
+  /** Set the thumbnail */
   setThumbnail(url: string) {
     this.thumbnail = { url };
 
@@ -172,6 +187,6 @@ export class Embed {
 }
 
 export interface EmbedFile {
-  blob: unknown;
+  blob: Blob;
   name: string;
 }
