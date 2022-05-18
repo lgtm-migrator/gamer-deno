@@ -48,6 +48,7 @@ Gamer.commands = new Collection();
 Gamer.inhibitors = new Collection();
 Gamer.monitors = new Collection();
 Gamer.tasks = new Collection();
+Gamer.fullyReady = false;
 
 Gamer.tasks.forEach(async (task) => {
   // THESE TASKS MUST RUN WHEN STARTING BOT
@@ -62,6 +63,8 @@ Gamer.tasks.forEach(async (task) => {
     }
 
     setInterval(async () => {
+      if (!Gamer.fullyReady) return;
+
       console.log(`${bgBlue(`[${getTime()}]`)} => [TASK: ${bgYellow(black(task.name))}] Started.`);
       try {
         await task.execute();
@@ -73,6 +76,7 @@ Gamer.tasks.forEach(async (task) => {
 });
 
 export interface GamerClient extends Bot {
+  fullyReady: boolean;
   arguments: Collection<string, GamerArgument>;
   commands: Collection<string, GamerCommand>;
   inhibitors: Collection<string, GamerInhibitor>;

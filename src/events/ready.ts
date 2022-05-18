@@ -6,6 +6,8 @@ Gamer.events.ready = function (bot, payload) {
   // max shards - 1 because shard 0 exists
   // This is the final shard so we can now do setup stuff here
   if (payload.shardId === Gamer.gateway.maxShards - 1) {
+    Gamer.fullyReady = true;
+
     console.info(`Loaded ${Gamer.arguments.size} Argument(s)`);
     console.info(`Loaded ${Gamer.commands.size} Command(s)`);
     console.info(
