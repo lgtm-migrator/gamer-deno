@@ -10,6 +10,8 @@ import {
   bgBlue,
   bgYellow,
   black,
+  PermissionStrings,
+  Message,
 } from "./deps.ts";
 import { getTime } from "./src/helpers/utils.ts";
 
@@ -49,6 +51,10 @@ Gamer.inhibitors = new Collection();
 Gamer.monitors = new Collection();
 Gamer.tasks = new Collection();
 Gamer.fullyReady = false;
+Gamer.stats = {
+  messagesProcessed: 0,
+  messagesSent: 0,
+};
 
 Gamer.tasks.forEach(async (task) => {
   // THESE TASKS MUST RUN WHEN STARTING BOT
@@ -77,6 +83,11 @@ Gamer.tasks.forEach(async (task) => {
 
 export interface GamerClient extends Bot {
   fullyReady: boolean;
+  stats: {
+    messagesProcessed: number;
+    messagesSent: number;
+  };
+
   arguments: Collection<string, GamerArgument>;
   commands: Collection<string, GamerCommand>;
   inhibitors: Collection<string, GamerInhibitor>;
@@ -107,5 +118,14 @@ export interface GamerInhibitor {
 
 export interface GamerMonitor {
   name: string;
-  execute: () => any;
+  ignoreBots?: boolean;
+  ignoreDM?: boolean;
+  ignoreEdits?: boolean;
+  ignoreOthers?: boolean;
+  botChannelPermissions?: PermissionStrings[];
+  botServerPermissions?: PermissionStrings[];
+  userChannelPermissions?: PermissionStrings[];
+  userServerPermissions?: PermissionStrings[];
+
+  execute: (message: Message) => any;
 }

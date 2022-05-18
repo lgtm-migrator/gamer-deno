@@ -16,5 +16,7 @@ Gamer.events.ready = function (bot, payload) {
     console.info(`Loaded ${Gamer.inhibitors.size} Inhibitor(s)`);
     console.info(`Loaded ${Gamer.monitors.size} Monitor(s)`);
     console.info(`Loaded ${Gamer.tasks.size} Task(s)`);
+
+    console.log(`[READY] ${payload.user.username}#${payload.user.discriminator} Bot is fully online.`);
   }
 };
