@@ -1,6 +1,6 @@
 // Discord lib
-export * from "https://deno.land/x/discordeno@13.0.0-rc38/mod.ts";
-export * from "https://deno.land/x/discordeno@13.0.0-rc38/plugins/mod.ts";
+export * from "https://deno.land/x/discordeno@13.0.0-rc39/mod.ts";
+export * from "https://deno.land/x/discordeno@13.0.0-rc39/plugins/mod.ts";
 // STD
 export * from "https://deno.land/std@0.140.0/fmt/colors.ts";
 export { fromFileUrl, toFileUrl } from "https://deno.land/std@0.140.0/path/mod.ts";

@@ -1,53 +1,15 @@
-import { configs } from "./configs.ts";
-import {
-  createBot,
-  fileLoader,
-  importDirectory,
-  enableCachePlugin,
-  enableHelpersPlugin,
-  enableCacheSweepers,
-  enablePermissionsPlugin,
-  startBot,
-} from "./deps.ts";
+import { Gamer } from "./bot.ts";
+import { fileLoader, importDirectory, startBot } from "./deps.ts";
+import { setupBot } from "./src/helpers/startup.ts";
 
 console.info("[Startup] Beginning Bot Startup Process...");
-
-export const Gamer = enableHelpersPlugin(
-  enablePermissionsPlugin(
-    enableCachePlugin(
-      createBot({
-        token: configs.token,
-        botId: BigInt(atob(configs.token.split(".")[0])),
-        intents: [
-          "Guilds",
-          "GuildMessages",
-          "DirectMessages",
-          "GuildMembers",
-          "GuildBans",
-          "GuildEmojis",
-          "GuildVoiceStates",
-          "GuildInvites",
-          "GuildMessageReactions",
-          "DirectMessageReactions",
-          "MessageContent",
-        ],
-        // Events are added below automatically before starting the bot
-        events: {},
-      })
-    )
-  )
-);
-
-enableCacheSweepers(Gamer);
 
 // OVERRIDE INTERNALS HERE
 // TODO: Transformers
 
 // Load these first before anything else so they are available for the rest.
-await importDirectory(Deno.realPathSync("./src/constants"));
-await importDirectory(Deno.realPathSync("./src/helpers"));
-await importDirectory(Deno.realPathSync("./src/events"));
-await fileLoader();
+setupBot();
+console.log(`[Startup] Loaded initial files. Proceeding to phase 2 of startup.`);
 if (!Gamer.events.ready) throw "No events loaded";
 
 // The order of these is not important.
