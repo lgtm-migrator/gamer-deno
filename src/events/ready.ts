@@ -1,6 +1,4 @@
 import { Gamer } from "../../bot.ts";
-import { bgBlue, bgYellow, black } from "../../deps.ts";
-import { getTime } from "../helpers/utils.ts";
 
 Gamer.events.ready = function (bot, payload) {
   console.log(`[Shard Ready] Shard ${payload.shardId} is ready`);
@@ -16,30 +14,5 @@ Gamer.events.ready = function (bot, payload) {
     console.info(`Loaded ${Gamer.inhibitors.size} Inhibitor(s)`);
     console.info(`Loaded ${Gamer.monitors.size} Monitor(s)`);
     console.info(`Loaded ${Gamer.tasks.size} Task(s)`);
-
-    // TODO: MOVE THIS TO STARTUP FILE MAYBE?
-
-    Gamer.tasks.forEach(async (task) => {
-      // THESE TASKS MUST RUN WHEN STARTING BOT
-      if (["missions", "vipmembers"].includes(task.name)) await task.execute();
-
-      setTimeout(async () => {
-        console.log(`${bgBlue(`[${getTime()}]`)} => [TASK: ${bgYellow(black(task.name))}] Started.`);
-        try {
-          await task.execute();
-        } catch (error) {
-          console.log(error);
-        }
-
-        setInterval(async () => {
-          console.log(`${bgBlue(`[${getTime()}]`)} => [TASK: ${bgYellow(black(task.name))}] Started.`);
-          try {
-            await task.execute();
-          } catch (error) {
-            console.log(error);
-          }
-        }, task.interval);
-      }, Date.now() % task.interval);
-    });
   }
 };

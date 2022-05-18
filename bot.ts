@@ -7,7 +7,11 @@ import {
   enablePermissionsPlugin,
   Bot,
   Collection,
+  bgBlue,
+  bgYellow,
+  black,
 } from "./deps.ts";
+import { getTime } from "./src/helpers/utils.ts";
 
 export const Gamer = enableHelpersPlugin(
   enablePermissionsPlugin(
@@ -44,6 +48,29 @@ Gamer.commands = new Collection();
 Gamer.inhibitors = new Collection();
 Gamer.monitors = new Collection();
 Gamer.tasks = new Collection();
+
+Gamer.tasks.forEach(async (task) => {
+  // THESE TASKS MUST RUN WHEN STARTING BOT
+  if (["missions", "vipmembers"].includes(task.name)) await task.execute();
+
+  setTimeout(async () => {
+    console.log(`${bgBlue(`[${getTime()}]`)} => [TASK: ${bgYellow(black(task.name))}] Started.`);
+    try {
+      await task.execute();
+    } catch (error) {
+      console.log(error);
+    }
+
+    setInterval(async () => {
+      console.log(`${bgBlue(`[${getTime()}]`)} => [TASK: ${bgYellow(black(task.name))}] Started.`);
+      try {
+        await task.execute();
+      } catch (error) {
+        console.log(error);
+      }
+    }, task.interval);
+  }, Date.now() % task.interval);
+});
 
 export interface GamerClient extends Bot {
   arguments: Collection<string, GamerArgument>;
