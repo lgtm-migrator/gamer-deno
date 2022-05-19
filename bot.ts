@@ -12,7 +12,9 @@ import {
   black,
   PermissionStrings,
   Message,
+Guild,
 } from "./deps.ts";
+import { Command, CommandArgument, GamerArgument } from "./src/helpers/commands.ts";
 import { getTime } from "./src/helpers/utils.ts";
 
 export const Gamer = enableHelpersPlugin(
@@ -50,10 +52,13 @@ Gamer.commands = new Collection();
 Gamer.inhibitors = new Collection();
 Gamer.monitors = new Collection();
 Gamer.tasks = new Collection();
+Gamer.guildPrefixes = new Collection();
+Gamer.guildLanguages = new Collection();
 Gamer.fullyReady = false;
 Gamer.stats = {
   messagesProcessed: 0,
   messagesSent: 0,
+  commandsRan: 0,
 };
 
 Gamer.tasks.forEach(async (task) => {
@@ -86,10 +91,14 @@ export interface GamerClient extends Bot {
   stats: {
     messagesProcessed: number;
     messagesSent: number;
+    commandsRan: number;
   };
 
+  guildPrefixes: Collection<bigint, string>;
+  guildLanguages: Collection<bigint, string>;
+
   arguments: Collection<string, GamerArgument>;
-  commands: Collection<string, GamerCommand>;
+  commands: Collection<string, Command<any>>;
   inhibitors: Collection<string, GamerInhibitor>;
   monitors: Collection<string, GamerMonitor>;
   tasks: Collection<string, GamerTask>;
@@ -101,19 +110,9 @@ export interface GamerTask {
   execute: () => any;
 }
 
-export interface GamerArgument {
-  name: string;
-  execute: () => any;
-}
-
-export interface GamerCommand {
-  name: string;
-  execute: () => any;
-}
-
 export interface GamerInhibitor {
   name: string;
-  execute: () => any;
+  execute: (message: Message, command: Command<any>, guild?: Guild) => any;
 }
 
 export interface GamerMonitor {
