@@ -158,7 +158,7 @@ async function parseArguments(message: Message, command: Command<any>, parameter
 }
 
 /** Runs the inhibitors to see if a command is allowed to run. */
-async function commandAllowed(message: Message, command: Command<any>, guild?: Guild) {
+export async function commandAllowed(message: Message, command: Command<any>, guild?: Guild) {
   const inhibitorResults = await Promise.all(
     [...Gamer.inhibitors.values()].map((inhibitor) => inhibitor.execute(message, command, guild))
   );

@@ -12,34 +12,33 @@ import {
   black,
   PermissionStrings,
   Message,
-Guild,
+  Guild,
+  Intents,
 } from "./deps.ts";
+import { MirrorSchema } from "./src/database/schemas.ts";
 import { Command, CommandArgument, GamerArgument } from "./src/helpers/commands.ts";
 import { getTime } from "./src/helpers/utils.ts";
 
 export const Gamer = enableHelpersPlugin(
   enablePermissionsPlugin(
     enableCachePlugin(
-      createBot({
+      (await createBot({
         token: configs.token,
         botId: BigInt(atob(configs.token.split(".")[0])),
-        intents: [
-          "Guilds",
-          "GuildMessages",
-          "DirectMessages",
-          "GuildMembers",
-          "GuildBans",
-          "GuildEmojis",
-          "GuildVoiceStates",
-          "GuildInvites",
-          "GuildMessageReactions",
-          "DirectMessageReactions",
-          "MessageContent",
-        ],
-        // Events are added below automatically before starting the bot
-        events: {},
+        intents:
+          Intents.Guilds |
+          Intents.GuildMessages |
+          Intents.DirectMessages |
+          Intents.GuildMembers |
+          Intents.GuildBans |
+          Intents.GuildEmojis |
+          Intents.GuildVoiceStates |
+          Intents.GuildInvites |
+          Intents.GuildMessageReactions |
+          Intents.DirectMessageReactions |
+          Intents.MessageContent,
         // Adds custom props like tasks and monitors to typings, add the actual ones below
-      }) as GamerClient
+      })) as GamerClient
     )
   )
 );
@@ -54,6 +53,9 @@ Gamer.monitors = new Collection();
 Gamer.tasks = new Collection();
 Gamer.guildPrefixes = new Collection();
 Gamer.guildLanguages = new Collection();
+Gamer.mirrors = new Collection();
+Gamer.failedWebhooks = new Set();
+
 Gamer.fullyReady = false;
 Gamer.stats = {
   messagesProcessed: 0,
@@ -96,6 +98,9 @@ export interface GamerClient extends Bot {
 
   guildPrefixes: Collection<bigint, string>;
   guildLanguages: Collection<bigint, string>;
+
+  mirrors: Collection<bigint, MirrorSchema[]>;
+  failedWebhooks: Set<string>;
 
   arguments: Collection<string, GamerArgument>;
   commands: Collection<string, Command<any>>;
